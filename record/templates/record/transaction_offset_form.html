@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+取引明細データの相殺処理
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>取引明細データの相殺データ登録</h4>
+  </div>
+  <form method='POST' enctype='multipart/form-data' id='form_style'>
+    {{ form.non_field_errors }}
+    {# 口座名 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.account.label_tag }}</div>
+        <div class='my_field'>{{ form.account }}</div>
+      </div>
+    </div>
+    {# 取引日 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.transaction_date.label_tag }}</div>
+        <div class='my_field'>{{ form.transaction_date }}</div>
+      </div>
+    </div>
+    {# 費目 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.himoku.label_tag }}</div>
+        <div class='my_field'>{{ form.himoku }}</div>
+      </div>
+    </div>
+    {# 取引金額 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.ammount.label_tag }}</div>
+        <div class='my_field'>{{ form.ammount }}</div>
+      </div>
+    </div>
+    {# 振込依頼者 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.requesters_name.label_tag }}</div>
+        <div class='my_field'>{{ form.requesters_name }}</div>
+      </div>
+    </div>
+    {# 摘要 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.description.label_tag }}</div>
+        <div class='my_field'>{{ form.description }}</div>
+      </div>
+    </div>
+    {# 残高 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='my_field'>{{ form.balance }}</div>
+      </div>
+    </div>
+    {# 手動入力 #}
+    <div class='field'>
+      <div class='control'>
+        <div class='my_field'>{{ form.is_manualinput }}</div>
+      </div>
+    </div>
+    {# 計算フラグ #}
+    <div class='field'>
+      <div class='control'>
+        <div class='my_field'>{{ form.calc_flg }}</div>
+      </div>
+    </div>
+
+    {% csrf_token %}
+    <br>
+    <div class='my_button has-text-centered'>
+      <button type='submit' class='button is-primary is-size-7'>読込み</button>
+      <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+    </div>
+  </form>
+</div>
+{% endblock content %}

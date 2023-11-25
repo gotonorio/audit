@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+
+{% block title %}
+登録ユーザ 一覧
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【{{user}}】</a>
+    {# ハンバーガアイコンのため #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarMainMenu" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'register:mypage' %}">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>登録ユーザ 一覧</h4>
+  </div>
+  <div class="content" id="form_style">
+    <ul>
+      <li>chairman : ユーザ・データ編集権限</li>
+      <li>data_manager : データ編集権限</li>
+      <li>director : データ閲覧権限</li>
+      <li>login : 予算実績対比表の閲覧権限</li>
+    </ul>
+    <br>
+  </div>
+  <div class="table-container is-fluid">
+    <table class="table table_center_nowrap is-striped is-narrow is-responsible is-hoverable">
+      <thead>
+        <tr>
+          <th class="has-text-centered">group</th>
+          <th class="has-text-centered">user</th>
+          <th class="has-text-centered">email</th>
+          <th class="has-text-centered">有効</th>
+          <th class="has-text-centered">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for list in user_list %}
+        <tr>
+          <td class="has-text-left">{{ list.groups.get }}</td>
+          <td class="has-text-left"><a href="{% url 'register:user_update' list.pk %}">{{ list.username}}</a></td>
+          <td class="has-text-left ">{{ list.email}}</td>
+          {% if list.is_active == False %}
+            <td class="has-text-centered has-text-danger">{{ list.is_active}}</td>
+          {% else %}
+            <td class="has-text-centered ">{{ list.is_active}}</td>
+          {% endif %}
+          <td class="has-text-left"><a href="{% url 'register:delete_user' list.pk %}">削除</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include "page.html" %}
+{% endblock %}

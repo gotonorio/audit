@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+資金移動リスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'record:chk_transfer'%}" method="get">
+        {{form.year}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>資金移動リスト</h4>
+  </div>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">No</th>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">銀行名</th>
+          <th class="has-text-centered">口座名</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">入金</th>
+          <th class="has-text-centered">出金</th>
+          <th class="has-text-centered">摘要</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in chk_obj %}
+        <tr>
+          <td class="has-text-centered">{{forloop.counter}}</td>
+          <td class="has-text-centered">{{record.transaction_date|date:'Y-m-d'}}</td>
+          <td class="has-text-left">{{record.account.bank}}</td>
+          <td class="has-text-left">{{record.account}}</td>
+          <td class="has-text-left">{{record.himoku}}</td>
+          {% if record.is_income %}
+            <td class="has-text-right">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right has-text-danger">0</td>
+          {% else %}
+            <td class="has-text-right">0</td>
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+          {% endif%}
+          <td class="has-text-left">{{record.description }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="has-text-right">{{total_deposit|intcomma}}</td>
+          <td class="has-text-right has-text-danger">{{total_withdrawals|intcomma}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock %}

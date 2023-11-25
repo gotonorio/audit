@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+削除確認
+{% endblock title %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<br>
+<div class="container">
+  <div class="content">
+    <h4>削除の確認</h4>
+    <br>
+    {% comment %} POSTでDeleteViewを呼び出すと削除される {% endcomment %}
+    <form method="post">
+      {% csrf_token %}
+      <p class="is-size-5">{{expensebudget.year}}年の予算費目 {{expensebudget.himoku}} を削除します。</p>
+      <br>
+      <button type="submit" class="button is-danger">削除する</button>
+      <a class="button is-info" href="javascript:void(0);" onclick="window.history.back();">キャンセル</a>
+    </form>
+  </div>
+</div>
+<br>
+{% endblock %}

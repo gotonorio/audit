@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+
+{% block head %}
+<style>
+  .right-aligned-input {
+      text-align: right;
+  }
+</style>
+{% endblock head %}
+
+{% block title %}
+取引明細の分割データ入力
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>取引明細の分割データ登録</h4>
+  </div>
+
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">出金</th>
+          <th class="has-text-centered">当日残高</th>
+          <th class="has-text-centered">振込依頼人名</th>
+          <th class="has-text-centered">摘要</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="has-text-centered">{{qs.transaction_date|date:'Y-m-d'}}</td>
+          <td class="has-text-left">{{qs.himoku}}</td>
+          <td class="has-text-right">{{qs.ammount|intcomma}}</td>
+          <td class="has-text-right">{{qs.balance|default_if_none:'0'|intcomma}}</td>
+          <td class="has-text-left is-size-7">{{qs.requesters_name }}</td>
+          <td class="has-text-left is-size-7">{{qs.description }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <form method='POST' enctype='multipart/form-data'>
+    <!-- エラーメッセージを表示 -->
+    {% if form.errors %}
+      <div class="errorlist">
+        {% for errors in form.errors.values %}
+          {% for error in errors %}
+            {{ error }}<br>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">金額</th>
+          <th class="has-text-centered">振込依頼人名</th>
+          <th class="has-text-centered">摘要</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+        <tr>
+          <td>
+            <div class='field'>
+              <div class='control'>
+                <div class='my_field'>{{form.ammount}}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class='field'>
+              <div class='control'>
+                <div class='my_field'>{{ form.requesters_name}}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class='field'>
+              <div class='control'>
+                <div class='my_field'>{{ form.description}}</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {{ formset.management_form }}
+    {% csrf_token %}
+    <br>
+    <div class='my_button has-text-centered'>
+      <button type='submit' class='button is-primary is-size-7'>登録</button>
+      <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+    </div>
+  </form>
+  <br>
+</div>
+{% endblock content %}

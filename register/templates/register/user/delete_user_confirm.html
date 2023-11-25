@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+<!-- navbar -->
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black is-size-6" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">ユーザ削除</a>
+    {# ハンバーガアイコンのため以下の5行とbase.htmlでのjsスクリプトが必要 #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMypage">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container">
+  <br>
+  <form action="" method="POST" enctype='multipart/form-data'>
+    <div class="content has-text-centered">
+      <H4>ユーザ : {{ user.username }}</H4>
+      <p>削除しますか？</p>
+      <br>
+      <button type="submit" class="button is-danger is-size-7">削除する</button>
+      <a class="button is-primary is-size-7" href="javascript:void(0);" onclick="window.history.back();">戻る</a>
+    </div>
+    {% csrf_token %}
+  </form>
+</div>
+{% endblock %}

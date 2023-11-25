@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top" lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}/static/favicon.ico"/>
+  <link rel="apple-touch-icon-precomposed" href="{{STATIC_URL}}/static/apple-touch-icon-precomposed.png">
+{% comment %} for Noto sans JP {% endcomment %}
+  {% comment %} <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"> {% endcomment %}
+  {# css #}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+  <link href="{% static 'mycss/mycss.css' %}" rel="stylesheet">
+
+  <title>
+  {% block title %}
+  {% endblock %}
+  </title>
+  {% block head %}
+  {% endblock %}
+</head>
+<body>
+  {% block navbar %}
+  {% endblock%}
+
+  <!-- footerを設置する場合、<main>で囲む -->
+  <main>
+  {% block content %}
+  {% endblock %}
+  {% block extrajs %}
+  {% endblock %}
+  </main>
+
+  <!-- フッタ -->
+  {# bulmaのfooter #}
+  <footer class="my_footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        &copy; 2020- 
+        <script language="JavaScript" type="text/javascript">
+        document.write(new Date().getFullYear());
+        </script>
+        N.Goto Ver-{{VERSION_NO}}
+      </div>
+    </div>
+  </footer>
+
+  {# 参考： https://bulma.io/documentation/components/navbar/ #}
+  <script>
+    // notificationを閉じれるように。
+    for (const element of document.querySelectorAll('.notification > .delete')) {
+        element.addEventListener('click', e => {
+            e.target.parentElement.classList.add('is-hidden');
+        });
+    }
+    // navbar-burgerのボタン処理。https://bulma.io/documentation/components/navbar/
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get all "navbar-burger" elements
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      // Check if there are any navbar burgers
+      if ($navbarBurgers.length > 0) {
+        // Add a click event on each of them
+        $navbarBurgers.forEach( el => {
+          el.addEventListener('click', () => {
+              // Get the target from the "data-target" attribute
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
+        });
+      }
+    });
+
+    // mobile画面でのメニュー折りたたみ用
+    // https://github.com/jgthms/bulma/issues/1567
+    // mycss.cssへの追加も必要。
+    const $navDropdowns = Array.prototype.slice.call(document.querySelectorAll(".navbar-item.has-dropdown"), 0);
+    if ($navDropdowns.length > 0) {
+        // Add a click event on each of them
+        $navDropdowns.forEach((el) => {
+            el.addEventListener("click", () => {
+                if (document.documentElement.clientWidth < 960) {
+                    // Get the target from the "data-target" attribute
+                    const target = el.dataset.target;
+                    const $target = document.getElementById(target);
+                
+                    el.classList.toggle("is-active");
+                }
+            });
+        });
+    }   
+  </script>
+</body>
+</html>

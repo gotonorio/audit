@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% block title %}
+csvデータの読込
+{% endblock title %}
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">楽天カード</a>
+    {# ハンバーガアイコンのため #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarMainMenu" class="navbar-menu">
+    <div class="navbar-start">
+      <form action="" class="navbar-item" method="POST" enctype="multipart/form-data">
+        <a class="has-text-white">{{form.file}}</a>
+        {% csrf_token %}
+        <button type="submit" class="button is-success is-small">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'register:mypage' %}">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+<br>
+{% block content %}
+<div class="container">
+  <br>
+  <div class="content has-text-centered">
+    <h3>{{title}}</h3>
+    <h4>{{help_text}}</h4>
+  </div>
+  <br>
+  {% if rc_list %}
+  <div class="scroll">
+    <table class="table is-striped is-bordered is-narrow">
+      <thead>
+        <tr>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">項目</th>
+          <th class="has-text-centered">支払い金額</th>
+          {% if month_col %}
+            <th class="has-text-centered">支払い月</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for data in rc_list %}
+        <tr>
+          <td class="has-text-centered">{{data.0}}</td>
+          <td class="has-text-left"><div class="cell_420">{{data.1}}</div></td>
+          <td class="has-text-right">{{data.2|floatformat:0|intcomma}}</td>
+          {% if month_col %}
+            <td class="has-text-right">{{data.3}}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="has-text-right">{{total|floatformat:0|intcomma}}</td>
+          {% if month_col %}
+            <td></td>
+          {% endif %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+  <br>
+  <div class="content has-text-centered">
+    <h3>楽天カードデータとの不適合データ</h3>
+  </div>
+  <div class="scroll">
+    <table class="table is-striped is-bordered is-narrow">
+      {% for data in check %}
+      {% if data != '1' %}
+      <tr>
+        <td class="has-text-left">{{ data.0 }}</td>
+        <td class="has-text-left">{{ data.1 }}</td>
+        <td class="has-text-right">{{ data.2|intcomma }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<br>
+{% endif %}
+{% endblock %}

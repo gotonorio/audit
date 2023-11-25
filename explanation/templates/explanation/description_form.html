@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【{{user}}】</a>
+    {# ハンバーガアイコンのため #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarMainMenu" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'register:mypage' %}">【戻る】</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>説明文の新規作成</h4>
+  </div>
+  <form action="" method='POST' enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.errors %}
+      <div class="errorlist">
+        {% for errors in form.errors.values %}
+          {% for error in errors %}
+            {{ error }}<br>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    {% endif %}
+    {# 表示順 #}
+    <div class="field">
+      <div class='label'>{{ form.no.label_tag }}</div>
+      <div class='my_field'>{{ form.no }}</div>
+    </div>
+    {# タイトル #}
+    <div class="field">
+      <div class='label'>{{ form.title.label_tag }}</div>
+      <div class='my_field'>{{ form.title }}</div>
+    </div>
+    {# 本文 #}
+    <div class="field">
+      <div class='label'>{{ form.description.label_tag }}</div>
+      <div class='my_field'>{{ form.description }}</div>
+    </div>
+    {# 有効フラグ #}
+    <div class="field">
+      <div class='label'>{{ form.alive.label_tag }}</div>
+      <div class='my_field'>{{ form.alive }}</div>
+    </div>
+    {# 管理者フラグ #}
+    <div class="field">
+      <div class='label'>{{ form.data_operation.label_tag }}</div>
+      <div class='my_field'>{{ form.data_operation }}</div>
+    </div>
+    <br>
+    <div class="content has-text-centered">
+      <button type="submit" class="button is-primary is-size-7">登録</button>
+      <a class="button is-danger is-size-7" href="javascript:void(0);" onclick="window.history.back();">キャンセル</a>
+    </div>
+</div>
+{% endblock %}

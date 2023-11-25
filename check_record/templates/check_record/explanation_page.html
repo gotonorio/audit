@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load my_templatetags %}
+
+{% block title %}
+監査要領
+{% endblock title %}
+{% block navbar %}
+{# https://bulma.io/documentation/components/navbar/ #}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    {# ハンバーガアイコンのため以下の5行とbase.htmlでのjsスクリプトが必要 #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered ">
+    <h2>監査要領</h2>
+    <br>
+  </div>
+  <div class="content">
+    <div class="table is-bordered is-narrow markdown ">
+      {{comment.description|markdown_to_html}}
+    </div>
+  </div>
+  {% comment %}
+  {% if perms.register.add_user %}
+    <p><a href="{% url 'register:master_page_update' comment.pk %}">修正</a></p>
+  {% endif %}
+  {% endcomment %}
+</div>
+{% endblock %}

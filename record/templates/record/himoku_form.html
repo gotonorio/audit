@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}
+月次報告データの編集
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content">
+    <h4 class="has-text-centered">費目の登録/修正</h4>
+
+    <form method='POST' enctype='multipart/form-data' id='form_style'>
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class='field'>
+          <div class='control'>
+            <div class='label'>{{ field.label_tag }}</div>
+            <div class='my_field'>{{ field }}</div>
+            {% if field.help_text %}
+              <span class='helptext is-size-6'>{{ field.help_text|safe }}</span>
+            {% endif %}
+            {{ field.errors }}
+          </div>
+        </div>
+      {% endfor %}
+      {% csrf_token %}
+      <br>
+      <div class='my_button has-text-centered'>
+        <button type='submit' class='button is-primary is-size-7'>登録</button>
+        <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+      </div>
+    </form>
+
+  </div>
+  <br>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">会計区分</th>
+          <th class="has-text-centered">コード</th>
+          <th class="has-text-centered">費目名</th>
+          <th class="has-text-centered">有効</th>
+          <th class="has-text-centered">入金費目</th>
+          <th class="has-text-centered">支出承認</th>
+          <th class="has-text-centered">集計フラグ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in himoku_list %}
+        <tr>
+          <td class="has-text-left">{{record.accounting_class}}</td>
+          <td class="has-text-right">{{record.code}}</td>
+          <td class="has-text-left">
+            <a href="{% url 'record:himoku_update' record.pk %}">{{record.himoku_name}}</a>
+          </td>
+          {% if record.alive %}
+            <td class="has-text-centered">
+          {% else %}
+            <td class="has-text-centered has-text-danger">
+          {% endif %}
+          {{record.alive}}</td>
+
+          {% if record.is_income %}
+            <td class="has-text-centered">
+          {% else %}
+            <td class="has-text-centered has-text-danger">
+          {% endif %}
+          {{record.is_income}}</td>
+          {% if record.is_approval %}
+            <td class="has-text-centered">
+          {% else %}
+            <td class="has-text-centered has-text-danger">
+          {% endif %}
+          {{record.is_approval}}</td>
+
+          {% if record.aggregate_flag %}
+            <td class="has-text-centered">
+          {% else %}
+            <td class="has-text-centered has-text-danger">
+          {% endif %}
+          {{record.aggregate_flag}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock content %}

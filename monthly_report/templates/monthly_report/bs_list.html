@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+
+{% block title %}
+貸借対照表データの一覧表示
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'monthly_report:bs_list'%}" method="get">
+        {{form.year}}{{form.month}}{{form.accounting_class}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'monthly_report:bs_table' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>貸借対照表 前受金・未収金・未払金の入力/修正</h4>
+  </div>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">会計区分</th>
+          <th class="has-text-centered">項目名</th>
+          <th class="has-text-centered">金額</th>
+          <th class="has-text-centered">備考</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in bs_list %}
+        <tr>
+          <td class="has-text-left">{{record.monthly_date}}</td>
+          <td class="has-text-left">{{record.item_name.ac_class}}</td>
+          <td class="has-text-left">
+            <a href="{% url 'monthly_report:update_bs' record.pk %}">{{record.item_name}}</a>
+          </td>
+          <td class="has-text-right">{{record.amounts|intcomma}}</td>
+          <td class="has-text-right is-size-7">{{record.comment|default_if_none:''}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}

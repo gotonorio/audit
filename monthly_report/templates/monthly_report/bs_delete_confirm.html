@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="content has-text-centered">
+    <h4>下記データを削除しますか？</h4>
+  </div>
+  <form action="" method="POST" enctype='multipart/form-data'>
+    <div class="table-container">
+      <table class="table table_center_nowrap is-narrow is-striped is-bordered">
+        <tr>
+          <td class="has-text-centered">日付</td>
+          <td class="has-text-left">{{balancesheet.monthly_date}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-centered">項目名</td>
+          <td class="has-text-left">{{balancesheet.item_name}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-centered">金額</td>
+          <td class="has-text-left">{{balancesheet.amounts|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-centered">備考</td>
+          <td class="has-text-left">{{balancesheet.comment|default_if_none:''}}</td>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <div class="content has-text-centered">
+      <button type="submit" class="button is-danger">削除する</button>
+      <a class='button is-primary' href='javascript:void(0);' onclick='window.history.back();'>やめる</a>
+    </div>
+    {% csrf_token %}
+  </form>
+</div>
+{% endblock %}

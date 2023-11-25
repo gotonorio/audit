@@ -1,0 +1,5 @@
+/* フォーム入力 */
+#id_year, #id_month {
+    width: 100px;
+    /* height: 32px; */
+}

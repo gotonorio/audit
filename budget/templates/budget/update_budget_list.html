@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+管理会計予算修正リスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'budget:budget_update_list'%}" method="get">
+        {{form.year}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'budget:duplicate' %}">複製</a>
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+{% if messages %}
+<div class="container" style="margin-top:1rem;">
+  <div class="notification is-info">
+    <button class="delete" type="button"></button>
+    {% for message in messages %}
+      <p>{{message}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<div class="container is-fulid">
+  <div class="content has-text-centered">
+    <h4>{{title}}</h4>
+  </div>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">予算</th>
+          <th class="has-text-centered">備考</th>
+          <th class="has-text-centered">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in budget %}
+        <tr>
+          <td class="has-text-left">
+            <a href="{% url 'budget:update_budget' record.pk %}">{{record.himoku}}</a>
+          </td>
+          <td class="has-text-right">{{record.budget_expense|intcomma}}</td>
+          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''}}</td>
+          <td class="has-text-left"><a href="{% url 'budget:delete_budget' record.pk %}">削除</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

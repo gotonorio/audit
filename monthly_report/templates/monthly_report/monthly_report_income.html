@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+月次報告収入リスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'monthly_report:incomelist'%}" method="get">
+        {{form.year}}{{form.month}}{{form.accounting_class}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      {% with year_with=year month_with=month ac_with=ac %}
+        <a class="navbar-item" href="{% url 'monthly_report:expenselist' year_with month_with ac_with %}">月別支出</a>
+      {% endwith %}
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+{% if messages %}
+<div class="container" style="margin-top:1rem;">
+  <div class="notification is-info">
+    <button class="delete" type="button"></button>
+    {% for message in messages %}
+      <p>{{message}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="container is-fluid">
+  <div class="content">
+    <h4>{{yyyymm}} 月次報告 収入リスト</h4>
+    <ul>
+      <li> 合計金額は、発生主義に基づく予定収入の合計金額。</li>
+      <li> 赤字は当月末の「未収入金」または「特別な収入」で合計計算に含まない。</li>
+    </ul>
+  </div>
+  <div class="table-container">
+    <table class="table is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">会計区分</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">収入</th>
+          <th class="has-text-centered">摘要</th>
+          {% if perms.record.add_transaction %}
+            <th class="has-text-centered">#</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in transaction_list %}
+        <tr>
+          <td class="has-text-left">{{record.transaction_date|date:"m-d"}}</td>
+          <td class="has-text-left">{{record.himoku.accounting_class}}</td>
+          {% if perms.record.add_transaction %}
+            <td class="has-text-left">
+              <a href="{% url 'monthly_report:update_income' record.pk %}">{{record.himoku}}</a>
+            </td>
+          {% else %}
+            <td class="has-text-ledt">{{record.himoku}}</td>
+          {% endif %}
+          {% if record.mishuu_flg %}
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-left has-text-danger">(未収入金) {{record.description}}</td>
+          {% elif not record.calc_flg %}
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-left has-text-danger">(計算除外金) {{record.description}}</td>
+          {% else %}
+            <td class="has-text-right">{{record.ammount|intcomma}}</td>
+            <td class="has-text-left is-size-7">{{record.description|truncatechars:30}}</td>
+          {% endif %}
+          {% if perms.record.add_transaction %}
+            <td class="has-text-centered">
+              <a href="{% url 'monthly_report:delete_income' record.pk %}">削除</a>
+            </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="has-text-right">{{total_withdrawals|intcomma}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+
+{% block title %}
+支払い方法の作成
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>支払い方法の追加・修正（取込み時の費目推定用）</h4>
+  </div>
+  <div class="content">
+    <form method='POST' enctype='multipart/form-data' id='form_style'>
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class='field'>
+          <div class='control'>
+            <div class='label'>{{ field.label_tag }}</div>
+            <div class='my_field'>{{ field }}</div>
+            {% if field.help_text %}
+              <span class='helptext'>{{ field.help_text }}</span>
+            {% endif %}
+            {{ field.errors }}
+          </div>
+        </div>
+      {% endfor %}
+      {% csrf_token %}
+      <br>
+      <div class='my_button has-text-centered'>
+        <button type='submit' class='button is-primary is-size-7'>登録</button>
+        <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+      </div>
+    </form>
+  </div>
+  <br>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">会計区分</th>
+          <th class="has-text-centered">支払種別</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">支払先</th>
+          <th class="has-text-centered">金額</th>
+          <th class="has-text-centered">銀行手数料</th>
+          <th class="has-text-centered">摘要</th>
+          <th class="has-text-centered">備考</th>
+          {% if perms.record.add_transaction %}
+            <th class="has-text-centered">#</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in object_list %}
+        <tr>
+          <td class="has-text-left">{{row.ac_class}}</td>
+          <td class="has-text-left">{{row.payment_category}}</td>
+          <td class="has-text-left">{{row.himoku_name|truncatechars:10}}</td>
+          <td class="has-text-left">{{row.payee|truncatechars:12}}</td>
+          <td class="has-text-right">{{row.amounts|intcomma}}</td>
+          <td class="has-text-left is-size-7">{{row.banking_fee|default_if_none:""}}</td>
+          <td class="has-text-left is-size-7">{{row.account_description|default_if_none:""}}</td>
+          <td class="has-text-left is-size-7">{{row.comment|default_if_none:""|truncatechars:16}}</td>
+          {% if perms.record.add_transaction %}
+            <td class="has-text-left"><a href="{% url 'payment:update_paymentmethod' row.pk %}">修正</a></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock content %}

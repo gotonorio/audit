@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% load my_templatetags %}
+{% load humanize %}
+
+{% block title %}
+予算複製処理
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black  is-size-6" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <div class="navbar-item" >【予算の複製】</div>
+    {# ハンバーガアイコンのため #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarMainMenu" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'budget:budget_update_list' %} ">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>管理会計予算の複製処理</h4>
+  </div>
+</div>
+    <br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <form method='POST' enctype="multipart/form-data" id="form_style">
+      {% csrf_token %}
+      <table>
+      {{form}}
+      </table>
+      <button type="submit" class="button is-danger is-size-7">複製</button>
+      <a class="button is-primary is-size-7" href="javascript:void(0);" onclick="window.history.back();">戻る</a>
+    </form>
+  </div>
+</div>
+<br>
+<div class="table-container">
+  <table class="table table_center_nowrap is-striped is-narrow ">
+    <thead>
+        <tr>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">予算</th>
+          <th class="has-text-centered">備考</th>
+        </tr>
+    </thead>
+    <tbody>
+      {% for d in list %}
+        <tr>
+          <td class="has-text-left">{{d.himoku}}</div>
+          <td class="has-text-right">{{d.budget_expense|intcomma}}</td>
+          <td class="has-text-left">{{d.comment|default_if_none:''}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>
+</div>
+{% endblock %}

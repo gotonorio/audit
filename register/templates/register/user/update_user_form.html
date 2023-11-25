@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>登録ユーザの編集</h4>
+  </div>
+  <div class="content" id="form_style">
+    <form method='POST' enctype='multipart/form-data' id='form_style'>
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class='field'>
+          <div class='control'>
+            <div class='label'>{{ field.label_tag }}</div>
+            <div class='my_field'>{{ field }}</div>
+            {% comment %} {% if field.help_text %}
+              <span class='helptext'>{{ field.help_text }}</span>
+            {% endif %} {% endcomment %}
+            {{ field.errors }}
+          </div>
+        </div>
+      {% endfor %}
+      {% csrf_token %}
+      <br>
+      <div class='my_button has-text-centered'>
+        <button type='submit' class='button is-primary'>読込み</button>
+        <a class="button is-dark" href="{% url 'register:user_list' %}">戻る</a>
+      </div>
+    </form>
+    {% comment %}
+    <form method='post' action="">
+      {% csrf_token %}
+      <table class="table" >
+        {{form}}
+      </table>
+      <hr>
+      <button type="submit" name='next' value='{{next}}' class="button is-danger">更新</button>
+      <a class="button is-dark" href="javascript:void(0);" onclick="window.history.back();">戻る</a>
+    </form>
+    {% endcomment %}
+  </div>
+</div>
+{% endblock %}

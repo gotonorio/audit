@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+入出金明細リスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'record:transaction_list'%}" method="get">
+        {{form.year}}{{form.month}}{{form.ac_class}}{{form.list_order}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
+      {% if perms.record.add_transaction %}
+        <a class="navbar-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
+      {% endif %}
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+{% if messages %}
+<div class="container" style="margin-top:1rem;">
+  <div class="notification is-info">
+    <button class="delete" type="button"></button>
+    {% for message in messages %}
+      <p>{{message}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% comment %} <div class="container is-fluid"> {% endcomment %}
+<div class="container is-fluid">
+  {% comment %} <div class="content has-text-centered"> {% endcomment %}
+  <div class="content">
+    <h4>{{yyyymm}} 入出金明細リスト</h4>
+    <ul>
+      <li class="has-text-danger">赤文字は前受金等の集計計算外項目。</li>
+      <li class="has-text-success">緑文字は「ソウゴウフリコミBiz」を分解した出金項目。</li>
+    </ul>
+  </div>
+  <div class="table-container">
+    {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
+    <table class="table is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">No</th>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">入金</th>
+          <th class="has-text-centered">出金</th>
+          <th class="has-text-centered">当日残高</th>
+          <th class="has-text-centered">振込依頼人名</th>
+          <th class="has-text-centered">摘要</th>
+          {% if perms.record.add_transaction %}
+            <th class="has-text-centered">#</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in transaction_list %}
+        <tr>
+          <td class="has-text-centered">{{forloop.counter}}</td>
+          {% if perms.record.add_transaction %}
+            <td class="has-text-centered">
+              <a href="{% url 'record:transaction_update' record.pk %}">{{record.transaction_date|date:'m-d'}}</a>
+            </td>
+          {% else %}
+            <td class="has-text-centered">{{record.transaction_date|date:'m-d'}}</td>
+          {% endif %}
+
+          {% if record.is_manualinput %}
+            <td class="has-text-left has-text-success">{{record.himoku}}</td>
+          {% elif record.calc_flg %}
+            <td class="has-text-left">{{record.himoku}}</td>
+          {% else %}
+            <td class="has-text-left has-text-danger">{{record.himoku}}</td>
+          {% endif %}
+
+          {% if record.is_income %}
+            <td class="has-text-right">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right has-text-danger">0</td>
+          {% else %}
+            <td class="has-text-right">0</td>
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+          {% endif%}
+          <td class="has-text-right">{{record.balance|default_if_none:'0'|intcomma}}</td>
+          {% if record.requesters_name == "ソウゴウフリコミBIZ" %}
+            <td class="has-text-left is-size-7 has-text-danger">
+              <a href="{% url 'record:transaction_offset_create' record.pk %}"> {{record.requesters_name }}</a>
+            </td>
+          {% else %}
+            <td class="has-text-left is-size-7">{{record.requesters_name }}</td>
+          {% endif %}
+          <td class="has-text-left is-size-7">{{record.description }}</td>
+          {% if perms.record.add_transaction %}
+            {% if record.is_manualinput %}
+              <td class="has-text-centered">
+                <a href="{% url 'record:transaction_delete' record.pk %}">削除</a>
+              </td>
+            {% endif%}
+          {% endif%}
+        </tr>
+        {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="has-text-right">{{total_deposit|intcomma}}</td>
+          <td class="has-text-right has-text-danger">{{total_withdrawals|intcomma}}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock %}

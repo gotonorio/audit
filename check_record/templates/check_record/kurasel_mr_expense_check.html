@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+クラセル支払い監査
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'check_record:kurasel_mr_expense_check'%}" method="get">
+        {{form.year}}{{form.month}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' year_with month_with %}">支払い承認</a>
+        <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' year_with month_with %}">月次収入</a>
+      {% endwith %}
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <h4>{{yyyymm}} 管理費等 支出監査</h4>
+  </div>
+  <div class="content">
+    <ul>
+      {% if warning_kurasel %}
+        <li class="has-text-danger has-text-weight-bold is-size-5" >{{warning_kurasel}}</li>
+      {% else %}
+        <li class="has-text-danger" >月次支出データの赤数字は「入出金の相殺処理」のため合計金額から除外。</li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class='columns'>
+    <div class='column is-half'>
+      <div class="content has-text-centered">
+        <h4>月次支出報告</h4>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">会計区分</th>
+              <th class="has-text-centered">日付</th>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">支出</th>
+              <th class="has-text-centered">備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in mr_list %}
+            <tr>
+              <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
+              {% if record.is_netting %}
+                <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+                <td class="has-text-left has-text-danger is-size-7">{{record.description}}</td>
+              {% else %}
+                <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-right">{{record.ammount|intcomma}}</td>
+                <td class="has-text-left is-size-7">{{record.description}}</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td></td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_mr|intcomma}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% comment %} --------------------------------------- {% endcomment %}
+      <div class="content has-text-centered">
+        <h5>当月の未払金</h5>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">年月</th>
+              <th class="has-text-centered">項目名</th>
+              <th class="has-text-centered">金額</th>
+              <th class="has-text-centered">備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in this_miharai %}
+            <tr>
+              <td class="has-text-ledt">
+                <a href="{% url 'monthly_report:update_bs' record.pk %}">{{record.monthly_date|date:'m-d'}}</a>
+              </td>
+              <td class="has-text-ledt">{{record.item_name}}</td>
+              <td class="has-text-right">{{record.amounts|intcomma}}</td>
+              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_miharai|intcomma}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    {% comment %} --------------------------------------- {% endcomment %}
+    </div>
+    <div class='column is-half'>
+      <div class="content has-text-centered">
+        <h4>通帳支払報告</h4>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">日付</th>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">支出</th>
+              <th class="has-text-centered">摘要</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in pb_list %}
+            <tr>
+              <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
+              <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
+              {% if record.himoku.aggregate_flag %}
+                <td class="has-text-right">{{record.ammount|intcomma}}</td>
+              {% else %}
+                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+              {% endif %}
+              <td class="has-text-left is-size-7">{{record.description}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_pb|intcomma}}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="has-text-right">前月未払金</td>
+              <td class="has-text-right">{{last_miharai_total|intcomma}}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="has-text-right has-text-weight-bold">当月過払金</td>
+              {% if total_diff < 0 %}
+                <td class="has-text-right has-text-danger has-text-weight-bold" >{{total_diff|intcomma}}</td>
+              {% else %}
+                <td class="has-text-right has-text-weight-bold">{{total_diff|intcomma}}</td>
+              {% endif %}
+              <td class="has-text-left is-size-7">通帳支出 - (月次支出 + 前月未払金) </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
+    {% comment %} --------------------------------------- {% endcomment %}
+      {% comment %} <div class="content has-text-centered">
+        <h5>前月の未払金</h5>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">年月</th>
+              <th class="has-text-centered">項目名</th>
+              <th class="has-text-centered">金額</th>
+              <th class="has-text-centered">備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in last_miharai %}
+            <tr>
+              <td class="has-text-ledt">
+                <a href="{% url 'monthly_report:update_bs' record.pk %}">{{record.monthly_date|date:'m-d'}}</a>
+              </td>
+              <td class="has-text-ledt">{{record.item_name}}</td>
+              <td class="has-text-right">{{record.amounts|intcomma}}</td>
+              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{last_miharai_total|intcomma}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> {% endcomment %}
+    {% comment %} --------------------------------------- {% endcomment %}
+    </div>
+  </div>
+</div>
+{% endblock %}
