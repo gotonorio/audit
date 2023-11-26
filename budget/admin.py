@@ -1,15 +1,10 @@
 from django.contrib import admin
-from budget.models import Category, IncomeBudget, ExpenseBudget
-
-
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ["code", "name"]
-    ordering = ("code",)
+from budget.models import IncomeBudget, ExpenseBudget
 
 
 class IncomeBudgetAdmin(admin.ModelAdmin):
-    list_display = ["year", "account", "category", "budget_income", "comment"]
-    ordering = ("year", "category")
+    list_display = ["year", "account", "budget_income", "comment"]
+    ordering = ("year",)
 
 
 class ExpenseBudgetAdmin(admin.ModelAdmin):
@@ -17,6 +12,5 @@ class ExpenseBudgetAdmin(admin.ModelAdmin):
     ordering = ("year",)
 
 
-admin.site.register(Category, CategoryAdmin)
 admin.site.register(IncomeBudget, IncomeBudgetAdmin)
 admin.site.register(ExpenseBudget, ExpenseBudgetAdmin)

@@ -112,8 +112,8 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
             himoku__accounting_class__accounting_name=kanriclass_name
         )
         # qs_budget = qs_budget.filter(himoku__alive=True)
-
         qs_budget = qs_budget.order_by("himoku__code")
+
         # 管理会計口座の累計支出
         if kind == 0:
             qs_expense = Transaction.objects.select_related("himoku")
@@ -123,6 +123,10 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         qs_expense = qs_expense.filter(himoku__is_income=False)
         # 計算対象でfilter
         qs_expense = qs_expense.filter(calc_flg=True)
+        # 管理会計区分でfilter
+        qs_expense = qs_expense.filter(
+            himoku__accounting_class__accounting_name=kanriclass_name
+        )
         # 指定された「月度」までの期間でfilte
         qs_expense = qs_expense.filter(transaction_date__range=period).order_by(
             "himoku__code"

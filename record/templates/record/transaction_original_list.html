@@ -75,9 +75,9 @@
           <td class="has-text-centered">{{forloop.counter}}</td>
           <td class="has-text-centered">{{record.transaction_date|date:'m-d'}}</td>
           {% if record.calc_flg %}
-            <td class="has-text-left">{{record.himoku}}</td>
+            <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
           {% else %}
-            <td class="has-text-left has-text-danger">{{record.himoku}}</td>
+            <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
           {% if record.is_income %}
             <td class="has-text-right">{{record.ammount|intcomma}}</td>

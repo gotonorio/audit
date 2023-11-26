@@ -95,11 +95,11 @@
           {% endif %}
 
           {% if record.is_manualinput %}
-            <td class="has-text-left has-text-success">{{record.himoku}}</td>
+            <td class="has-text-left has-text-success">{{record.himoku|truncatechars:14}}</td>
           {% elif record.calc_flg %}
-            <td class="has-text-left">{{record.himoku}}</td>
+            <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
           {% else %}
-            <td class="has-text-left has-text-danger">{{record.himoku}}</td>
+            <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
 
           {% if record.is_income %}

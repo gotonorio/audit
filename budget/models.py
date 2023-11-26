@@ -3,16 +3,6 @@ from django.utils import timezone
 from record.models import Account, Himoku
 
 
-class Category(models.Model):
-    """カテゴリ"""
-
-    code = models.IntegerField(unique=True)
-    name = models.CharField(max_length=32, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
 class IncomeBudget(models.Model):
     """収入予算
     - 収入予算は管理しないため、使用していない。2023-11-23
@@ -24,7 +14,6 @@ class IncomeBudget(models.Model):
     account = models.ForeignKey(
         Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
     )
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     budget_income = models.IntegerField("金額", default=0)
     comment = models.CharField("備考", max_length=128, blank=True, null=True)
 
