@@ -75,6 +75,10 @@
           <td class="has-text-left"><a href="{% url 'budget:delete_budget' record.pk %}">削除</a></td>
         </tr>
         {% endfor %}
+        <td></td>
+        <td class="has-text-rigjt">{{total|intcomma}}</td>
+        <td class="has-text-left">{{annual_income|intcomma}}（収入合計） </td>
+        <td></td>
       </tbody>
     </table>
   </div>

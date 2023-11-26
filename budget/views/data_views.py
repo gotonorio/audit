@@ -71,6 +71,7 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
         ).order_by("himoku__code")
         # 予算合計（年間）
         total_qs = qs.aggregate(Sum("budget_expense"))
+        total_budget = total_qs["budget_expense__sum"]
         # 管理会計収入額（年間）
         income_qs = ControlRecord.objects.values(
             "annual_management_fee", "annual_greenspace_fee"
@@ -80,7 +81,7 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
                 income_qs[0]["annual_management_fee"]
                 + income_qs[0]["annual_greenspace_fee"]
             )
-        if int(total_qs["budget_expense__sum"]) - annual_income > 0:
+        if total_budget - annual_income > 0:
             messages.info(self.request, f"予算({annual_income}円)をオーバーしています。")
         # forms.pyのKeikakuListFormに初期値を設定する
         form = Budget_listForm(
@@ -92,6 +93,8 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
         context["title"] = f"{year}年 第{ki}期 管理会計予算"
         context["form"] = form
         context["budget"] = qs
+        context["total"] = total_budget
+        context["annual_income"] = annual_income
         return context
 
 
