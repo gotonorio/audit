@@ -6,7 +6,7 @@ csvデータの読込
 {% block navbar %}
 <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item">楽天カード</a>
+    <a class="navbar-item">費目マスタの取込み</a>
     {# ハンバーガアイコンのため #}
     <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
       <span aria-hidden="true"></span>
@@ -32,9 +32,14 @@ csvデータの読込
 {% block content %}
 <div class="container">
   <br>
-  <div class="content has-text-centered">
+  {% comment %} <div class="content has-text-centered"> {% endcomment %}
+  <div class="content">
     <h3>{{title}}</h3>
-    <h4>{{help_text}}</h4>
+    <br>
+    <h5>{{help_text1}}</h5>
+    <h5>{{help_text2}}</h5>
+    <h5>{{help_text3}}</h5>
+    <h5>{{help_text4}}</h5>
   </div>
   <br>
   {% if rc_list %}
