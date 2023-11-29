@@ -88,9 +88,10 @@ class TransactionCreateForm(forms.ModelForm):
     description = forms.CharField(
         label="摘要",
         required=False,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
-                "class": "input",
+                "class": "textarea",
+                "rows": 3,
             }
         ),
     )
