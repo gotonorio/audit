@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-費目データの編集
+費目データリスト
 {% endblock title %}
 
 {% block navbar %}
@@ -16,6 +16,10 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'record:himoku_list'%}" method="get">
+        {{form.accounting_class}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
     </div>
     <div class="navbar-end">
       <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
@@ -28,30 +32,7 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <h4 class="has-text-centered">費目の登録/修正</h4>
-
-    <form method='POST' enctype='multipart/form-data' id='form_style'>
-      {{ form.non_field_errors }}
-      {% for field in form %}
-        <div class='field'>
-          <div class='control'>
-            <div class='label'>{{ field.label_tag }}</div>
-            <div class='my_field'>{{ field }}</div>
-            {% if field.help_text %}
-              <span class='helptext is-size-6'>{{ field.help_text|safe }}</span>
-            {% endif %}
-            {{ field.errors }}
-          </div>
-        </div>
-      {% endfor %}
-      {% csrf_token %}
-      <br>
-      <div class='my_button has-text-centered'>
-        <button type='submit' class='button is-primary is-size-7'>登録</button>
-        <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
-      </div>
-    </form>
-
+    <h4 class="has-text-centered">費目リスト</h4>
   </div>
   <br>
   <div class="table-container">

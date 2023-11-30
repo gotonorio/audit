@@ -21,6 +21,7 @@
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">マスターデータ</a>
         <div class="navbar-dropdown">
+          <a class="dropdown-item" href="{% url 'record:himoku_list' %}">費目マスタ一覧</a>
           <a class="dropdown-item" href="{% url 'record:himoku_create' %}">費目マスタの登録/修正</a>
           <a class="dropdown-item" href="{% url 'record:read_himoku_csv' %}">費目マスタのCSV読込み</a>
           <a class="dropdown-item" href="{% url 'monthly_report:create_bs_item' %}">貸借対照表科目の登録/修正</a>

@@ -14,6 +14,7 @@ from record.forms import (
     AccountTitleForm,
     HimokuCsvFileSelectForm,
     HimokuForm,
+    HimokuListForm,
     RequesterForm,
     TransactionCreateForm,
     TransactionDivideForm,
@@ -152,6 +153,33 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
         msg = f"費目コード:{code} 費目名:{name} 会計区分:{accounting_class} を追加。by {user}"
         logger.info(msg)
         return super().form_valid(form)
+
+
+class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
+    """費目データ一覧表示"""
+    model = Himoku
+    template_name = "record/himoku_list.html"
+    permission_required = "record.add_transaction"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if kwargs:
+            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            ac_class = kwargs.get("accounting_class")
+        else:
+            ac_class = self.request.GET.get("accounting_class")
+        form = HimokuListForm(
+            initial={
+                "accounting_class": ac_class,
+            }
+        )
+        if ac_class == "":
+            qs = Himoku.objects.all().order_by("code")
+        else:
+            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("code")
+        context["himoku_list"] = qs
+        context["form"] = form
+        return context
 
 
 class HimokuUpdateView(PermissionRequiredMixin, generic.UpdateView):

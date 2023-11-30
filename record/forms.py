@@ -427,3 +427,15 @@ class HimokuCsvFileSelectForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["file"].widget.attrs["class"] = "filefield is-size-6"
+
+
+class HimokuListForm(forms.Form):
+    """費目リスト表示用"""
+
+    accounting_class = forms.ModelChoiceField(
+        label="会計区分",
+        queryset=AccountingClass.objects.all().order_by("code"),
+        empty_label="会計区分ALL",
+        required=False,
+        widget=forms.Select(attrs={"class": "select-css"}),
+    )
