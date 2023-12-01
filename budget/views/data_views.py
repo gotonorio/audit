@@ -18,7 +18,7 @@ from record.models import AccountingClass
 logger = logging.getLogger(__name__)
 
 
-class CreateBudgetView(PermissionRequiredMixin, generic.CreateView):
+class CreateKanriBudgetView(PermissionRequiredMixin, generic.CreateView):
     """支出予算の登録用View"""
 
     model = ExpenseBudget
@@ -30,15 +30,59 @@ class CreateBudgetView(PermissionRequiredMixin, generic.CreateView):
     # 保存が成功した場合に遷移するurl
     success_url = reverse_lazy("budget:create_budget")
 
+    def get_form_kwargs(self, *args, **kwargs):
+        """Formクラスへ値(accounting_class名)を渡す
+        - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+        """
+        kwargs = super().get_form_kwargs(*args, **kwargs)
+        # 管理会計区分名をkwargsに追加する。
+        ac_class_name = AccountingClass.get_class_name("管理")
+        kwargs["ac_class"] = ac_class_name
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = localtime(timezone.now()).year
-        # 支出予算
-        qs_budget = ExpenseBudget.objects.filter(year=year).order_by("himoku__code")
-
+        # # 支出予算
+        # qs_budget = (ExpenseBudget.objects.filter(year=year).order_by("himoku__code"))
         context["title"] = "支出予算の登録/編集"
-        context["budget"] = qs_budget
+        # context["budget"] = qs_budget
         return context
+
+
+class CreateShuuzenBudgetView(CreateKanriBudgetView):
+    """修繕積立金会計の支出予算の登録用View
+    - CreateKanriBudgetViewを継承する。
+    """
+
+    def get_form_kwargs(self, *args, **kwargs):
+        """Formクラスへ値(accounting_class名)を渡す
+        - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+        """
+        kwargs = super().get_form_kwargs(*args, **kwargs)
+        # 管理会計区分名をkwargsに追加する。
+        ac_class_name = AccountingClass.get_class_name("修繕")
+        kwargs["ac_class"] = ac_class_name
+        return kwargs
+
+
+class CreateParkingBudgetView(CreateKanriBudgetView):
+    """駐車場会計の支出予算の登録用View
+    - CreateKanriBudgetViewを継承する。
+    """
+
+    def get_form_kwargs(self, *args, **kwargs):
+        """Formクラスへ値(accounting_class名)を渡す
+        - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+        """
+        kwargs = super().get_form_kwargs(*args, **kwargs)
+        # 管理会計区分名をkwargsに追加する。
+        ac_class_name = AccountingClass.get_class_name("駐車")
+        kwargs["ac_class"] = ac_class_name
+        return kwargs
 
 
 class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):

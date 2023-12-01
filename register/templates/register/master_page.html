@@ -45,7 +45,9 @@
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">年次予算データ</a>
         <div class="navbar-dropdown">
-          <a class="dropdown-item" href="{% url 'budget:create_budget' %}">予算作成</a>
+          <a class="dropdown-item" href="{% url 'budget:create_budget' %}">管理会計予算作成</a>
+          <a class="dropdown-item" href="{% url 'budget:create_shuuzen_budget' %}">修繕会計予算作成</a>
+          <a class="dropdown-item" href="{% url 'budget:create_parking_budget' %}">駐車場会計予算作成</a>
           <hr class="navbar-divider">
           <a class="dropdown-item" href="{% url 'budget:budget_update_list' %}">予算修正</a>
         </div>

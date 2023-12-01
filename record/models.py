@@ -76,7 +76,10 @@ class AccountingClass(models.Model):
         """概略名から推測した管理費会計の会計区分名を返す"""
         try:
             qs = cls.objects.filter(accounting_name__contains=shortname)
-            class_name = qs[0].accounting_name
+            if qs:
+                class_name = qs[0].accounting_name
+            else:
+                class_name = None
         except AccountingClass.DoesNotExist:
             class_name = None
         return class_name
