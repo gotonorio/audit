@@ -239,7 +239,7 @@ class BalanceSheet(models.Model):
         - 費目は取り敢えず「不明」に決め打ち（費目は手入力となる）
         """
         # 月度 日付は末日とする。
-        last_day = calendar.monthrange(data["year"], data["month"])[1]
+        last_day = calendar.monthrange(int(data["year"]), int(data["month"]))[1]
         date_str = str(data["year"]) + "-" + str(data["month"]) + "-" + str(last_day)
         monthly_date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
         error_list = []

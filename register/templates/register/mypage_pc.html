@@ -79,7 +79,10 @@
           </div>
         {% endif %}
         <div class="navbar-item">
-          <a class="button is-light is-small " href="{% url 'register:logout' %}" >ログアウト</a>
+          <form method="post" action="{% url 'register:logout' %}">
+            {% csrf_token %}
+            <button type="submit">ログアウト</button>
+          </form>
         </div>
       </div>
     {% else %}
@@ -89,7 +92,7 @@
       </div>
       <div class="navbar-end">
         <div class="navbar-item">
-          <a class="button is-light is-small " href="{% url 'register:logout' %}" >ログアウト</a>
+          <a class="button" href="{% url 'register:logout' %}" >ログアウト</a>
         </div>
       </div>
     {% endif %}

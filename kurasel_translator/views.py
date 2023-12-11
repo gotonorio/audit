@@ -456,7 +456,7 @@ class BalanceSheetTranslateView(FormView):
                 ac_id = AccountingClass.objects.get(accounting_name=accounting_class).id
                 url = append_list.redirect_with_param(
                     "monthly_report:bs_table",
-                    dict(year=year, month=str(month).zfill(2), accounting_class=ac_id),
+                    dict(year=year, month=str(month).zfill(2), ac_class=ac_id),
                 )
                 return redirect(url)
             else:
