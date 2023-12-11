@@ -24,7 +24,7 @@
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <form class="navbar-item" action="{% url 'budget:budget_list'%}" method="get">
-        {{form.year}}{{form.month}}{{form.kind}}
+        {{form.year}}{{form.month}}{{form.ac_class}}{{form.kind}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
     </div>
@@ -41,7 +41,7 @@
 <br>
 <div class="container is-fulid">
   <div class="content has-text-centered">
-    <h4>{{month}}月までの管理会計 予算実績対比表</h4>
+    <h4>{{month}}月までの{{title}} 予算実績対比表</h4>
   </div>
   <div class="table-container">
     <table class="table table_center_nowrap is-narrow is-striped">

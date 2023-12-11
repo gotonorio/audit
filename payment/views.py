@@ -31,7 +31,7 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
         local_now = localtime(timezone.now())
         year = self.request.GET.get("year", local_now.year)
         month = self.request.GET.get("month", local_now.month)
-        day = self.request.GET.get("day", "10")
+        day = self.request.GET.get("day", "0")
         # querysetの作成。
         if day == "00" and month == "0":
             tstart, tend = select_period(year, month)

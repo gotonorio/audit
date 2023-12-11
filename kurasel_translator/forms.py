@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils import timezone
 from django.utils.timezone import localtime  # view.pyでローカルタイムのため追加
 
@@ -46,10 +47,16 @@ class MonthlyBalanceForm(DepositWithdrawalForm):
     （口座は一つなのに...）
     """
 
-    month = forms.IntegerField(
+    # month = forms.IntegerField(
+    #     label="月",
+    #     initial=localtime(timezone.now()).month,
+    #     widget=forms.NumberInput(attrs={"class": "input"}),
+    # )
+    month = forms.ChoiceField(
         label="月",
         initial=localtime(timezone.now()).month,
-        widget=forms.NumberInput(attrs={"class": "input"}),
+        widget=forms.Select(attrs={"class": "select-css"}),
+        choices=settings.MONTH
     )
     kind = forms.ChoiceField(
         label="収支区分",
@@ -71,11 +78,17 @@ class MonthlyBalanceForm(DepositWithdrawalForm):
 class PaymentAuditForm(DepositWithdrawalForm):
     """Kuraselの承認された支払管理データを読み込むためのForm"""
 
-    month = forms.IntegerField(
+    month = forms.ChoiceField(
         label="月",
         initial=localtime(timezone.now()).month,
-        widget=forms.NumberInput(attrs={"class": "input"}),
+        widget=forms.Select(attrs={"class": "select-css"}),
+        choices=settings.MONTH
     )
+    # month = forms.IntegerField(
+    #     label="月",
+    #     initial=localtime(timezone.now()).month,
+    #     widget=forms.NumberInput(attrs={"class": "input"}),
+    # )
     day = forms.ChoiceField(
         label="支払日",
         widget=forms.Select(attrs={"class": "select-css"}),
@@ -87,17 +100,23 @@ class PaymentAuditForm(DepositWithdrawalForm):
 
 
 class BalanceSheetTranslateForm(DepositWithdrawalForm):
-    """月次収支入力フォーム
+    """貸借対照表入力フォーム
     - DepositWithdrawalFormを継承する。
     - Kuraselでは管理会計、修繕会計に同じ「受取利息」費目があるため、
     管理会計では「受取利息」を「雑収入」として記録するため、会計区分フラグを使う。
     （口座は一つなのに...）
     """
 
-    month = forms.IntegerField(
+    # month = forms.IntegerField(
+    #     label="月",
+    #     initial=localtime(timezone.now()).month,
+    #     widget=forms.NumberInput(attrs={"class": "input"}),
+    # )
+    month = forms.ChoiceField(
         label="月",
         initial=localtime(timezone.now()).month,
-        widget=forms.NumberInput(attrs={"class": "input"}),
+        widget=forms.Select(attrs={"class": "select-css"}),
+        choices=settings.MONTH
     )
     accounting_class = forms.ModelChoiceField(
         label="会計区分",

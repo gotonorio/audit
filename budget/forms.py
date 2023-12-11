@@ -27,6 +27,13 @@ class Budget_listForm(forms.Form):
         ),
         required=True,
     )
+    ac_class = forms.ModelChoiceField(
+        label="会計区分",
+        required=False,
+        queryset=AccountingClass.objects.order_by("code"),
+        empty_label="会計区分",
+        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
+    )
     kind = forms.ChoiceField(
         choices=(
             (0, "入出金明細"),

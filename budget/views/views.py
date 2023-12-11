@@ -3,6 +3,7 @@ import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.aggregates import Max, Sum
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView
@@ -94,6 +95,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         month = int(self.request.GET.get("month", 12))
+        ac_class = self.request.GET.get("ac_class")
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]
         # 会計年度
@@ -105,16 +107,48 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
             ExpenseBudget.objects.select_related("himoku")
             .filter(year=year)
             .filter(himoku__alive=True)
+            .filter(himoku__is_income=False)
         )
-        # 管理会計区分のみとしてfilterする。
-        kanriclass_name = AccountingClass.get_class_name("管理")
+        # 会計区分によるfilter
+        if ac_class == "":
+            ac_class_name = AccountingClass.get_class_name("管理")
+        else:
+            ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
+        (
+            compair_list,
+            current_date,
+            total_budget,
+            total_ruiseki,
+            check_budget_list,
+        ) = self.kanri_budget(qs_budget, ac_class_name, period, kind)
+
+        # forms.pyのKeikakuListFormに初期値を設定する
+        form = Budget_listForm(
+            initial={
+                "year": year,
+                "month": month,
+                "ac_class": ac_class,
+                "kind": kind,
+            }
+        )
+        context["title"] = ac_class_name
+        context["form"] = form
+        context["month"] = current_date.month
+        context["expense_budget"] = compair_list
+        context["total_budget"] = total_budget
+        context["total_ruiseki"] = total_ruiseki
+        context["check_budget"] = check_budget_list
+        return context
+
+    def kanri_budget(self, qs_budget, ac_class_name, period, kind):
+        """管理会計予算"""
+        # 予算を読み込む
         qs_budget = qs_budget.filter(
-            himoku__accounting_class__accounting_name=kanriclass_name
+            himoku__accounting_class__accounting_name=ac_class_name
         )
-        # qs_budget = qs_budget.filter(himoku__alive=True)
         qs_budget = qs_budget.order_by("himoku__code")
 
-        # 管理会計口座の累計支出
+        # 累計支出を算出する
         if kind == 0:
             qs_expense = Transaction.objects.select_related("himoku")
         else:
@@ -125,7 +159,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         qs_expense = qs_expense.filter(calc_flg=True)
         # 管理会計区分でfilter
         qs_expense = qs_expense.filter(
-            himoku__accounting_class__accounting_name=kanriclass_name
+            himoku__accounting_class__accounting_name=ac_class_name
         )
         # 指定された「月度」までの期間でfilte
         qs_expense = qs_expense.filter(transaction_date__range=period).order_by(
@@ -146,18 +180,10 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         # 予算外支出を抽出する
         check_budget_list = check_budget(qs_budget, qs_expense)
 
-        # forms.pyのKeikakuListFormに初期値を設定する
-        form = Budget_listForm(
-            initial={
-                "year": year,
-                "month": month,
-                "kind": kind,
-            }
+        return (
+            compair_list,
+            current_date,
+            total_budget,
+            total_ruiseki,
+            check_budget_list,
         )
-        context["form"] = form
-        context["month"] = current_date.month
-        context["expense_budget"] = compair_list
-        context["total_budget"] = total_budget
-        context["total_ruiseki"] = total_ruiseki
-        context["check_budget"] = check_budget_list
-        return context

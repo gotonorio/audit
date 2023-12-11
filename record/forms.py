@@ -430,7 +430,7 @@ class HimokuCsvFileSelectForm(forms.Form):
 
 
 class HimokuListForm(forms.Form):
-    """費目リスト表示用"""
+    """費目アップデート用リスト表示"""
 
     accounting_class = forms.ModelChoiceField(
         label="会計区分",

@@ -33,6 +33,7 @@ class CreateKanriBudgetView(PermissionRequiredMixin, generic.CreateView):
     def get_form_kwargs(self, *args, **kwargs):
         """Formクラスへ値(accounting_class名)を渡す
         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - https://itc.tokyo/django/get-form-kwargs/
         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
         """
         kwargs = super().get_form_kwargs(*args, **kwargs)
@@ -56,9 +57,12 @@ class CreateShuuzenBudgetView(CreateKanriBudgetView):
     - CreateKanriBudgetViewを継承する。
     """
 
+    success_url = reverse_lazy("budget:create_shuuzen_budget")
+
     def get_form_kwargs(self, *args, **kwargs):
         """Formクラスへ値(accounting_class名)を渡す
         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - https://itc.tokyo/django/get-form-kwargs/
         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
         """
         kwargs = super().get_form_kwargs(*args, **kwargs)
@@ -73,9 +77,12 @@ class CreateParkingBudgetView(CreateKanriBudgetView):
     - CreateKanriBudgetViewを継承する。
     """
 
+    success_url = reverse_lazy("budget:create_parking_budget")
+
     def get_form_kwargs(self, *args, **kwargs):
         """Formクラスへ値(accounting_class名)を渡す
         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - https://itc.tokyo/django/get-form-kwargs/
         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
         """
         kwargs = super().get_form_kwargs(*args, **kwargs)

@@ -35,7 +35,7 @@ class Payment(models.Model):
     @classmethod
     def payment_from_kurasel(cls, data):
         """kurasel_translatorから承認済み支払いデータを読み込む。
-        - 承認済みデータなので、金額の修正は無しとして「摘要、支払先、支払い金額、支払日」でget_or_createする。
+        - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日」でget_or_createする。
         - 費目は取り敢えず「不明」に決め打ち（費目は手入力となる）
         """
         # 支払日
@@ -45,12 +45,12 @@ class Payment(models.Model):
         rtn = True
         for item in data["data_list"]:
             try:
-                cls.objects.update_or_create(
-                    summary=item[1],
+                cls.objects.get_or_create(
                     payment_destination=item[2],
+                    payment=item[3],
                     payment_date=payment_day,
                     defaults={
-                        "payment": int(item[3]),
+                        "summary": item[1],
                         "himoku": Himoku.get_himoku_obj(item[4], "all"),
                     },
                 )
