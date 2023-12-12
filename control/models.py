@@ -1,4 +1,5 @@
 from django.db import models
+from record.models import Himoku
 
 
 class ControlRecord(models.Model):
@@ -10,8 +11,8 @@ class ControlRecord(models.Model):
     annual_management_fee = models.IntegerField(verbose_name="管理費収入額", default=0)
     # 緑地維持管理費の年間収入額
     annual_greenspace_fee = models.IntegerField(verbose_name="緑地維持管理費収入額", default=0)
-
-    # add your control variable
+    # 相殺処理する費目名
+    to_offset = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
 
     @classmethod
     def show_tmp_user_menu(cls):

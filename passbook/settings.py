@@ -154,8 +154,6 @@ BACKUP_NUM = 20
 
 # 前受金の費目名を設定
 MAEUKE = "前受金"
-# 口座振替手数料の費目名を設定
-ACCOUNT_TRANSFER_FEE = "口座振替手数料"
 # Kurasel監査のスタート年月
 START_KURASEL = {"year": 2023, "month": 4}
 # Kurasel監査のスタート前月の未払金額
@@ -212,7 +210,8 @@ NUMBER_GROUPING = 3
 LOGIN_URL = "register:login"
 LOGIN_REDIRECT_URL = "register:mypage"
 # ログアウト画面を表示する場合はコメントアウトする。
-LOGOUT_REDIRECT_URL = "register:login"
+# リダイレクトするとHTTP302が返されるからログアウト画面を表示する。
+# LOGOUT_REDIRECT_URL = "register:login"
 # ブラウザを閉じたらログアウトさせる。
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

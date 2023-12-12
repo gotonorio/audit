@@ -1,7 +1,6 @@
 import calendar
 import logging
 
-from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Case, Sum, When
 
@@ -11,6 +10,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
 
+from control.models import ControlRecord
 from kurasel_translator.my_lib.append_list import append_list, select_period
 from monthly_report.forms import (
     BalanceSheetTableForm,
@@ -590,8 +590,10 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
             transaction_date__range=[tstart, tend]
         )
         # 費目名「口座振替手数料」でfilter
+        offset_himoku = ControlRecord.objects.values("to_offset__himoku_name").first()
+        offset_himoku_name = offset_himoku["to_offset__himoku_name"]
         account_transfer_fee = Himoku.get_himoku_obj(
-            settings.ACCOUNT_TRANSFER_FEE, "all"
+            offset_himoku_name, "all"
         )
         qs = qs.filter(himoku=account_transfer_fee).order_by("-transaction_date")
         form = MonthlyReportViewForm(
