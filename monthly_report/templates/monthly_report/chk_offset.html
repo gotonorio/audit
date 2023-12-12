@@ -38,6 +38,16 @@
 {% endblock navbar %}
 
 {% block content %}
+{% if messages %}
+<div class="container" style="margin-top:1rem;">
+  <div class="notification is-info">
+    <button class="delete" type="button"></button>
+    {% for message in messages %}
+      <p>{{message}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 <br>
 <div class="container is-fluid">
   <div class="content has-text-centered">

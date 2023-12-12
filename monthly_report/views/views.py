@@ -1,6 +1,7 @@
 import calendar
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Case, Sum, When
 
@@ -591,6 +592,8 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
         )
         # 費目名「口座振替手数料」でfilter
         offset_himoku_name = ControlRecord.get_offset_himoku()
+        if offset_himoku_name is None:
+            messages.info(self.request, "相殺処理する費目が設定されていません。")
         account_transfer_fee = Himoku.get_himoku_obj(
             offset_himoku_name, "all"
         )
