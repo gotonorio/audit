@@ -590,8 +590,7 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
             transaction_date__range=[tstart, tend]
         )
         # 費目名「口座振替手数料」でfilter
-        offset_himoku = ControlRecord.objects.values("to_offset__himoku_name").first()
-        offset_himoku_name = offset_himoku["to_offset__himoku_name"]
+        offset_himoku_name = ControlRecord.get_offset_himoku()
         account_transfer_fee = Himoku.get_himoku_obj(
             offset_himoku_name, "all"
         )

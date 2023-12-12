@@ -12,8 +12,16 @@ class ControlRecord(models.Model):
     # 緑地維持管理費の年間収入額
     annual_greenspace_fee = models.IntegerField(verbose_name="緑地維持管理費収入額", default=0)
     # 相殺処理する費目名
-    to_offset = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
+    to_offset = models.ForeignKey(
+        Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True
+    )
 
     @classmethod
     def show_tmp_user_menu(cls):
         return cls.objects.get("tmp_user_flg")
+
+    @classmethod
+    def get_offset_himoku(cls):
+        """相殺処理する費目名を返す"""
+        offset_himoku = cls.objects.values("to_offset__himoku_name").first()
+        return offset_himoku["to_offset__himoku_name"]
