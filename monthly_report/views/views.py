@@ -586,18 +586,18 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
         year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間(0:全月)
         tstart, tend = select_period(year, "0")
-        # 期間でfiler
-        qs = ReportTransaction.objects.all().filter(
-            transaction_date__range=[tstart, tend]
-        )
         # 費目名「口座振替手数料」でfilter
         offset_himoku_name = ControlRecord.get_offset_himoku()
         if offset_himoku_name is None:
             messages.info(self.request, "相殺処理する費目が設定されていません。")
-        account_transfer_fee = Himoku.get_himoku_obj(
-            offset_himoku_name, "all"
+        account_transfer_fee = Himoku.get_himoku_obj(offset_himoku_name, "all")
+        # 期間と相殺処理する費目名でfiler
+        qs = (
+            ReportTransaction.objects.all()
+            .filter(transaction_date__range=[tstart, tend])
+            .filter(himoku=account_transfer_fee)
+            .order_by("-transaction_date")
         )
-        qs = qs.filter(himoku=account_transfer_fee).order_by("-transaction_date")
         form = MonthlyReportViewForm(
             initial={
                 "year": year,
