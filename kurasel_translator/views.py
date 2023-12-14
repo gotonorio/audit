@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView
 
+from control.models import ControlRecord
 from kurasel_translator.forms import (
     BalanceSheetTranslateForm,
     DepositWithdrawalForm,
@@ -86,9 +87,9 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         accounting_class = form.cleaned_data["accounting_class"]
         kind = form.cleaned_data["kind"]
         mode = form.cleaned_data["mode"]
-        msg = form.cleaned_data["note"]
+        note = form.cleaned_data["note"]
         # msgを’\r\n'で区切ってリストを作成する。
-        tmp_list = msg.splitlines()
+        tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
         # 月次収支の場合、5行で1レコード。
@@ -128,6 +129,11 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
             rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
+            # ToDo 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
+            offset_himoku = ControlRecord.get_offset_himoku()
+            if offset_himoku:
+                ReportTransaction.set_offset_flag(offset_himoku, year, month)
+            # データ取込みが成功した場合の戻り処理を行う。
             if rtn:
                 msg = "月次収支データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
@@ -189,9 +195,9 @@ class DepositWithdrawalView(MonthlyBalanceView):
     def form_valid(self, form):
         mode = form.cleaned_data["mode"]
         year = form.cleaned_data["year"]
-        msg = form.cleaned_data["note"]
+        note = form.cleaned_data["note"]
         # msgを行末コードで区切ってリストを作成する。
-        tmp_list = msg.splitlines()
+        tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
 
@@ -315,9 +321,9 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         month = form.cleaned_data["month"]
         day = form.cleaned_data["day"]
         mode = form.cleaned_data["mode"]
-        msg = form.cleaned_data["note"]
+        note = form.cleaned_data["note"]
         # msgを’\r\n'で区切ってリストを作成する。
-        tmp_list = msg.splitlines()
+        tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
         # 支払管理の場合、4行で1レコード。(状況、摘要、支払先、支払い金額)
@@ -415,9 +421,9 @@ class BalanceSheetTranslateView(FormView):
         month = form.cleaned_data["month"]
         accounting_class = form.cleaned_data["accounting_class"]
         mode = form.cleaned_data["mode"]
-        msg = form.cleaned_data["note"]
+        note = form.cleaned_data["note"]
         # msgを’\r\n'で区切ってリストを作成する。
-        tmp_list = msg.splitlines()
+        tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
 

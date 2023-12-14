@@ -137,7 +137,7 @@ class Himoku(models.Model):
     @classmethod
     def get_himoku_obj(cls, himoku, ac_class):
         """費目名からそのオブジェクトを返す"""
-        if ac_class == "all":
+        if ac_class.upper() == "ALL":
             try:
                 qs = cls.objects.get(himoku_name=himoku)
             except cls.DoesNotExist:

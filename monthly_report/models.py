@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 
+from kurasel_translator.my_lib.append_list import select_period
 from record.models import Account, AccountingClass, Himoku
 
 user = get_user_model()
@@ -141,7 +142,7 @@ class ReportTransaction(models.Model):
     @classmethod
     def monthly_from_kurasel(cls, ac_class, data):
         """kurasel_translatorから月次収支データを読み込む
-        - 会計区分を指定して取り込む。ToDo:町内会会計の扱いがどうなるか。
+        - 会計区分を指定して取り込む。ToDo:町内会会計の扱いを検討する。
         """
         # 取引月
         date_str = str(data["year"]) + "-" + str(data["month"]) + "-" + "01"
@@ -153,7 +154,8 @@ class ReportTransaction(models.Model):
         rtn = True
         for item in data["data_list"]:
             try:
-                himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
+                # himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
+                himoku_id = Himoku.get_himoku_obj(item[0], "all")
                 ac_class_obj = AccountingClass.get_accountingclass_obj(ac_class)
                 cls.objects.update_or_create(
                     transaction_date=ymd,
@@ -172,6 +174,19 @@ class ReportTransaction(models.Model):
                 error_list.append(item[0])
                 rtn = False
         return rtn, error_list
+
+    @classmethod
+    def set_offset_flag(cls, himoku, year, month):
+        """設定された費目名のレコードにis_nettingをセットする"""
+        # 指定された年月の月次収支データで処理を行う。
+        tstart, tend = select_period(str(year), str(month))
+        qs = cls.objects.filter(transaction_date__range=[tstart, tend])
+        for data in qs:
+            if data.himoku.himoku_name == himoku:
+                update_obj = cls.objects.get(pk=data.pk)
+                update_obj.is_netting = True
+                update_obj.save()
+        return True
 
 
 class BalanceSheetItem(models.Model):
