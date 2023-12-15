@@ -156,6 +156,17 @@ class Himoku(models.Model):
         return qs
 
     @classmethod
+    def get_default_himoku(cls):
+        """デフォルト費目オブジェクトを返す
+        - 費目名は、呼び出し側で default_himoku.values("himoku_name")[0]["himoku_name"]とする。
+        """
+        default_himoku = cls.objects.filter(is_default=True)
+        if default_himoku:
+            return default_himoku
+        else:
+            return None
+
+    @classmethod
     def get_himoku_list(cls):
         """有効な費目名をリストで返す"""
         himoku_list = []
@@ -359,7 +370,11 @@ class Transaction(models.Model):
         author_obj = user.objects.get(id=data["author"])
         # 費目
         try:
-            default_himoku = Himoku.objects.get(himoku_name="不明")
+            # デフォルト費目オブジェクト
+            default_himoku = Himoku.get_default_himoku()
+            # # オブジェクトからデフォルトの費目名を取り出す
+            # default_himoku_name = default_himoku.values("himoku_name")[0]["himoku_name"]
+            # default_himoku = Himoku.objects.get(himoku_name=default_himoku_name)
         except Himoku.DoesNotExist:
             default_himoku = None
         # error flag
@@ -369,13 +384,13 @@ class Transaction(models.Model):
         for item in data["data_list"]:
             income = False
             himoku_chk = True
-            # 入金の場合、入金フラグをTrue。
+            # 入金の場合、入金フラグをTrue。費目はdefault費目とする。
             if item[0] == "入金":
                 income = True
                 himoku_obj = default_himoku
             # 出金の場合、振込依頼者、摘要で費目を特定する。
             else:
-                # 最初に費目名「不明」をセット。
+                # 最初に費目をdefault費目にセットする。
                 himoku_obj = default_himoku
                 # (1)「支払先」で費目を推定する。
                 for requester in requester_list:

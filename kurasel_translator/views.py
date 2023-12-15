@@ -308,7 +308,9 @@ class DepositWithdrawalView(MonthlyBalanceView):
 
 
 class PaymentAuditView(PermissionRequiredMixin, FormView):
-    """支払承認済みデータの読み込み"""
+    """支払承認済みデータの読み込み
+    - 支払い承認データの取り込みでは、基本的に費目名をデフォルト費目名（不明）とする。
+    """
 
     # テンプレート名の設定
     template_name = "kurasel_translator/payment_audit_form.html"
@@ -390,8 +392,13 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         return record_list
 
     def set_himoku(self, data_list, himoku_list):
-        """取り込んだ支払データで摘要欄に費目名が含まれていたら、費目名を追加する"""
+        """支払い承認データに費目名を追加する
+        - 摘要欄に費目名が含まれていたら、費目名を追加する。
+        - 上記でない場合、default費目名（”不明”）を追加する。
+        """
         new_data_list = []
+        # default費目名を求める。
+        default_himoku_name = Himoku.get_default_himoku().values("himoku_name")[0]["himoku_name"]
         for data in data_list:
             chk = True
             for himoku in himoku_list:
@@ -400,7 +407,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
                     chk = False
                     break
             if chk:
-                data.append("不明")
+                data.append(default_himoku_name)
             new_data_list.append(data)
         return new_data_list
 

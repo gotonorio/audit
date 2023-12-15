@@ -36,7 +36,6 @@ class Payment(models.Model):
     def payment_from_kurasel(cls, data):
         """kurasel_translatorから承認済み支払いデータを読み込む。
         - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日」でget_or_createする。
-        - 費目は取り敢えず「不明」に決め打ち（費目は手入力となる）
         """
         # 支払日
         date_str = str(data["year"]) + str(data["month"]) + data["day"]

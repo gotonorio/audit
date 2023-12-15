@@ -282,10 +282,6 @@ class AccountTitleForm(forms.ModelForm):
                 }
             ),
         }
-        help_texts = {
-            "code": "* 入金科目は99以下、管理費出金科目は199以下、修繕出金科目は299以下、\
-                    資金移動は300、町内会費（自治会費）は500、不明は990。",
-        }
 
 
 class RequesterForm(forms.ModelForm):

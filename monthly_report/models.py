@@ -249,9 +249,8 @@ class BalanceSheet(models.Model):
 
     @classmethod
     def bs_from_kurasel(cls, ac_class, data):
-        """kuraselから貸借対照表データを読み込む
-        - 日付、項目名でupdate_or_createする。
-        - 費目は取り敢えず「不明」に決め打ち（費目は手入力となる）
+        """kuraselから貸借対照表データを取り込む
+        - 日付、項目名でupdate_or_createする
         """
         # 月度 日付は末日とする。
         last_day = calendar.monthrange(int(data["year"]), int(data["month"]))[1]

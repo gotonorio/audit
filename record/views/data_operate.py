@@ -331,7 +331,8 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         qs = Transaction.objects.get(pk=pk)
         transaction_date = qs.transaction_date
         balance = qs.balance
-        himoku = Himoku.objects.get(himoku_name="不明")
+        # ToDo 確認すること
+        himoku = Himoku.get_default_himoku()
 
         # formにはformsetがセットされているので、繰り返し処理する。
         for subform in form:
