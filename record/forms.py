@@ -218,6 +218,7 @@ class HimokuForm(forms.ModelForm):
             "alive",
             "aggregate_flag",
             "is_approval",
+            "is_default",
         ]
         widgets = {
             "code": forms.NumberInput(
@@ -251,11 +252,17 @@ class HimokuForm(forms.ModelForm):
                     "class": "checkbox",
                 }
             ),
+            "is_default": forms.CheckboxInput(
+                attrs={
+                    "class": "checkbox",
+                }
+            ),
         }
         help_texts = {
             "alive": "※ 必要のない費目は削除ではなく、有効フラグのチェックを外す。",
             "aggregate_flag": "※ 月次報告データで集計計算に含めるかのフラグ。<br>（基本的にはチェックしてください）",
             "is_approval": "※ 入出金明細データで承認無しで支出される費目。<br>（電気・水道料金の口座振替、管理業務委託費など）",
+            "is_default": "※ 入出金明細データでデフォルトで設定される費目名。",
         }
 
 

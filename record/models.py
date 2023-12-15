@@ -98,6 +98,7 @@ class Himoku(models.Model):
         AccountingClass, on_delete=models.CASCADE, blank=True, null=True
     )
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
+    is_default = models.BooleanField(verbose_name="デフォルト", default=False)
 
     def __str__(self):
         return self.himoku_name
@@ -106,6 +107,11 @@ class Himoku(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["himoku_name", "accounting_class"], name="himoku_unique"
+            ),
+            models.UniqueConstraint(
+                fields=["is_default"],
+                condition=models.Q(is_default=True),
+                name="default_himoku_unique",
             ),
         ]
 
