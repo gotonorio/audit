@@ -157,13 +157,18 @@ class Himoku(models.Model):
 
     @classmethod
     def get_default_himoku(cls):
-        """デフォルト費目オブジェクトを返す
-        - 費目名は、呼び出し側で default_himoku.values("himoku_name")[0]["himoku_name"]とする。
+        """デフォルト費目オブジェクトを返す。
+        - 前提として、default費目が1つだけ設定されていること。
+        - is_defaultはUniqueConstraintでuniqueを担保しているためget()を使う。
+        - 費目名は、呼び出し側で default_himoku.himoku_nameとする。
+        - https://qiita.com/Bashi50/items/9e1d62c4159f065b662b
         """
-        default_himoku = cls.objects.filter(is_default=True)
-        if default_himoku:
+        try:
+            default_himoku = cls.objects.get(is_default=True)
             return default_himoku
-        else:
+        except Himoku.DoesNotExist:
+            return None
+        except Himoku.MultipleObjectsReturned:
             return None
 
     @classmethod
@@ -359,24 +364,16 @@ class Transaction(models.Model):
     #     return total_pb
 
     @classmethod
-    def dwd_from_kurasel(cls, data, paymenmethod_list, requester_list):
+    def dwd_from_kurasel(cls, data, paymenmethod_list, requester_list, default_himoku):
         """kurasel_translatorからDeposits and withdrawals（入出金明細データ）を読み込む
         - 種類、日付、金額、振り込み依頼人でget_or_createする。
-        - 口座は管理会計に決め打ち(id=3)
-        - 費目は「不明」に決め打ち
+        - 口座は管理会計に決め打ち(id=3)。
+        - 費目はdefaultの費目オブジェクト。
         - 勘定科目・費目は手入力となる。
         """
         # 記録者
         author_obj = user.objects.get(id=data["author"])
-        # 費目
-        try:
-            # デフォルト費目オブジェクト
-            default_himoku = Himoku.get_default_himoku()
-            # # オブジェクトからデフォルトの費目名を取り出す
-            # default_himoku_name = default_himoku.values("himoku_name")[0]["himoku_name"]
-            # default_himoku = Himoku.objects.get(himoku_name=default_himoku_name)
-        except Himoku.DoesNotExist:
-            default_himoku = None
+
         # error flag
         error_list = []
         rtn = True

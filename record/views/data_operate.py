@@ -332,7 +332,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         transaction_date = qs.transaction_date
         balance = qs.balance
         # ToDo 確認すること
-        himoku = Himoku.get_default_himoku()
+        default_himoku = Himoku.get_default_himoku()
 
         # formにはformsetがセットされているので、繰り返し処理する。
         for subform in form:
@@ -355,7 +355,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     # 登録するのは出金データのみ
                     divide.is_icome = False
                     # 費目名は「不明」に決め打ち
-                    divide.himoku = himoku
+                    divide.himoku = default_himoku
                     # 金額、、振込依頼人、摘要はFormから受け取る
                     divide.ammount = ammount
                     divide.requesters_name = requesters_name

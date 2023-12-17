@@ -127,20 +127,20 @@
       <thead>
         <tr>
           <th class="has-text-centered">支払日</th>
+          <th class="has-text-centered">費目</th>
           <th class="has-text-centered">摘要</th>
           <th class="has-text-left">発注先業者名</th>
           <th class="has-text-centered">支払金額</th>
-          <th class="has-text-centered">費目</th>
         </tr>
       </thead>
       <tbody>
         {% for line in data_list %}
         <tr>
           <td class="has-text-left">{{year}}-{{month}}-{{day}}</td>
+          <td class="has-text-left">{{ line.4}}</td>
           <td class="has-text-left">{{ line.1 }} </td>
           <td class="has-text-left">{{ line.2}}</td>
           <td class="has-text-right">{{ line.3|intcomma}}</td>
-          <td class="has-text-left">{{ line.4}}</td>
         </tr>
         {% endfor %}
         <tr>

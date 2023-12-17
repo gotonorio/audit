@@ -230,6 +230,12 @@ class DepositWithdrawalView(MonthlyBalanceView):
             "mode": mode,
             "author": self.request.user.id,
         }
+        # デフォルトの費目オブジェクトを準備する。
+        default_himoku = Himoku.get_default_himoku()
+        if default_himoku is None:
+            messages.info(self.request, "defaultの費目名が設定されていません。管理者に連絡してください")
+            return render(self.request, self.template_name, context)
+        # 確認・取り込み処理
         if "確認" in mode:
             return render(self.request, self.template_name, context)
         else:
@@ -240,7 +246,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
             requester_list = TransferRequester.get_requester_obj()
             # 入出金入出金明細データの取り込み。
             rtn, error_list = Transaction.dwd_from_kurasel(
-                context, payment_method_list, requester_list
+                context, payment_method_list, requester_list, default_himoku,
             )
             if rtn:
                 msg = "データの取り込みが完了しました。"
@@ -330,14 +336,6 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         msg_list = [a for a in tmp_list if a != ""]
         # 支払管理の場合、4行で1レコード。(状況、摘要、支払先、支払い金額)
         data_list = self.translate_payment(msg_list, 4)
-        # Himokuマスターから費目名のListを作成
-        himoku_list = list(Himoku.get_himoku_list())
-        # 取り込んだデータに費目名を追加
-        data_list = self.set_himoku(data_list, himoku_list)
-        # ここで取り込んだKuraselのデータの1行目の3列目が数字かどうかで、ヘッダーかどうかチェックする。
-        if data_list[0][3].isdigit() is False:
-            msg = "ヘッダーが含まれています。ヘッダーを除いてコピーしてください"
-            messages.add_message(self.request, messages.ERROR, msg)
         context = {
             "form": form,
             "data_list": data_list,
@@ -347,6 +345,16 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
             "mode": mode,
             "author": self.request.user.id,
         }
+        # Himokuマスターから費目名のListを作成
+        himoku_list = list(Himoku.get_himoku_list())
+        # 取り込んだデータに費目名を追加
+        data_list = self.set_himoku(data_list, himoku_list)
+        if data_list is None:
+            return render(self.request, self.template_name, context)
+        # ここで取り込んだKuraselのデータの1行目の3列目が数字かどうかで、ヘッダーかどうかチェックする。
+        if data_list[0][3].isdigit() is False:
+            msg = "ヘッダーが含まれています。ヘッダーを除いてコピーしてください"
+            messages.add_message(self.request, messages.ERROR, msg)
         if "確認" in mode:
             # 合計を計算
             total = 0
@@ -398,7 +406,13 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         """
         new_data_list = []
         # default費目名を求める。
-        default_himoku_name = Himoku.get_default_himoku().values("himoku_name")[0]["himoku_name"]
+        # default_himoku = Himoku.get_default_himoku().values("himoku_name")[0]
+        default_himoku = Himoku.get_default_himoku()
+        if default_himoku:
+            default_himoku_name = default_himoku.himoku_name
+        else:
+            messages.info(self.request, "defaultの費目名が設定されていません。管理者に連絡してください")
+            return None
         for data in data_list:
             chk = True
             for himoku in himoku_list:
