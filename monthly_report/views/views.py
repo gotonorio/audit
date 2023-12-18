@@ -590,12 +590,11 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
         offset_himoku_name = ControlRecord.get_offset_himoku()
         if offset_himoku_name is None:
             messages.info(self.request, "相殺処理する費目が設定されていません。")
-        account_transfer_fee = Himoku.get_himoku_obj(offset_himoku_name, "all")
         # 期間と相殺処理する費目名でfiler
         qs = (
             ReportTransaction.objects.all()
             .filter(transaction_date__range=[tstart, tend])
-            .filter(himoku=account_transfer_fee)
+            .filter(himoku__himoku_name=offset_himoku_name)
             .order_by("-transaction_date")
         )
         form = MonthlyReportViewForm(

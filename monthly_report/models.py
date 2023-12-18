@@ -155,6 +155,9 @@ class ReportTransaction(models.Model):
         for item in data["data_list"]:
             try:
                 # himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
+                # ToDo allにすると、管理会計の「受取利息」修繕会計の「受取利息」があるため、
+                # 修繕会計の「受取利息」を「無効」にしている。
+                # Kuraselで修繕会計の「受取利息」を削除した場合に、費目マスタから削除する予定。
                 himoku_id = Himoku.get_himoku_obj(item[0], "all")
                 ac_class_obj = AccountingClass.get_accountingclass_obj(ac_class)
                 cls.objects.update_or_create(

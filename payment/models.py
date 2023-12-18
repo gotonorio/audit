@@ -36,12 +36,15 @@ class Payment(models.Model):
     def payment_from_kurasel(cls, data):
         """kurasel_translatorから承認済み支払いデータを読み込む。
         - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日」でget_or_createする。
+        - 費目はdefault費目をセットする。
         """
         # 支払日
         date_str = str(data["year"]) + str(data["month"]) + data["day"]
         payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")
         error_list = []
         rtn = True
+        # default費目を取得する。
+        default_himoku = Himoku.get_default_himoku()
         for item in data["data_list"]:
             try:
                 cls.objects.get_or_create(
@@ -50,7 +53,7 @@ class Payment(models.Model):
                     payment_date=payment_day,
                     defaults={
                         "summary": item[1],
-                        "himoku": Himoku.get_himoku_obj(item[4], "all"),
+                        "himoku": default_himoku,
                     },
                 )
             except Exception as e:
