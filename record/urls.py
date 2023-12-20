@@ -79,4 +79,14 @@ urlpatterns = [
         data_operate.HimokuCsvReadView.as_view(),
         name="read_himoku_csv",
     ),
+    path(
+        "approval_text_create/",
+        data_operate.ApprovalTextCreateView.as_view(),
+        name="approval_text_create",
+    ),
+    path(
+        "approval_text_update/<int:pk>",
+        data_operate.ApprovalTextUpdateView.as_view(),
+        name="approval_text_update",
+    ),
 ]

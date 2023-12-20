@@ -11,6 +11,7 @@ from record.models import (
     Himoku,
     Transaction,
     TransferRequester,
+    ApprovalCheckData,
 )
 
 logger = logging.getLogger(__name__)
@@ -449,3 +450,43 @@ class HimokuListForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={"class": "select-css"}),
     )
+
+
+class ApprovalCheckDataForm(forms.ModelForm):
+    """振込依頼者データ登録/修正用Form"""
+
+    atext = forms.CharField(
+        label="判定文字列",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "class": "input",
+            }
+        ),
+    )
+
+    class Meta:
+        model = ApprovalCheckData
+        fields = [
+            "atext",
+            "comment",
+            "alive",
+        ]
+        widgets = {
+            "atext": forms.TextInput(
+                attrs={
+                    "class": "input",
+                }
+            ),
+            "comment": forms.TextInput(
+                attrs={
+                    "class": "input",
+                }
+            ),
+            "alive": forms.CheckboxInput(
+                attrs={
+                    "class": "checkbox",
+                }
+            ),
+        }
+

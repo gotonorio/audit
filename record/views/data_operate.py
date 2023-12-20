@@ -20,8 +20,15 @@ from record.forms import (
     TransactionDivideForm,
     TransactionDivideFormSet,
     TransactionOffsetForm,
+    ApprovalCheckDataForm,
 )
-from record.models import Account, Himoku, Transaction, TransferRequester
+from record.models import (
+    Account,
+    Himoku,
+    Transaction,
+    TransferRequester,
+    ApprovalCheckData,
+)
 
 logger = logging.getLogger(__name__)
 user = get_user_model()
@@ -157,6 +164,7 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
 
 class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
     """費目データ一覧表示"""
+
     model = Himoku
     template_name = "record/himoku_list.html"
     permission_required = "record.add_transaction"
@@ -426,3 +434,35 @@ class HimokuCsvReadView(PermissionRequiredMixin, generic.FormView):
             rtn, error_list = Himoku.save_himoku(himoku_list)
 
         return redirect("record:himoku_create")
+
+
+class ApprovalTextCreateView(PermissionRequiredMixin, generic.CreateView):
+    """支払い承認判定用テキスト CreateView"""
+
+    model = ApprovalCheckData
+    form_class = ApprovalCheckDataForm
+    template_name = "record/approval_text_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    success_url = reverse_lazy("record:approval_text_create")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["approval_text_list"] = ApprovalCheckData.objects.all()
+        return context
+
+
+class ApprovalTextUpdateView(PermissionRequiredMixin, generic.UpdateView):
+    """支払い承認判定用テキスト UpdateView"""
+
+    model = ApprovalCheckData
+    form_class = ApprovalCheckDataForm
+    template_name = "record/approval_text_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    success_url = reverse_lazy("record:approval_text_create")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["approval_text_list"] = ApprovalCheckData.objects.all()
+        return context

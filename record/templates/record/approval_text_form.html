@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}
+支払い承認判定テキストの編集
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a href="{% url 'register:master_page' %}" class="navbar-item">戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content">
+    <h4 class="has-text-centered">支払い承認判定用テキストの登録/修正</h4>
+
+    <form method='POST' enctype='multipart/form-data' id='form_style'>
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class='field'>
+          <div class='control'>
+            <div class='label'>{{ field.label_tag }}</div>
+            <div class='my_field'>{{ field }}</div>
+            {% if field.help_text %}
+              <span class='helptext'>{{ field.help_text }}</span>
+            {% endif %}
+            {{ field.errors }}
+          </div>
+        </div>
+      {% endfor %}
+      {% csrf_token %}
+      <br>
+      <div class='my_button has-text-centered'>
+        <button type='submit' class='button is-primary is-size-7'>登録</button>
+        <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+      </div>
+    </form>
+
+  </div>
+  <br>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">判定文字列</th>
+          <th class="has-text-centered">備考</th>
+          <th class="has-text-centered">有効</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in approval_text_list %}
+        <tr>
+          <td class="has-text-left"><a href="{% url 'record:approval_text_update' record.pk %}">{{record.atext}}</a></td>
+          <td class="has-text-left">{{record.comment|default_if_none:""}}</td>
+          <td class="has-text-left">{{record.alive}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}
