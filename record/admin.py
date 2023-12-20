@@ -7,6 +7,7 @@ from record.models import (
     Himoku,
     Transaction,
     TransferRequester,
+    ApprovalCheckData,
 )
 
 
@@ -54,8 +55,13 @@ class TransactionAdmin(admin.ModelAdmin):
         "himoku",
         "balance",
         "description",
+        "is_approval",
     ]
     ordering = ("transaction_date",)
+
+
+class ApprovalCheckDataAdmin(admin.ModelAdmin):
+    list_display = ["atext", "comment", "alive"]
 
 
 # Register your models here.
@@ -65,3 +71,4 @@ admin.site.register(AccountingClass, AccountingClassAdmin)
 admin.site.register(Himoku, HimokuAdmin)
 admin.site.register(TransferRequester, TransferRequesterAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(ApprovalCheckData, ApprovalCheckDataAdmin)

@@ -1,9 +1,8 @@
 import logging
+import re
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
-# from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 
@@ -262,6 +261,8 @@ class Transaction(models.Model):
     # 2023-08-20 前受金を分別するための手入力データフラグ。
     # 合算入力された取引データの相殺データと、分割して追加入力したデータではTrueにする。
     is_manualinput = models.BooleanField(default=False)
+    # 2023-12-19支払い承認フラグを追加。
+    is_approval = models.BooleanField(verbose_name="承認必要", default=True)
 
     def __str__(self):
         return self.himoku.himoku_name
@@ -323,28 +324,26 @@ class Transaction(models.Model):
         """querysetを返す。
         資金移動は含むので、必要なら呼び出し側で処理する。
         tstart/tend : 抽出期間。
-        account : 口座名（Kuraselの場合は1口座となる。
-        ac_class : 費目名に紐づいた会計区分。
-        deposit_flg : 入金はTrue、出金はFalse。""の場合は入出金を抽出する。
-        manualinput : 手入力データを含めて抽出の場合はTrue。
-        manualinput=Trueの場合、補正データを表示する。Falseの場合、Kuraselの入出金明細データだけを表示。
+        account:口座名（Kuraselの場合は1口座となる。
+        ac_class:会計区分。
+        deposit_flg:入金はincome、出金はexpense。""の場合は入出金の両方を抽出する。
+        manualinput:手入力データを含めて抽出の場合はTrue。
+        manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
         """
         qs_pb = cls.objects.all().select_related("himoku")
+        # 補正データを含める場合はfilterをしない。
         if manualinput:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(
                 is_manualinput=False
             )
+        # 入金・出金のfilter
         if deposit_flg == "income":
-            # 収入を抽出。
             qs_pb = qs_pb.filter(is_income=True)
         elif deposit_flg == "expense":
-            # 支出を抽出
             qs_pb = qs_pb.filter(is_income=False)
-            # 修繕費（旧保管口座の修繕会計分）を除外【変更】2022-7-24
-            # qs_pb = qs_pb.exclude(himoku__himoku_name='修繕工事費')
-        # 口座種類でfilter
+        # 口座種類でfilter（Kuraselでは1口座なので常にacoountは""とする。
         if account != "":
             qs_pb = qs_pb.filter(account=account)
         # 費目の会計区分でfilter
@@ -429,3 +428,49 @@ class Transaction(models.Model):
                 error_list.append(item[4])
                 rtn = False
         return rtn, error_list
+
+    @classmethod
+    def set_is_approval_text(cls, qs_transaction):
+        """摘要欄文字列で支払い承認が必要かどうかのフラグを設定する
+        - ToDo 今の所「費目」で支払い承認不要としていてもチェックをする。
+        """
+        qs = ApprovalCheckData.objects.filter(alive=True)
+        # 入出金明細データでループ
+        for qs_data in qs_transaction:
+            description = qs_data.description
+            # チェック用テキストで支払い承認不要のフラグをセットする。
+            for i in qs:
+                check_obj = re.search(i.atext, description)
+                if check_obj:
+                    pk = qs_data.id
+                    obj = Transaction.objects.get(pk=pk)
+                    obj.is_approval = False
+                    obj.save()
+        return None
+
+    @classmethod
+    def set_is_approval_himoku(cls, qs_transaction):
+        """費目で支払い承認が必要かどうかのフラグを設定する
+        - ToDo 今の所「費目」で支払い承認不要としていてもチェックをする。
+        """
+        # 入出金明細データでループ
+        for qs_data in qs_transaction:
+            is_approval = qs_data.himoku.is_approval
+            if is_approval is False:
+                pk = qs_data.id
+                obj = cls.objects.get(pk=pk)
+                obj.is_approval = False
+                obj.save()
+        return None
+
+class ApprovalCheckData(models.Model):
+    """入出金明細データの「支払い承認」が必要か否かを判定するための文字列オブジェクト"""
+
+    atext = models.CharField(
+        verbose_name="チェック文字列", max_length=16, blank=True, null=True, unique=True
+    )
+    comment = models.CharField(verbose_name="備考", max_length=50, blank=True, null=True)
+    alive = models.BooleanField(verbose_name="有効", default=True)
+
+    def __str__(self):
+        return self.atext

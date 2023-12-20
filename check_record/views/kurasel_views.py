@@ -15,7 +15,7 @@ from kurasel_translator.my_lib.append_list import select_period
 # from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment
-from record.models import Transaction
+from record.models import Transaction, ApprovalCheckData
 
 logger = logging.getLogger(__name__)
 
@@ -73,16 +73,20 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
 
         # 抽出期間
         tstart, tend = select_period(year, month)
-        # 承認済み支払いデータ
+        # 支払い承認データ
         qs_payment, total_ap = Payment.kurasel_get_payment(tstart, tend)
-        # 通帳（入出金明細）データの取得。費目で集計する。（管理口座）
+        # 入出金明細データの取得。（口座は常に""とする）
         qs_pb = Transaction.get_qs_pb(tstart, tend, "", "", "expense", False)
         qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
+        # step1 摘要欄コメントで支払い承認の有無をチェック。
+        _ = Transaction.set_is_approval_text(qs_pb)
+        # step2 費目で支払い承認の有無をチェック。
+        _ = Transaction.set_is_approval_himoku(qs_pb)
 
         # 支出合計金額。（支払い承認が必要な費目だけの合計とする）
         total_pb = 0
         for d in qs_pb:
-            if d.himoku.is_approval:
+            if d.is_approval:
                 total_pb += d.ammount
 
         # 未払いデータ
@@ -170,7 +174,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 月次収支の支出合計（ネッティング処理の費目を控除する）
         qs_mr_without_netting = qs_mr.exclude(is_netting=True)
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
-        # 通帳（入出金明細）の支出データ
+        # 入出金明細の支出データ
         qs_pb = Transaction.get_qs_pb(tstart, tend, "", "", "expense", True)
         qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
         # 通帳データの合計（集計フラグがTrueの費目合計）

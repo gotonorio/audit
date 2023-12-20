@@ -114,6 +114,7 @@ class TransactionCreateForm(forms.ModelForm):
             "requesters_name",
             "description",
             "calc_flg",
+            "is_approval",
         ]
         labels = {"calc_flg": "計算対象", "is_manualinput": "手動入力Flg"}
         widgets = {
@@ -141,10 +142,16 @@ class TransactionCreateForm(forms.ModelForm):
                     "class": "input",
                 }
             ),
+            "is_approval": forms.CheckboxInput(
+                attrs={
+                    "class": "checkbox",
+                }
+            ),
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
             "calc_flg": "※ 前受金の場合はチェックしない。",
+            "is_approval": "支払い承認が不要の場合、チェックを外す。"
         }
 
     def clean_transaction_date(self):
