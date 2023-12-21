@@ -69,7 +69,7 @@
         <tr>
           {% comment %} <td class="has-text-left">{{record.himoku__account_title__account_title_name|truncatechars:8}}</td> {% endcomment %}
           <td class="has-text-left">{{record.himoku__accounting_class__accounting_name}}</td>
-          <td class="has-text-left">{{record.himoku__himoku_name}}</td>
+          <td class="has-text-left">{{record.himoku__himoku_name|truncatechars:15}}</td>
           <td class="has-text-right">{{record.month1|intcomma}}</td>
           <td class="has-text-right">{{record.month2|intcomma}}</td>
           <td class="has-text-right">{{record.month3|intcomma}}</td>

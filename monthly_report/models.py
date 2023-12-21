@@ -185,7 +185,7 @@ class ReportTransaction(models.Model):
         tstart, tend = select_period(str(year), str(month))
         qs = cls.objects.filter(transaction_date__range=[tstart, tend])
         for data in qs:
-            if data.himoku.himoku_name == himoku:
+            if data.himoku and data.himoku.himoku_name == himoku:
                 update_obj = cls.objects.get(pk=data.pk)
                 update_obj.is_netting = True
                 update_obj.save()
