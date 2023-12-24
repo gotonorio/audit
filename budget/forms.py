@@ -36,8 +36,8 @@ class Budget_listForm(forms.Form):
     )
     kind = forms.ChoiceField(
         choices=(
-            (0, "入出金明細"),
-            (1, "月次報告"),
+            (0, "月次報告"),
+            (1, "入出金明細"),
         ),
         widget=forms.Select(
             attrs={

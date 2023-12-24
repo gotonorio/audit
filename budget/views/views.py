@@ -148,11 +148,11 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         )
         qs_budget = qs_budget.order_by("himoku__code")
 
-        # 累計支出を算出する
+        # 累計支出を算出する。デフォルトは月次報告のデータを使う。
         if kind == 0:
-            qs_expense = Transaction.objects.select_related("himoku")
-        else:
             qs_expense = ReportTransaction.objects.select_related("himoku")
+        else:
+            qs_expense = Transaction.objects.select_related("himoku")
         # 入金以外（支出、資金移動）でfiler
         qs_expense = qs_expense.filter(himoku__is_income=False)
         # 計算対象でfilter
