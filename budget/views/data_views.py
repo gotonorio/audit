@@ -102,6 +102,19 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
     # 保存が成功した場合に遷移するurl
     success_url = reverse_lazy("budget:budget_update_list")
 
+    def get_form_kwargs(self, *args, **kwargs):
+        """Formクラスへ値(accounting_class名)を渡す
+        - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+        - https://itc.tokyo/django/get-form-kwargs/
+        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+        """
+        kwargs = super().get_form_kwargs(*args, **kwargs)
+        # 会計区分名をkwargsに追加する。
+        pk = self.object.pk
+        ac_class_name = ExpenseBudget.objects.get(pk=pk).himoku.accounting_class
+        kwargs["ac_class"] = ac_class_name
+        return kwargs
+
 
 class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
     """管理会計予算の修正用リスト表示処理"""
@@ -113,44 +126,54 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
+        ac_class = self.request.GET.get("ac_class", 1)
         # 支出予算
         qs = ExpenseBudget.objects.filter(year=year).filter(himoku__alive=True)
-        # 管理会計区分のみとしてfilterする。
-        kanriclass_name = AccountingClass.get_class_name("管理")
-        qs = qs.filter(
-            himoku__accounting_class__accounting_name=kanriclass_name
-        ).order_by("himoku__code")
+        qs = qs.filter(himoku__accounting_class=ac_class).order_by("himoku__code")
+        if qs is None:
+            messages.info(self.request, f"予算が作成されていないようです。")
+            return context
+
         # 予算合計（年間）
         total_qs = qs.aggregate(Sum("budget_expense"))
         total_budget = total_qs["budget_expense__sum"]
-        # 管理会計収入額（年間）
-        income_qs = ControlRecord.objects.values(
-            "annual_management_fee", "annual_greenspace_fee"
-        )
-        if income_qs:
-            annual_income = (
-                income_qs[0]["annual_management_fee"]
-                + income_qs[0]["annual_greenspace_fee"]
+
+        ### 以下は管理会計の場合だけ、予算オーバのチェックを行う
+        class_name = AccountingClass.get_accountingclass_name(ac_class)
+        if class_name == "管理費会計":
+            # 管理会計収入額（年間）
+            income_qs = ControlRecord.objects.values(
+                "annual_management_fee", "annual_greenspace_fee"
             )
-        if total_budget - annual_income > 0:
-            messages.info(self.request, f"予算({annual_income}円)をオーバーしています。")
+            if income_qs:
+                annual_income = (
+                    income_qs[0]["annual_management_fee"]
+                    + income_qs[0]["annual_greenspace_fee"]
+                )
+            if total_budget - annual_income > 0:
+                messages.info(self.request, f"予算({annual_income}円)をオーバーしています。")
+            context["annual_income"] = annual_income
+
         # forms.pyのKeikakuListFormに初期値を設定する
         form = Budget_listForm(
             initial={
                 "year": year,
+                "ac_class": ac_class,
             }
         )
         ki = year - 1998
+        title = ac_class
         context["title"] = f"{year}年 第{ki}期 管理会計予算"
         context["form"] = form
         context["budget"] = qs
         context["total"] = total_budget
-        context["annual_income"] = annual_income
         return context
 
 
 class DuplicateBudgetView(PermissionRequiredMixin, generic.FormView):
-    """年次（複製）処理"""
+    """年次（複製）処理
+    - 複製する必要があるのは管理会計予算のみ。
+    """
 
     template_name = "budget/duplicate_budget.html"
     form_class = DuplicateBudgetForm
@@ -190,19 +213,19 @@ class DuplicateBudgetView(PermissionRequiredMixin, generic.FormView):
         if is_exist:
             msg = f"{target_year}年のデータは存在します。"
             messages.info(request, msg)
-            redirect("budget:budget_update_list")
-        # 最新の予算データ
-        qs = ExpenseBudget.objects.all().filter(year=source_year)
-        new_budget = []
-        for d in qs:
-            budget = ExpenseBudget(
-                year=target_year,
-                himoku=d.himoku,
-                budget_expense=d.budget_expense,
-                comment=d.comment,
-            )
-            new_budget.append(budget)
-        ExpenseBudget.objects.bulk_create(new_budget)
+        else:
+            # 複製を作成
+            qs = ExpenseBudget.objects.all().filter(year=source_year)
+            new_budget = []
+            for d in qs:
+                budget = ExpenseBudget(
+                    year=target_year,
+                    himoku=d.himoku,
+                    budget_expense=d.budget_expense,
+                    comment=d.comment,
+                )
+                new_budget.append(budget)
+            ExpenseBudget.objects.bulk_create(new_budget)
         return redirect(self.get_success_url())
 
 

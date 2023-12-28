@@ -24,12 +24,11 @@
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <form class="navbar-item" action="{% url 'budget:budget_update_list'%}" method="get">
-        {{form.year}}
+        {{form.year}}{{form.ac_class}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'budget:duplicate' %}">複製</a>
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
@@ -77,7 +76,7 @@
         {% endfor %}
         <td></td>
         <td class="has-text-rigjt">{{total|intcomma}}</td>
-        <td class="has-text-left">{{annual_income|intcomma}}（収入合計） </td>
+        <td class="has-text-left">{{annual_income|intcomma}}</td>
         <td></td>
       </tbody>
     </table>

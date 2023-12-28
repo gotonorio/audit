@@ -66,7 +66,10 @@ def backupDB(request):
 
     # backupファイルが20を超えたら古いバックアップを削除する。
     # backupファイルのリスト
-    file_list = os.listdir("./backupDB")
+    try:
+        file_list = os.listdir("./backupDB")
+    except:
+        return redirect("register:master_page")
     if len(file_list) >= settings.BACKUP_NUM:
         file_list.sort()
         # ソートした結果の最初（古い）ファイルを削除する。

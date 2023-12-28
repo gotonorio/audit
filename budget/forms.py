@@ -82,7 +82,7 @@ class BudgetExpenseForm(forms.ModelForm):
         # 費目の選択要素をac_class_nameでfilterする。
         self.fields["himoku"].queryset = Himoku.objects.filter(
             accounting_class__accounting_name=ac_class_name
-        )
+        ).filter(is_income=False)
         self.fields["himoku"].widget.attrs["class"] = "select-css"
         self.fields["himoku"].label = "支出費目選択"
 

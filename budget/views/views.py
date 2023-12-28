@@ -84,18 +84,18 @@ def near_month(qs):
 
 class BudgetListView(LoginRequiredMixin, TemplateView):
     """管理会計支出の予算・実績対比表
-    - 予算実績対比表はログインユーザが閲覧可能とする。
     """
 
     model = ExpenseBudget
     template_name = "budget/budget_list.html"
+    # 予算実績対比表はログインユーザが閲覧可能とするため下記をコメントアウト。
     # permission_required = ("record.view_transaction",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         month = int(self.request.GET.get("month", 12))
-        ac_class = self.request.GET.get("ac_class")
+        ac_class = self.request.GET.get("ac_class", 1)
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]
         # 会計年度
@@ -110,10 +110,8 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
             .filter(himoku__is_income=False)
         )
         # 会計区分によるfilter
-        if ac_class == "":
-            ac_class_name = AccountingClass.get_class_name("管理")
-        else:
-            ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
+        ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
+        # 管理会計予算の抽出
         (
             compair_list,
             current_date,
