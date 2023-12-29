@@ -103,15 +103,10 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         period[0] = timezone.datetime(year, 1, 1, 0, 0, 0)
         period[1] = timezone.datetime(year, month, day, 0, 0, 0)
         # 年間の支出予算
-        qs_budget = (
-            ExpenseBudget.objects.select_related("himoku")
-            .filter(year=year)
-            .filter(himoku__alive=True)
-            .filter(himoku__is_income=False)
-        )
-        # 会計区分によるfilter
+        qs_budget = ExpenseBudget.get_expense_budget(year, ac_class)
+        # 会計区分名
         ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
-        # 管理会計予算の抽出
+        # 会計予算の抽出
         (
             compair_list,
             current_date,

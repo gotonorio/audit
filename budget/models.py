@@ -22,7 +22,7 @@ class IncomeBudget(models.Model):
 
 
 class ExpenseBudget(models.Model):
-    """管理会計支出予算"""
+    """支出予算モデル"""
 
     year = models.IntegerField(verbose_name="西暦", default=timezone.now().year)
     himoku = models.ForeignKey(Himoku, on_delete=models.CASCADE)
@@ -32,9 +32,25 @@ class ExpenseBudget(models.Model):
     def __str__(self):
         return self.himoku.himoku_name
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["year", "himoku"], name="budget_himoku_unique"
-            ),
-        ]
+    # 登録は同じ費目を複数登録できるようにconstraints制約をコメントアウトする。2023-12-29
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=["year", "himoku"], name="budget_himoku_unique"
+    #         ),
+    #     ]
+
+    @classmethod
+    def get_expense_budget(cls, year, ac_class):
+        """支出予算の一覧querysetを返す
+        - year: 年度
+        - ac_class: 会計区分
+        """
+        # 年間の支出予算
+        qs = (
+            cls.objects.select_related("himoku")
+            .filter(year=year)
+            .filter(himoku__alive=True)
+            .filter(himoku__is_income=False)
+        )
+        return qs
