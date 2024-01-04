@@ -23,7 +23,7 @@
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link is-size-6">通帳明細</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">通帳取引明細(Original)</a>
+            <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Original)</a>
             {% if perms.record.add_transaction %}
               <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
             {% endif %}
