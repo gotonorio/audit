@@ -66,6 +66,18 @@ def check_accountingtype(data, ac, kind):
             and ac in settings.PARKING_PAYMENT
         ):
             return True
+        elif (
+            d[0] in settings.COMMUNITY_INCOME
+            and kind in settings.COMMUNITY_INCOME
+            and ac in settings.COMMUNITY_INCOME
+        ):
+            return True
+        elif (
+            d[0] in settings.COMMUNITY_PAYMENT
+            and kind in settings.COMMUNITY_PAYMENT
+            and ac in settings.COMMUNITY_PAYMENT
+        ):
+            return True
     return False
 
 
@@ -128,7 +140,9 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
+            rtn, error_list = ReportTransaction.monthly_from_kurasel(
+                accounting_class, context
+            )
             # ToDo 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
@@ -137,11 +151,9 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             if rtn:
                 msg = "月次収支データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
-                ac_id = AccountingClass.objects.get(accounting_name=accounting_class).id
                 # 保存成功後に遷移する場合のパラメータ。受け取りはkwargs.get["year"]とする。
-                param = dict(
-                    year=year, month=str(month).zfill(2), ac_class=ac_id
-                )
+                ac_id = AccountingClass.objects.get(accounting_name=accounting_class).id
+                param = dict(year=year, month=str(month).zfill(2), ac_class=ac_id)
                 # 取り込みに成功したら、一覧表表示する。
                 if kind == "収入":
                     # 収入データの取り込みに成功したら、一覧表表示する。
@@ -246,7 +258,10 @@ class DepositWithdrawalView(MonthlyBalanceView):
             requester_list = TransferRequester.get_requester_obj()
             # 入出金入出金明細データの取り込み。
             rtn, error_list = Transaction.dwd_from_kurasel(
-                context, payment_method_list, requester_list, default_himoku,
+                context,
+                payment_method_list,
+                requester_list,
+                default_himoku,
             )
             if rtn:
                 msg = "データの取り込みが完了しました。"

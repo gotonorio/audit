@@ -157,13 +157,13 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
 
     def get_success_url(self):
         qs = ReportTransaction.objects.filter(pk=self.object.pk).values(
-            "transaction_date", "account"
+            "transaction_date", "accounting_class"
         )
         year = qs[0]["transaction_date"].year
         month = qs[0]["transaction_date"].month
-        # account = qs[0]['account']
+        ac_class = qs[0]['accounting_class']
         return reverse_lazy(
-            "monthly_report:incomelist", kwargs={"year": year, "month": month}
+            "monthly_report:incomelist", kwargs={"year": year, "month": month, "ac_class": ac_class}
         )
 
 
