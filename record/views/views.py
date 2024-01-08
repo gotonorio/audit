@@ -49,7 +49,9 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 表示順序
         if list_order == "0":
-            qs = qs.order_by("-transaction_date", "himoku","is_manualinput", "requesters_name")
+            qs = qs.order_by(
+                "-transaction_date", "himoku", "is_manualinput", "requesters_name"
+            )
         else:
             qs = qs.order_by("himoku", "-transaction_date", "requesters_name")
         # 合計金額
@@ -110,5 +112,56 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
             }
         )
         context["chk_obj"] = qs
+        context["form"] = form
+        return context
+
+
+class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
+    """残高を計算する"""
+
+    model = Transaction
+    template_name = "record/recalc_balance_form.html"
+    permission_required = "record.add_transaction"
+
+    def recalc(self, qs, balance):
+        rebalance = {}
+        for obj in qs:
+            # 入金のコードは99以下とする。
+            if obj.is_income:
+                balance += obj.ammount
+            else:
+                balance -= obj.ammount
+            rebalance[obj.transaction_date] = balance
+        return rebalance
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 日付
+        sdate = self.request.GET.get("sdate")
+        # 残高
+        balance = self.request.GET.get("balance")
+        if sdate:
+            start_date = sdate.split("-")
+            year = start_date[0]
+            month = start_date[1]
+            day = start_date[2]
+        # 口座と初期データがあれば残高を計算する。
+        if sdate and balance:
+            sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
+            tdate = sdate + timezone.timedelta(days=1)
+            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by(
+                "transaction_date"
+            )
+            # 残高の再計算処理
+            rebalance = self.recalc(qs, int(balance))
+            context["rebalance_list"] = rebalance
+
+        # forms.pyのKeikakuListFormに初期値を設定する
+        form = RecalcBalanceForm(
+            initial={
+                "sdate": sdate,
+                "balance": balance,
+            }
+        )
         context["form"] = form
         return context

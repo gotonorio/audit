@@ -490,3 +490,24 @@ class ApprovalCheckDataForm(forms.ModelForm):
             ),
         }
 
+
+class RecalcBalanceForm(forms.Form):
+    """通帳残高チェック用"""
+
+    sdate = forms.DateField(
+        label="残高基準日",
+        required=True,
+        help_text='* 残高の判明している日付を設定。',
+        widget=forms.DateInput(
+            attrs={
+                "class": "input",
+                "placeholder": "YYYY-MM-DD",
+            }
+        ),
+    )
+    balance = forms.IntegerField(
+        label="基準日残高",
+        required=False,
+        # help_text='* 基準日の最終残高を設定。',
+        widget=forms.NumberInput(attrs={"class": "input"}),
+    )

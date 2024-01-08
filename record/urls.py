@@ -44,9 +44,7 @@ urlpatterns = [
     path(
         "himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"
     ),
-    path(
-        "himoku_list/", data_operate.HimokuListView.as_view(), name="himoku_list"
-    ),
+    path("himoku_list/", data_operate.HimokuListView.as_view(), name="himoku_list"),
     path(
         "himoku_update/<int:pk>/",
         data_operate.HimokuUpdateView.as_view(),
@@ -89,4 +87,6 @@ urlpatterns = [
         data_operate.ApprovalTextUpdateView.as_view(),
         name="approval_text_update",
     ),
+    # 残高チェック
+    path("recalc_balance/", views.RecalcBalance.as_view(), name="recalc_balance"),
 ]

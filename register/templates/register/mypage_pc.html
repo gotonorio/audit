@@ -25,6 +25,7 @@
           <div class="navbar-dropdown">
             <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Original)</a>
             {% if perms.record.add_transaction %}
+              <a class="navbar-item" href="{% url 'record:recalc_balance' %}">残高チェック</a>
               <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
             {% endif %}
           </div>
