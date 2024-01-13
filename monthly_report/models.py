@@ -17,9 +17,7 @@ logger = logging.getLogger(__name__)
 class ReportTransaction(models.Model):
     """月次報告書取引明細"""
 
-    account = models.ForeignKey(
-        Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
-    )
+    account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
     accounting_class = models.ForeignKey(
         AccountingClass,
         verbose_name="会計区分",
@@ -29,16 +27,12 @@ class ReportTransaction(models.Model):
     )
     transaction_date = models.DateField("取引月")
     ammount = models.IntegerField("金額", default=0)
-    himoku = models.ForeignKey(
-        Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True
-    )
+    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
     miharai_flg = models.BooleanField(default=False)
     mishuu_flg = models.BooleanField(default=False)
     calc_flg = models.BooleanField(verbose_name="計算対象", default=True)
     description = models.CharField("摘要", max_length=64, blank=True, default="")
-    author = models.ForeignKey(
-        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
-    )
+    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
     delete_flg = models.BooleanField(default=False)
     is_netting = models.BooleanField(verbose_name="相殺処理", default=False)
@@ -157,7 +151,7 @@ class ReportTransaction(models.Model):
                 # himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
                 # ToDo allにすると、管理会計の「受取利息」修繕会計の「受取利息」があるため、修繕会計の「受取利息」を「無効」にしている。
                 # Kuraselで修繕会計の「受取利息」を削除した場合に、費目マスタから削除する予定。
-                himoku_id = Himoku.get_himoku_obj(item[0], "all")
+                himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
                 ac_class_obj = AccountingClass.get_accountingclass_obj(ac_class)
                 cls.objects.update_or_create(
                     transaction_date=ymd,
@@ -219,9 +213,7 @@ class BalanceSheet(models.Model):
 
     monthly_date = models.DateField(verbose_name="月度", null=True, blank=True)
     amounts = models.IntegerField(verbose_name="金額", default=0)
-    item_name = models.ForeignKey(
-        BalanceSheetItem, on_delete=models.CASCADE, null=True, blank=True
-    )
+    item_name = models.ForeignKey(BalanceSheetItem, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField(verbose_name="備考", max_length=64, null=True, blank=True)
 
     def __int__(self):
@@ -233,19 +225,13 @@ class BalanceSheet(models.Model):
     @classmethod
     def get_bs(cls, tstart, tend, ac_class, is_asset):
         """期間と資産・負債フラグで貸借対照表データ抽出する。"""
-        qs_bs = (
-            cls.objects.all()
-            .select_related("item_name")
-            .filter(item_name__is_asset=is_asset)
-        )
+        qs_bs = cls.objects.all().select_related("item_name").filter(item_name__is_asset=is_asset)
         # 期間でfiler
         qs_bs = qs_bs.filter(monthly_date__range=[tstart, tend])
         if ac_class:
             qs_bs = qs_bs.filter(item_name__ac_class=ac_class)
         else:
-            qs_bs = qs_bs.values("item_name__item_name").annotate(
-                all_amounts=Sum("amounts")
-            )
+            qs_bs = qs_bs.values("item_name__item_name").annotate(all_amounts=Sum("amounts"))
 
         return qs_bs
 
@@ -263,9 +249,7 @@ class BalanceSheet(models.Model):
         for item_name, amounts in data["bs_dict"].items():
             # item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(item_name=item_name)
             try:
-                item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(
-                    item_name=item_name
-                )
+                item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(item_name=item_name)
                 cls.objects.update_or_create(
                     monthly_date=monthly_date,
                     item_name=item_name_obj,

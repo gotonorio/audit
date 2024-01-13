@@ -30,16 +30,10 @@ def check_accountingtype(data, ac, kind):
     - kind : 収入 or 支出
     """
     for d in data:
-        if (
-            d[0] in settings.KANRI_INCOME
-            and kind in settings.KANRI_INCOME
-            and ac in settings.KANRI_INCOME
-        ):
+        if d[0] in settings.KANRI_INCOME and kind in settings.KANRI_INCOME and ac in settings.KANRI_INCOME:
             return True
         elif (
-            d[0] in settings.KANRI_PAYMENT
-            and kind in settings.KANRI_PAYMENT
-            and ac in settings.KANRI_PAYMENT
+            d[0] in settings.KANRI_PAYMENT and kind in settings.KANRI_PAYMENT and ac in settings.KANRI_PAYMENT
         ):
             return True
         elif (
@@ -140,9 +134,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = ReportTransaction.monthly_from_kurasel(
-                accounting_class, context
-            )
+            rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
             # ToDo 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
@@ -157,15 +149,11 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
                 # 取り込みに成功したら、一覧表表示する。
                 if kind == "収入":
                     # 収入データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param(
-                        "monthly_report:incomelist", param
-                    )
+                    url = append_list.redirect_with_param("monthly_report:incomelist", param)
                     return redirect(url)
                 else:
                     # 支出データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param(
-                        "monthly_report:expenselist", param
-                    )
+                    url = append_list.redirect_with_param("monthly_report:expenselist", param)
                     return redirect(url)
             else:
                 # msg = f'月次収支データの取り込みに失敗しました。費目名 ＝ {error_list[0]}'
@@ -184,9 +172,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         record_list = []
         line_list = []
         for line in msg_list:
-            line_list.append(
-                line.replace("¥", "").replace("（円）", "").replace(",", "").strip()
-            )
+            line_list.append(line.replace("¥", "").replace("（円）", "").replace(",", "").strip())
             cnt += 1
             if cnt == row:
                 record_list.append(line_list)

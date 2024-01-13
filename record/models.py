@@ -93,9 +93,7 @@ class Himoku(models.Model):
     alive = models.BooleanField(verbose_name="有効", default=True)
     aggregate_flag = models.BooleanField(verbose_name="集計", default=True)
     # Kurasel導入で追加
-    accounting_class = models.ForeignKey(
-        AccountingClass, on_delete=models.CASCADE, blank=True, null=True
-    )
+    accounting_class = models.ForeignKey(AccountingClass, on_delete=models.CASCADE, blank=True, null=True)
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
 
@@ -104,9 +102,7 @@ class Himoku(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=["himoku_name", "accounting_class"], name="himoku_unique"
-            ),
+            models.UniqueConstraint(fields=["himoku_name", "accounting_class"], name="himoku_unique"),
             models.UniqueConstraint(
                 fields=["is_default"],
                 condition=models.Q(is_default=True),
@@ -145,18 +141,10 @@ class Himoku(models.Model):
         ToDo
         - 費目はunique属性（現状は修繕会計の「受取利息」を無効化しているのでget()を使う。
         """
-        if ac_class.upper() == "ALL":
-            try:
-                qs = cls.objects.get(alive=True, himoku_name=himoku)
-            except cls.DoesNotExist:
-                qs = None
-        else:
-            try:
-                qs = cls.objects.get(
-                    alive=True, himoku_name=himoku, accounting_class=ac_class
-                )
-            except cls.DoesNotExist:
-                qs = None
+        try:
+            qs = cls.objects.get(alive=True, himoku_name=himoku, accounting_class=ac_class)
+        except cls.DoesNotExist:
+            qs = None
         return qs
 
     @classmethod
@@ -179,9 +167,7 @@ class Himoku(models.Model):
     def get_himoku_list(cls):
         """有効な費目名をリストで返す"""
         himoku_list = []
-        himoku_list = cls.objects.filter(alive=True).values_list(
-            "himoku_name", flat=True
-        )
+        himoku_list = cls.objects.filter(alive=True).values_list("himoku_name", flat=True)
         return himoku_list
 
     @classmethod
@@ -216,12 +202,8 @@ class Himoku(models.Model):
 class TransferRequester(models.Model):
     """Kuraselの振込依頼人データと費目名を関連付けるためのモデル"""
 
-    requester = models.CharField(
-        verbose_name="振込依頼人名", max_length=64, blank=True, null=True
-    )
-    himoku = models.ForeignKey(
-        Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True
-    )
+    requester = models.CharField(verbose_name="振込依頼人名", max_length=64, blank=True, null=True)
+    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True)
     comment = models.CharField(verbose_name="備考", max_length=64, blank=True, null=True)
 
     def __str__(self):
@@ -240,21 +222,15 @@ class Transaction(models.Model):
     入出金種別を「入金/出金」だけにするため、is_incomeフィールドを追加。2023-03-04
     """
 
-    account = models.ForeignKey(
-        Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
-    )
+    account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
     is_income = models.BooleanField(verbose_name="入金flg", default=False)
     transaction_date = models.DateField(verbose_name="取引日")
     ammount = models.IntegerField(verbose_name="金額", default=0)
-    himoku = models.ForeignKey(
-        Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True
-    )
+    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
     requesters_name = models.CharField(verbose_name="振込依頼人名", max_length=64, default="")
     description = models.CharField(verbose_name="摘要", max_length=64, default="")
     balance = models.IntegerField(verbose_name="残高", null=True, blank=True)
-    author = models.ForeignKey(
-        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
-    )
+    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
     delete_flg = models.BooleanField(default=False)
     calc_flg = models.BooleanField(default=True)
@@ -282,9 +258,7 @@ class Transaction(models.Model):
         # 前受金の費目id
         id = Himoku.get_himoku_obj(settings.MAEUKE, "all")
         total = 0
-        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(
-            himoku=id
-        )
+        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
         for i in qs:
             total += i.ammount
         return total
@@ -335,9 +309,7 @@ class Transaction(models.Model):
         if manualinput:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
-            qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(
-                is_manualinput=False
-            )
+            qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(is_manualinput=False)
         # 入金・出金のfilter
         if deposit_flg == "income":
             qs_pb = qs_pb.filter(is_income=True)
@@ -463,12 +435,11 @@ class Transaction(models.Model):
                 obj.save()
         return None
 
+
 class ApprovalCheckData(models.Model):
     """入出金明細データの「支払い承認」が必要か否かを判定するための文字列オブジェクト"""
 
-    atext = models.CharField(
-        verbose_name="チェック文字列", max_length=16, blank=True, null=True, unique=True
-    )
+    atext = models.CharField(verbose_name="チェック文字列", max_length=16, blank=True, null=True, unique=True)
     comment = models.CharField(verbose_name="備考", max_length=50, blank=True, null=True)
     alive = models.BooleanField(verbose_name="有効", default=True)
 

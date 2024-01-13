@@ -3,7 +3,7 @@ import logging
 
 import jpholiday
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
@@ -15,7 +15,7 @@ from kurasel_translator.my_lib.append_list import select_period
 # from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment
-from record.models import Transaction, ApprovalCheckData
+from record.models import Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,7 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"]
-            and int(month) < settings.START_KURASEL["month"]
+            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
         ):
             year = settings.START_KURASEL["year"]
             month = settings.START_KURASEL["month"]
@@ -90,9 +89,9 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
                 total_pb += d.ammount
 
         # 未払いデータ
-        qs_this_miharai = BalanceSheet.objects.filter(
-            monthly_date__range=[tstart, tend]
-        ).filter(item_name__item_name__contains="未払金")
+        qs_this_miharai = BalanceSheet.objects.filter(monthly_date__range=[tstart, tend]).filter(
+            item_name__item_name__contains="未払金"
+        )
         # 未払金合計
         total_miharai = 0
         for d in qs_this_miharai:
@@ -102,9 +101,9 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         lastyear, lastmonth = get_lastmonth(year, month)
         last_tstart, last_tend = select_period(lastyear, lastmonth)
         # 前月の未払金
-        qs_last_miharai = BalanceSheet.objects.filter(
-            monthly_date__range=[last_tstart, last_tend]
-        ).filter(item_name__item_name__contains="未払金")
+        qs_last_miharai = BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend]).filter(
+            item_name__item_name__contains="未払金"
+        )
         # 前月の未収金合計
         total_last_miharai = 0
         for d in qs_last_miharai:
@@ -145,8 +144,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"]
-            and int(month) < settings.START_KURASEL["month"]
+            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
         ):
             year = settings.START_KURASEL["year"]
             month = settings.START_KURASEL["month"]
@@ -209,10 +207,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
             total_last_miharai += d.amounts
 
         # Kurasel監査の開始月前月の未払金
-        if (
-            int(year) == settings.START_KURASEL["year"]
-            and int(month) == settings.START_KURASEL["month"]
-        ):
+        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
             total_last_miharai = settings.MIHARAI_INITIAL
 
         context["mr_list"] = qs_mr
@@ -265,8 +260,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
 
         # Kuraselによる会計処理は2023年4月以降。
         if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"]
-            and int(month) < settings.START_KURASEL["month"]
+            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
         ):
             month = str(settings.START_KURASEL["month"]).zfill(2)
             context["warning_kurasel"] = "Kuraselでの会計処理は2023年4月以降です。"
@@ -306,16 +300,12 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         start_date = datetime.date(2023, 4, 1)
         qs_pb = qs_pb.filter(transaction_date__gte=start_date)
         # 資金移動は除く
-        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by(
-            "transaction_date", "himoku"
-        )
+        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by("transaction_date", "himoku")
         # 収入合計金額
         total_pb, _ = Transaction.calc_total(qs_pb)
 
         # 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
-        qs_is_netting = ReportTransaction.objects.filter(
-            transaction_date__range=[tstart, tend]
-        )
+        qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
         qs_is_netting = qs_is_netting.filter(is_netting=True)
         # qs_is_netting = qs_is_netting.aggregate(commission_fee=Sum('ammount'))
         dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("ammount"))
@@ -350,24 +340,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             total_last_mishuu += d.amounts
 
         # Kurasel監査の開始月前月の未収金
-        if (
-            int(year) == settings.START_KURASEL["year"]
-            and int(month) == settings.START_KURASEL["month"]
-        ):
-            total_last_mishuu = (
-                settings.MISHUU_KANRI
-                + settings.MISHUU_SHUUZEN
-                + settings.MISHUU_PARKING
-            )
+        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
+            total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
         # 前月の通帳データから前受金を計算する。
         last_maeuke = Transaction.get_maeuke(last_tstart, last_tend)
 
         # Kurasel監査の開始月前月の前受金
-        if (
-            int(year) == settings.START_KURASEL["year"]
-            and int(month) == settings.START_KURASEL["month"]
-        ):
+        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
             last_maeuke = settings.MAEUKE_INITIAL
 
         context["mr_list"] = qs_mr

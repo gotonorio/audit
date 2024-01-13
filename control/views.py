@@ -2,12 +2,11 @@ import datetime
 import logging
 import os
 import shutil
-from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -53,7 +52,9 @@ def backupDB(request):
     now = datetime.datetime.now()
     # フルパスからファイル名だけを取り出す。
     db_basename = os.path.basename(db_name)
-    backup_db_name = f"{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-({request.user})_{db_basename}"
+    backup_db_name = (
+        f"{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-({request.user})_{db_basename}"
+    )
     backup_path = f"./backupDB/{backup_db_name}"
 
     # バックアップ処理

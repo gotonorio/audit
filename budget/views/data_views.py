@@ -14,7 +14,6 @@ from budget.models import ExpenseBudget
 from control.models import ControlRecord
 from record.models import AccountingClass
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +43,6 @@ class CreateKanriBudgetView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = localtime(timezone.now()).year
         # # 支出予算
         # qs_budget = (ExpenseBudget.objects.filter(year=year).order_by("himoku__code"))
         context["title"] = "支出予算の登録/編集"
@@ -131,7 +129,7 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
         qs = ExpenseBudget.objects.filter(year=year).filter(himoku__alive=True)
         qs = qs.filter(himoku__accounting_class=ac_class).order_by("himoku__code")
         if qs is None:
-            messages.info(self.request, f"予算が作成されていないようです。")
+            messages.info(self.request, "予算が作成されていないようです。")
             return context
 
         # 予算合計（年間）
@@ -142,14 +140,9 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
         class_name = AccountingClass.get_accountingclass_name(ac_class)
         if class_name == "管理費会計":
             # 管理会計収入額（年間）
-            income_qs = ControlRecord.objects.values(
-                "annual_management_fee", "annual_greenspace_fee"
-            )
+            income_qs = ControlRecord.objects.values("annual_management_fee", "annual_greenspace_fee")
             if income_qs:
-                annual_income = (
-                    income_qs[0]["annual_management_fee"]
-                    + income_qs[0]["annual_greenspace_fee"]
-                )
+                annual_income = income_qs[0]["annual_management_fee"] + income_qs[0]["annual_greenspace_fee"]
             if total_budget - annual_income > 0:
                 messages.info(self.request, f"予算({annual_income}円)をオーバーしています。")
             context["annual_income"] = annual_income
@@ -162,7 +155,6 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
             }
         )
         ki = year - 1998
-        title = ac_class
         context["title"] = f"{year}年 第{ki}期 管理会計予算"
         context["form"] = form
         context["budget"] = qs
@@ -190,9 +182,7 @@ class DuplicateBudgetView(PermissionRequiredMixin, generic.FormView):
         qs = ExpenseBudget.objects.filter(year=year).filter(himoku__alive=True)
         # 管理会計区分のみとしてfilterする。
         kanriclass_name = AccountingClass.get_class_name("管理")
-        qs = qs.filter(
-            himoku__accounting_class__accounting_name=kanriclass_name
-        ).order_by("himoku__code")
+        qs = qs.filter(himoku__accounting_class__accounting_name=kanriclass_name).order_by("himoku__code")
         # formフィールドに初期値を設定。
         form = DuplicateBudgetForm(
             initial={
