@@ -141,10 +141,16 @@ class Himoku(models.Model):
         ToDo
         - 費目はunique属性（現状は修繕会計の「受取利息」を無効化しているのでget()を使う。
         """
-        try:
-            qs = cls.objects.get(alive=True, himoku_name=himoku, accounting_class=ac_class)
-        except cls.DoesNotExist:
-            qs = None
+        if ac_class in ("前受金",):
+            try:
+                qs = cls.objects.get(alive=True, himoku_name=himoku)
+            except cls.DoesNotExist:
+                qs = None
+        else:
+            try:
+                qs = cls.objects.get(alive=True, himoku_name=himoku, accounting_class=ac_class)
+            except cls.DoesNotExist:
+                qs = None
         return qs
 
     @classmethod

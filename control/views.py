@@ -62,14 +62,14 @@ def backupDB(request):
         shutil.copy(db_name, backup_path)
         # https://docs.djangoproject.com/en/4.0/ref/contrib/messages/
         messages.info(request, f"DBをバックアップしました。 ファイル名:{backup_db_name}")
-    except:
-        messages.error(request, "バックアップに失敗しました。")
+    except Exception as e:
+        messages.error(request, f"{e} バックアップに失敗しました。")
 
     # backupファイルが20を超えたら古いバックアップを削除する。
     # backupファイルのリスト
     try:
         file_list = os.listdir("./backupDB")
-    except:
+    except OSError:
         return redirect("register:master_page")
     if len(file_list) >= settings.BACKUP_NUM:
         file_list.sort()

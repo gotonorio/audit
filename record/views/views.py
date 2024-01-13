@@ -8,7 +8,7 @@ from django.views import generic
 
 from kurasel_translator.my_lib.append_list import select_period
 from record.forms import RecalcBalanceForm, TransactionDisplayForm
-from record.models import Account, Himoku, Transaction
+from record.models import Himoku, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +49,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 表示順序
         if list_order == "0":
-            qs = qs.order_by(
-                "-transaction_date", "himoku", "is_manualinput", "requesters_name"
-            )
+            qs = qs.order_by("-transaction_date", "himoku", "is_manualinput", "requesters_name")
         else:
             qs = qs.order_by("himoku", "-transaction_date", "requesters_name")
         # 合計金額
@@ -99,12 +97,10 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, "0")
         # 期間でfiler
         qs = (
-            Transaction.objects.all()
-            .select_related("account")
-            .filter(transaction_date__range=[tstart, tend])
+            Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])
         )
         # 費目名「前受金」でfilter
-        maeukekin = Himoku.get_himoku_obj(settings.MAEUKE, "all")
+        maeukekin = Himoku.get_himoku_obj(settings.MAEUKE, "前受金")
         qs = qs.filter(himoku=maeukekin).order_by("-transaction_date")
         form = TransactionDisplayForm(
             initial={
@@ -149,9 +145,7 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
         if sdate and balance:
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
             tdate = sdate + timezone.timedelta(days=1)
-            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by(
-                "transaction_date"
-            )
+            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")
             # 残高の再計算処理
             rebalance = self.recalc(qs, int(balance))
             context["rebalance_list"] = rebalance

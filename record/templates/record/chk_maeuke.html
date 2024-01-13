@@ -49,10 +49,8 @@
         <tr>
           <th class="has-text-centered">No</th>
           <th class="has-text-centered">日付</th>
-          <th class="has-text-centered">銀行名</th>
-          <th class="has-text-centered">口座名</th>
-          <th class="has-text-centered">費目</th>
-          <th class="has-text-centered">入金</th>
+          <th class="has-text-centered">振込依頼者名</th>
+          <th class="has-text-centered">金額</th>
           <th class="has-text-centered">計算フラグ</th>
           <th class="has-text-centered">摘要</th>
         </tr>
@@ -64,9 +62,7 @@
           <td class="has-text-centered">
             <a href="{% url 'record:transaction_update' record.pk %}">{{record.transaction_date|date:'Y-m-d'}}</a>
           </td>
-          <td class="has-text-left">{{record.account.bank}}</td>
-          <td class="has-text-left">{{record.account}}</td>
-          <td class="has-text-left">{{record.himoku}}</td>
+          <td class="has-text-left">{{record.requesters_name}}</td>
           <td class="has-text-right">{{record.ammount|intcomma}}</td>
           <td class="has-text-centered">{{record.calc_flg}}</td>
           <td class="has-text-left">{{record.description }}</td>

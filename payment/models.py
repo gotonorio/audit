@@ -1,12 +1,11 @@
-import logging
 import datetime
+import logging
 
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
-from django.db.models.aggregates import Sum
 
-from record.models import Himoku, AccountingClass
+from record.models import AccountingClass, Himoku
 
 user = get_user_model()
 logger = logging.getLogger(__name__)
@@ -20,12 +19,8 @@ class Payment(models.Model):
     """
 
     payment_date = models.DateField(verbose_name="支払日", default=timezone.now)
-    himoku = models.ForeignKey(
-        Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True, blank=True
-    )
-    payment_destination = models.CharField(
-        verbose_name="支払先", max_length=32, blank=True, default=""
-    )
+    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True, blank=True)
+    payment_destination = models.CharField(verbose_name="支払先", max_length=32, blank=True, default="")
     payment = models.IntegerField(verbose_name="金額", default=0)
     summary = models.CharField(verbose_name="摘要", max_length=64, blank=True, default="")
 
@@ -92,17 +87,11 @@ class PaymentMethod(models.Model):
         null=True,
         blank=True,
     )
-    payment_category = models.ForeignKey(
-        PaymentCategory, verbose_name="支払い区分", on_delete=models.CASCADE
-    )
-    himoku_name = models.ForeignKey(
-        Himoku, verbose_name="費目名", on_delete=models.CASCADE
-    )
+    payment_category = models.ForeignKey(PaymentCategory, verbose_name="支払い区分", on_delete=models.CASCADE)
+    himoku_name = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE)
     payee = models.CharField(verbose_name="支払先", max_length=64, default="")
     amounts = models.IntegerField(verbose_name="金額", default=0)
-    banking_fee = models.CharField(
-        verbose_name="銀行手数料", max_length=32, null=True, blank=True
-    )
+    banking_fee = models.CharField(verbose_name="銀行手数料", max_length=32, null=True, blank=True)
     account_description = models.TextField(verbose_name="摘要", null=True, blank=True)
     comment = models.CharField(verbose_name="備考", max_length=64, null=True, blank=True)
 

@@ -1,6 +1,7 @@
 import calendar
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Case, Sum, When
@@ -19,7 +20,7 @@ from monthly_report.forms import (
     YearReportChoiceForm,
 )
 from monthly_report.models import BalanceSheet, ReportTransaction
-from record.models import AccountingClass, Himoku, Transaction
+from record.models import AccountingClass, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,9 @@ def monthly_total(qs, year, item_name):
         day = calendar.monthrange(year, month)[1]
         sdate = timezone.datetime(year, month, 1, 0, 0, 0)
         edate = timezone.datetime(year, month, day, 0, 0, 0)
-        rtn["total" + str(month)] = qs.filter(
-            transaction_date__range=[sdate, edate]
-        ).aggregate(tmp=Coalesce(Sum(item_name), 0))["tmp"]
+        rtn["total" + str(month)] = qs.filter(transaction_date__range=[sdate, edate]).aggregate(
+            tmp=Coalesce(Sum(item_name), 0)
+        )["tmp"]
     return rtn
 
 
@@ -90,86 +91,64 @@ def get_allmonths_data(qs, year):
     # 日付の期間を作成
     period = get_year_period(int(year))
 
-    rtn = qs.values(
-        "himoku__himoku_name", "himoku__accounting_class__accounting_name"
-    ).annotate(
+    rtn = qs.values("himoku__himoku_name", "himoku__accounting_class__accounting_name").annotate(
         month1=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[0][0], period[0][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[0][0], period[0][1]], then="ammount"),
                 default=0,
             )
         ),
         month2=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[1][0], period[1][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[1][0], period[1][1]], then="ammount"),
                 default=0,
             )
         ),
         month3=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[2][0], period[2][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[2][0], period[2][1]], then="ammount"),
                 default=0,
             )
         ),
         month4=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[3][0], period[3][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[3][0], period[3][1]], then="ammount"),
                 default=0,
             )
         ),
         month5=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[4][0], period[4][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[4][0], period[4][1]], then="ammount"),
                 default=0,
             )
         ),
         month6=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[5][0], period[5][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[5][0], period[5][1]], then="ammount"),
                 default=0,
             )
         ),
         month7=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[6][0], period[6][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[6][0], period[6][1]], then="ammount"),
                 default=0,
             )
         ),
         month8=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[7][0], period[7][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[7][0], period[7][1]], then="ammount"),
                 default=0,
             )
         ),
         month9=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[8][0], period[8][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[8][0], period[8][1]], then="ammount"),
                 default=0,
             )
         ),
         month10=Sum(
             Case(
-                When(
-                    transaction_date__range=[period[9][0], period[9][1]], then="ammount"
-                ),
+                When(transaction_date__range=[period[9][0], period[9][1]], then="ammount"),
                 default=0,
             )
         ),
@@ -247,9 +226,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         total_withdrawals = qs.filter(miharai_flg=False)
 
         # 表示順序
-        qs = qs.order_by(
-            "himoku__accounting_class", "calc_flg", "-miharai_flg", "transaction_date"
-        )
+        qs = qs.order_by("himoku__accounting_class", "calc_flg", "-miharai_flg", "transaction_date")
         # 合計金額
         total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -306,9 +283,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         # 月次データの支出合計
         total_withdrawals = ReportTransaction.calc_total_withflg(qs_total, True)
         # 表示順序
-        qs = qs.order_by(
-            "himoku__accounting_class", "calc_flg", "-mishuu_flg", "transaction_date"
-        )
+        qs = qs.order_by("himoku__accounting_class", "calc_flg", "-mishuu_flg", "transaction_date")
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
@@ -344,9 +319,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         ac_class = self.request.GET.get("accounting_class", "")
         # queryset
-        qs = ReportTransaction.objects.all().select_related(
-            "himoku", "accounting_class"
-        )
+        qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
         # 支出、資金移動でfiler
         qs = qs.filter(himoku__is_income=False)
         # 計算対象でfilter
@@ -389,9 +362,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         ac_class = self.request.GET.get("accounting_class", "")
         # queryset
-        qs = ReportTransaction.objects.all().select_related(
-            "himoku", "accounting_class"
-        )
+        qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
         # 収入でfiler
         qs = qs.filter(himoku__is_income=True)
         # 未収入金をfilter

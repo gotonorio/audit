@@ -2,16 +2,15 @@ import logging
 
 from django import forms
 from django.conf import settings
-from django.forms import formset_factory, inlineformset_factory
 from django.utils import timezone
 
 from record.models import (
     Account,
     AccountingClass,
+    ApprovalCheckData,
     Himoku,
     Transaction,
     TransferRequester,
-    ApprovalCheckData,
 )
 
 logger = logging.getLogger(__name__)
@@ -99,9 +98,7 @@ class TransactionCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
 
     class Meta:
         model = Transaction
@@ -152,7 +149,7 @@ class TransactionCreateForm(forms.ModelForm):
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
             "calc_flg": "※ 前受金の場合はチェックしない。",
-            "is_approval": "支払い承認が不要の場合、チェックを外す。"
+            "is_approval": "支払い承認が不要の場合、チェックを外す。",
         }
 
     def clean_transaction_date(self):
@@ -175,36 +172,6 @@ class TransactionCreateForm(forms.ModelForm):
             if calc_flag:
                 raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
         return calc_flag
-
-
-class RecalcBalanceForm(forms.Form):
-    """通帳残高チェック用"""
-
-    account = forms.ModelChoiceField(
-        label="口座選択",
-        required=False,
-        queryset=Account.objects.all(),
-        empty_label="ALL",
-        widget=forms.Select(attrs={"class": "select-css"}),
-    )
-    sdate = forms.DateField(
-        label="残高基準日",
-        required=False,
-        # help_text='* 残高の判明している日付を設定。',
-        help_text="* 空白の場合規定値で計算します。",
-        widget=forms.DateInput(
-            attrs={
-                "class": "input",
-                "placeholder": "YYYY-MM-DD",
-            }
-        ),
-    )
-    balance = forms.IntegerField(
-        label="基準日残高",
-        required=False,
-        # help_text='* 基準日の最終残高を設定。',
-        widget=forms.NumberInput(attrs={"class": "input"}),
-    )
 
 
 class HimokuForm(forms.ModelForm):
@@ -414,9 +381,7 @@ class TransactionDivideForm(forms.Form):
 
 
 # TransactionDivideFormを複数（settings.FORMSET_NUM）並べるためのFormSet。
-TransactionDivideFormSet = forms.formset_factory(
-    TransactionDivideForm, extra=settings.FORMSET_NUM
-)
+TransactionDivideFormSet = forms.formset_factory(TransactionDivideForm, extra=settings.FORMSET_NUM)
 
 
 class HimokuCsvFileSelectForm(forms.Form):
@@ -497,7 +462,7 @@ class RecalcBalanceForm(forms.Form):
     sdate = forms.DateField(
         label="残高基準日",
         required=True,
-        help_text='* 残高の判明している日付を設定。',
+        help_text="* 残高の判明している日付を設定。",
         widget=forms.DateInput(
             attrs={
                 "class": "input",

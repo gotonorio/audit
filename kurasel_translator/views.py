@@ -200,7 +200,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
         msg_list = [a for a in tmp_list if a != ""]
 
         # 入出金明細では、最初の要素は「出金」「入金」となるはず。
-        if not msg_list[0] in ["出金", "入金"]:
+        if msg_list[0] not in ["出金", "入金"]:
             msg = f"「{msg_list[0]}」が含まれています。データだけをコピーしてください"
             messages.add_message(self.request, messages.ERROR, msg)
             return render(

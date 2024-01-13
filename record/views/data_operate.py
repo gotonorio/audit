@@ -4,30 +4,28 @@ from io import TextIOWrapper
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import FormView
 
 from record.forms import (
-    AccountTitleForm,
+    ApprovalCheckDataForm,
     HimokuCsvFileSelectForm,
     HimokuForm,
     HimokuListForm,
     RequesterForm,
     TransactionCreateForm,
-    TransactionDivideForm,
     TransactionDivideFormSet,
     TransactionOffsetForm,
-    ApprovalCheckDataForm,
 )
 from record.models import (
     Account,
+    ApprovalCheckData,
     Himoku,
     Transaction,
     TransferRequester,
-    ApprovalCheckData,
 )
 
 logger = logging.getLogger(__name__)
@@ -69,9 +67,7 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
-            "transaction_date", flat=True
-        )
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
         year = qs[0].year
         month = qs[0].month
         # UPDATE後の会計区分は「全会計区分」を表示させる。
@@ -107,9 +103,7 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
 
     # 削除が成功した場合に遷移するurlを返す。
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
-            "transaction_date", flat=True
-        )
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
         year = qs[0].year
         month = qs[0].month
         return reverse_lazy(
@@ -231,9 +225,7 @@ class TransferRequesterCreateView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by(
-            "requester"
-        )
+        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
         return context
 
 
@@ -249,9 +241,7 @@ class TransferRequesterUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by(
-            "requester"
-        )
+        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
         return context
 
 
@@ -296,8 +286,8 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
         form = TransactionOffsetForm(request.POST)
         if form.is_valid():
             # formオブジェクトから年、月を読み込む。
-            year = form.cleaned_data["transaction_date"].year
-            month = form.cleaned_data["transaction_date"].month
+            # year = form.cleaned_data["transaction_date"].year
+            # month = form.cleaned_data["transaction_date"].month
             # 新しく保存されたオブジェクトのpkはsave関数の戻り値で得られる。
             offset_pk = form.save()
             return redirect("record:transaction_divide", pk=offset_pk.pk)
@@ -380,9 +370,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         # 保存が成功したら入出金明細にredirectする。
         year = transaction_date.year
         month = transaction_date.month
-        return redirect(
-            "record:transaction_list", year=year, month=month, ac_class=0, list_order=0
-        )
+        return redirect("record:transaction_list", year=year, month=month, ac_class=0, list_order=0)
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
@@ -408,7 +396,9 @@ class HimokuCsvReadView(PermissionRequiredMixin, generic.FormView):
         """このViewがGETで呼ばれた時、テンプレートに変数を渡す。"""
         context = super().get_context_data(**kwargs)
         context["title"] = "費目マスタCSVファイルの読み込み"
-        context["help_text1"] = "※1 「csvデータ」はヘッダ無しのutf-8で「会計区分名」「費目コード」「費目名」の3列データです。"
+        context[
+            "help_text1"
+        ] = "※1 「csvデータ」はヘッダ無しのutf-8で「会計区分名」「費目コード」「費目名」の3列データです。"
         context["help_text2"] = "※2 「会計区分名」は管理画面で登録した名前です。"
         context["help_text3"] = "※3 「費目コード」は費目表示の並び順で使われます。"
         context["help_text4"] = "※4 「費目名」はKuraselで設定した名前にしてください。"
