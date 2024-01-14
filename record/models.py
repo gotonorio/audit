@@ -61,9 +61,10 @@ class AccountingClass(models.Model):
         qs = cls.objects.get(accounting_name=accounting_class)
         return qs
 
-    def get_accountingclass_name(ac_pk):
+    @classmethod
+    def get_accountingclass_name(cls, ac_pk):
         try:
-            qs = AccountingClass.objects.get(pk=ac_pk)
+            qs = cls.objects.get(pk=ac_pk)
             ac_name = qs.accounting_name
         except AccountingClass.DoesNotExist:
             ac_name = None
@@ -247,7 +248,7 @@ class Transaction(models.Model):
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
 
     def __str__(self):
-        return self.himoku.himoku_name
+        return self.himoku
 
     # def delete(self):
     #     """ delete関数を論理削除にするためにオーバーライド

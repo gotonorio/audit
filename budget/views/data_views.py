@@ -101,14 +101,14 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy("budget:budget_update_list")
 
     def get_form_kwargs(self, *args, **kwargs):
-        """Formクラスへ値(accounting_class名)を渡す
+        """Formで必要なため、kwargsに「accounting_class名」を渡す
         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
         - https://itc.tokyo/django/get-form-kwargs/
         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
         """
         kwargs = super().get_form_kwargs(*args, **kwargs)
         # 会計区分名をkwargsに追加する。
-        pk = self.object.pk
+        pk = self.kwargs.get("pk")
         ac_class_name = ExpenseBudget.objects.get(pk=pk).himoku.accounting_class
         kwargs["ac_class"] = ac_class_name
         return kwargs
@@ -141,6 +141,7 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
         if class_name == "管理費会計":
             # 管理会計収入額（年間）
             income_qs = ControlRecord.objects.values("annual_management_fee", "annual_greenspace_fee")
+            annual_income = 0
             if income_qs:
                 annual_income = income_qs[0]["annual_management_fee"] + income_qs[0]["annual_greenspace_fee"]
             if total_budget - annual_income > 0:
@@ -228,8 +229,20 @@ class DeleteBudgetView(PermissionRequiredMixin, generic.DeleteView):
     success_url = reverse_lazy("budget:budget_update_list")
 
     # 削除処理をログ出力する。
-    # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。
-    # https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
-    def form_valid(self, form):
-        logger.warning("delete Budget費目:{}:{}".format(self.request.user, self.object))
-        return super().form_valid(form)
+    # # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。
+    # # https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
+    # def form_valid(self, form):
+    #     logger.warning("delete Budget費目:{}:{}".format(self.request.user, self.object))
+    #     return super().form_valid(form)
+
+    def delete(self, request, *args, **kwargs):
+        # 削除対象のオブジェクトを取得
+        obj = self.get_object()
+        # ログの記録
+        logger.info(f"delete Budget費目:{self.request.user}:{obj}")
+        # オブジェクトを削除
+        response = super().delete(request, *args, **kwargs)
+        # メッセージの表示（任意）
+        messages.success(self.request, "Object successfully deleted.")
+
+        return response
