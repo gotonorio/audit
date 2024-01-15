@@ -7,14 +7,13 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
 
+from kurasel_translator.my_lib.append_list import select_period
 from payment.forms import (
     ApprovalPaymentCreateForm,
     ApprovalPaymentListForm,
     PaymentMethodCreateForm,
 )
 from payment.models import Payment, PaymentMethod
-
-from kurasel_translator.my_lib.append_list import select_period
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +34,7 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
         # querysetの作成。
         if day == "00" and month == "0":
             tstart, tend = select_period(year, month)
-            qs = Payment.objects.select_related("himoku").filter(
-                payment_date__range=[tstart, tend]
-            )
+            qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
         elif month == "0":
             tstart, tend = select_period(year, month)
             qs = (
@@ -47,17 +44,11 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
             )
         elif day == "00":
             tstart, tend = select_period(year, month)
-            qs = Payment.objects.select_related("himoku").filter(
-                payment_date__range=[tstart, tend]
-            )
+            qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
         else:
             date_str = str(year) + str(month) + day
             payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")
-            qs = (
-                Payment.objects.all()
-                .select_related("himoku")
-                .filter(payment_date=payment_day)
-            )
+            qs = Payment.objects.all().select_related("himoku").filter(payment_date=payment_day)
         qs = qs.order_by("payment_date", "himoku__code")
         # 支払い金額の合計
         total = 0
@@ -79,7 +70,7 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
 
 
 class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
-    """支払い承認データ CreateView"""
+    """支払い承認データ（作成はKuraselからの取り込みなので、修正処理だけが必要）"""
 
     model = Payment
     form_class = ApprovalPaymentCreateForm

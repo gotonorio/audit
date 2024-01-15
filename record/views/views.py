@@ -133,16 +133,15 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # 日付
-        sdate = self.request.GET.get("sdate")
+        sdate = self.request.GET.get("sdate", "")
         # 残高
-        balance = self.request.GET.get("balance")
-        if sdate:
+        balance = self.request.GET.get("balance", 0)
+        # 基準日が入力されていれば、チェック開始
+        if sdate != "":
             start_date = sdate.split("-")
             year = start_date[0]
             month = start_date[1]
             day = start_date[2]
-        # 口座と初期データがあれば残高を計算する。
-        if sdate and balance:
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
             tdate = sdate + timezone.timedelta(days=1)
             qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")

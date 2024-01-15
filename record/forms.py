@@ -462,17 +462,17 @@ class RecalcBalanceForm(forms.Form):
     sdate = forms.DateField(
         label="残高基準日",
         required=True,
-        help_text="* 残高の判明している日付を設定。",
+        help_text="* 残高の判明している基準日を設定。",
         widget=forms.DateInput(
             attrs={
-                "class": "input",
-                "placeholder": "YYYY-MM-DD",
+                "type": "date",
+                "class": "is-size-6",
             }
         ),
     )
     balance = forms.IntegerField(
         label="基準日残高",
-        required=False,
-        # help_text='* 基準日の最終残高を設定。',
+        required=True,
+        help_text="* 基準日の最終残高を設定。",
         widget=forms.NumberInput(attrs={"class": "input"}),
     )

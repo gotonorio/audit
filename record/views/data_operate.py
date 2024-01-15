@@ -101,7 +101,7 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
     model = Transaction
     permission_required = "record.add_transaction"
 
-    # 削除が成功した場合に遷移するurlを返す。
+    # 削除が成功した場合の遷移処理
     def get_success_url(self):
         qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
         year = qs[0].year
@@ -246,9 +246,8 @@ class TransferRequesterUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
 
 class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView):
-    """入出金明細データの相殺レコード作成
-    - 相殺データを作成した後、作成したレコードのpkをTransactionDivideCreateView()へ
-      送るためにTemplateViewを使う。
+    """入出金明細データの相殺レコード作成（入出金明細データ一覧で「ソウゴウフリコミBIZ」を分解する時に呼ばれる）
+    - 相殺データを作成した後、作成したレコードのpkをTransactionDivideCreateView()へ送るためにTemplateViewを使う。
     - formはTransactionCreateFormを利用。
     - templateは不要な項目を表示しないように新規に作成。
     """
@@ -278,8 +277,7 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
                     "balance": qs.balance,
                 }
             )
-        context["form"] = form
-
+            context["form"] = form
         return context
 
     def post(self, request, *args, **kwargs):
@@ -322,7 +320,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         - 金額0は保存しない。
         """
         error_list = []
-        user_id = self.request.user.id
+        user_id = self.request.user.pk
         # 分割元のデータpk
         pk = self.kwargs.get("pk")
         # デフォルト値の設定
@@ -351,7 +349,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     # 残高
                     divide.balance = balance
                     # 登録するのは出金データのみ
-                    divide.is_icome = False
+                    divide.is_income = False
                     # 費目名は「不明」に決め打ち
                     divide.himoku = default_himoku
                     # 金額、、振込依頼人、摘要はFormから受け取る
@@ -364,7 +362,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     divide.save()
                 except Exception as e:
                     logger.error(e)
-                    error_list.append(divide)
+                    error_list.append(ammount)
                     return self.render_to_response(self.get_context_data(form=form))
 
         # 保存が成功したら入出金明細にredirectする。
