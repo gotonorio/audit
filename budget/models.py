@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+
 from record.models import Account, Himoku
 
 
@@ -11,14 +12,12 @@ class IncomeBudget(models.Model):
 
     # https://djangobrothers.com/blogs/django_datetime_localtime/
     year = models.IntegerField(verbose_name="西暦", default=timezone.now().year)
-    account = models.ForeignKey(
-        Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
-    )
+    account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
     budget_income = models.IntegerField("金額", default=0)
     comment = models.CharField("備考", max_length=128, blank=True, null=True)
 
     def __str__(self):
-        return self.category.name
+        return self.account
 
 
 class ExpenseBudget(models.Model):

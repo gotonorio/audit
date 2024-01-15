@@ -1,11 +1,11 @@
 # import logging
 
-from control.models import ControlRecord
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
 from django.views import generic
+
+from control.models import ControlRecord
 from register.forms import LoginForm
 
 User = get_user_model()

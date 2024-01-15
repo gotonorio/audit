@@ -2,6 +2,7 @@ import calendar
 import datetime
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils import timezone
 
@@ -93,3 +94,15 @@ def select_period(year, month):
         tstart = timezone.datetime(int(year), int(month), 1, 0, 0, 0)
         tend = timezone.datetime(int(year), int(month), last_day, 0, 0, 0)
     return tstart, tend
+
+
+def check_period(year, month):
+    """Kuraselの開始日をチェック"""
+    # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
+    if int(year) < settings.START_KURASEL["year"] or (
+        int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
+    ):
+        year = int(settings.START_KURASEL["year"])
+        month = int(settings.START_KURASEL["month"])
+
+    return year, month

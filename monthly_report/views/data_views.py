@@ -156,12 +156,11 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
     # success_url = reverse_lazy('register:mypage')
 
     def get_success_url(self):
-        qs = ReportTransaction.objects.filter(pk=self.object.pk).values(
-            "transaction_date", "accounting_class"
-        )
+        obj = self.object
+        qs = ReportTransaction.objects.filter(pk=obj.pk).values("transaction_date", "accounting_class")
         year = qs[0]["transaction_date"].year
         month = qs[0]["transaction_date"].month
-        ac_class = qs[0]['accounting_class']
+        ac_class = qs[0]["accounting_class"]
         return reverse_lazy(
             "monthly_report:incomelist", kwargs={"year": year, "month": month, "ac_class": ac_class}
         )
@@ -198,9 +197,9 @@ class BalanceSheetCreateView(PermissionRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = localtime(timezone.now()).year
-        context["bs_list"] = BalanceSheet.objects.filter(
-            monthly_date__contains=year
-        ).order_by("-monthly_date", "item_name")
+        context["bs_list"] = BalanceSheet.objects.filter(monthly_date__contains=year).order_by(
+            "-monthly_date", "item_name"
+        )
         return context
 
 
@@ -250,9 +249,7 @@ class BalanceSheetItemCreateView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["bs_item_list"] = BalanceSheetItem.objects.all().order_by(
-            "code", "is_asset"
-        )
+        context["bs_item_list"] = BalanceSheetItem.objects.all().order_by("code", "is_asset")
         return context
 
 

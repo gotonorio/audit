@@ -122,7 +122,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             "month": month,
             "kind": kind,
             "mode": mode,
-            "author": self.request.user.id,
+            "author": self.request.user.pk,
         }
         if "確認" in mode:
             # 合計を計算
@@ -144,8 +144,8 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
                 msg = "月次収支データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 保存成功後に遷移する場合のパラメータ。受け取りはkwargs.get["year"]とする。
-                ac_id = AccountingClass.objects.get(accounting_name=accounting_class).id
-                param = dict(year=year, month=str(month).zfill(2), ac_class=ac_id)
+                ac_pk = AccountingClass.objects.get(accounting_name=accounting_class).pk
+                param = dict(year=year, month=str(month).zfill(2), ac_class=ac_pk)
                 # 取り込みに成功したら、一覧表表示する。
                 if kind == "収入":
                     # 収入データの取り込みに成功したら、一覧表表示する。
@@ -226,7 +226,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
             "data_list": data_list,
             "year": year,
             "mode": mode,
-            "author": self.request.user.id,
+            "author": self.request.user.pk,
         }
         # デフォルトの費目オブジェクトを準備する。
         default_himoku = Himoku.get_default_himoku()
@@ -344,7 +344,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
             "month": month,
             "day": day,
             "mode": mode,
-            "author": self.request.user.id,
+            "author": self.request.user.pk,
         }
         # Himokuマスターから費目名のListを作成
         himoku_list = list(Himoku.get_himoku_list())
@@ -469,7 +469,7 @@ class BalanceSheetTranslateView(FormView):
             "year": year,
             "month": month,
             "mode": mode,
-            "author": self.request.user.id,
+            "author": self.request.user.pk,
         }
         if "確認" in mode:
             # 確認モードの場合、表示のみを行う。
@@ -481,10 +481,10 @@ class BalanceSheetTranslateView(FormView):
                 msg = f"{year}年{month}月度の貸借対照表の取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
-                ac_id = AccountingClass.objects.get(accounting_name=accounting_class).id
+                ac_pk = AccountingClass.objects.get(accounting_name=accounting_class).pk
                 url = append_list.redirect_with_param(
                     "monthly_report:bs_table",
-                    dict(year=year, month=str(month).zfill(2), ac_class=ac_id),
+                    dict(year=year, month=str(month).zfill(2), ac_class=ac_pk),
                 )
                 return redirect(url)
             else:

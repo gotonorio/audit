@@ -97,9 +97,9 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]
         # 会計年度
-        period = [0, 0]
-        period[0] = timezone.datetime(year, 1, 1, 0, 0, 0)
-        period[1] = timezone.datetime(year, month, day, 0, 0, 0)
+        period = []
+        period.append(timezone.datetime(year, 1, 1, 0, 0, 0))
+        period.append(timezone.datetime(year, month, day, 0, 0, 0))
         # 年間の支出予算
         qs_budget = ExpenseBudget.get_expense_budget(year, ac_class)
         # 会計区分名

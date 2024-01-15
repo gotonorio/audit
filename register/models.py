@@ -5,7 +5,6 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.dispatch import receiver
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

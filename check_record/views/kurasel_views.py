@@ -10,7 +10,7 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from check_record.forms import KuraselCheckForm
-from kurasel_translator.my_lib.append_list import select_period
+from kurasel_translator.my_lib.append_list import check_period, select_period
 
 # from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction
@@ -50,18 +50,13 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
-        if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
-        ):
-            year = settings.START_KURASEL["year"]
-            month = settings.START_KURASEL["month"]
-            context["warning_kurasel"] = "Kuraselでの会計処理は2023年4月以降です。"
+        year, month = check_period(year, month)
 
         # formの初期値を設定する。
         form = KuraselCheckForm(
             initial={
                 "year": year,
-                "month": int(month),
+                "month": month,
             }
         )
         # ALL(全月)は処理しない
@@ -120,8 +115,8 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["this_miharai_total"] = total_miharai
         context["last_miharai"] = qs_last_miharai
         context["last_miharai_total"] = total_last_miharai
-        context["year"] = int(year)
-        context["month"] = str(month)
+        context["year"] = year
+        context["month"] = month
 
         return context
 
@@ -143,18 +138,13 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
-        if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
-        ):
-            year = settings.START_KURASEL["year"]
-            month = settings.START_KURASEL["month"]
-            context["warning_kurasel"] = "Kuraselでの会計処理は2023年4月以降です。"
+        year, month = check_period(year, month)
 
         # formの初期値を設定する。
         form = KuraselCheckForm(
             initial={
                 "year": year,
-                "month": int(month),
+                "month": month,
             }
         )
         # ALL(全月)は処理しない
@@ -178,7 +168,8 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 通帳データの合計（集計フラグがTrueの費目合計）
         total_pb = 0
         for d in qs_pb:
-            if d.himoku.aggregate_flag:
+            # 費目名が「不明」の場合も考慮する
+            if d.himoku and d.himoku.aggregate_flag:
                 total_pb += d.ammount
 
         # 当月の未払い
@@ -206,9 +197,13 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         for d in qs_last_miharai:
             total_last_miharai += d.amounts
 
-        # Kurasel監査の開始月前月の未払金
+        # 2023年4月（Kurasel監査の開始月）前月の未払金
         if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
             total_last_miharai = settings.MIHARAI_INITIAL
+
+        logger.debug(type(year))
+        logger.debug(type(month))
+        logger.debug(settings.MIHARAI_INITIAL)
 
         context["mr_list"] = qs_mr
         context["pb_list"] = qs_pb
@@ -221,8 +216,8 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         context["last_miharai_total"] = total_last_miharai
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
-        context["year"] = int(year)
-        context["month"] = str(month)
+        context["year"] = year
+        context["month"] = month
 
         return context
 
@@ -259,17 +254,13 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_pb"] = 0
 
         # Kuraselによる会計処理は2023年4月以降。
-        if int(year) < settings.START_KURASEL["year"] or (
-            int(year) <= settings.START_KURASEL["year"] and int(month) < settings.START_KURASEL["month"]
-        ):
-            month = str(settings.START_KURASEL["month"]).zfill(2)
-            context["warning_kurasel"] = "Kuraselでの会計処理は2023年4月以降です。"
+        year, month = check_period(year, month)
 
         # formの初期値を設定する。
         form = KuraselCheckForm(
             initial={
                 "year": year,
-                "month": int(month),
+                "month": month,
             }
         )
 
@@ -340,14 +331,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             total_last_mishuu += d.amounts
 
         # Kurasel監査の開始月前月の未収金
-        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
+        if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
         # 前月の通帳データから前受金を計算する。
         last_maeuke = Transaction.get_maeuke(last_tstart, last_tend)
 
         # Kurasel監査の開始月前月の前受金
-        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
+        if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             last_maeuke = settings.MAEUKE_INITIAL
 
         context["mr_list"] = qs_mr
@@ -363,7 +354,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_diff"] = total_pb - total_mr
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
-        context["year"] = int(year)
-        context["month"] = str(month)
+        context["year"] = year
+        context["month"] = month
 
         return context

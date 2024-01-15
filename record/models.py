@@ -263,7 +263,7 @@ class Transaction(models.Model):
         他の関数（stattic method）に依存するため、インスタンス関数とする。
         """
         # 前受金の費目id
-        id = Himoku.get_himoku_obj(settings.MAEUKE, "all")
+        id = Himoku.get_himoku_obj(settings.MAEUKE, "前受金")
         total = 0
         qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
         for i in qs:
