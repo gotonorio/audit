@@ -100,7 +100,7 @@
             <td class="has-text-left has-text-danger">【相殺処理】 {{record.description}}</td>
           {% else %}
             <td class="has-text-right">{{record.ammount|intcomma}}</td>
-            <td class="has-text-left is-size-7">{{record.description|truncatechars:30}}</td>
+            <td class="has-text-left is-size-7">{{record.description|truncatechars:40}}</td>
           {% endif %}
 
           {% if perms.record.add_transaction %}
