@@ -138,7 +138,10 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["himoku_list"] = Himoku.objects.all().order_by(
-            "-alive", "-is_approval", "-aggregate_flag", "code"
+            "-alive",
+            "code",
+            "-is_approval",
+            "-aggregate_flag",
         )
         return context
 

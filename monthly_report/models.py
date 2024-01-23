@@ -76,7 +76,7 @@ class ReportTransaction(models.Model):
         elif flg == "expense":
             # 支出をfilter。
             qs_mr = qs_mr.filter(himoku__is_income=False)
-        # (4) 口座種類でfilter　Kuraseの場合不要となる予定
+        # (4) 口座種類でfilter　ToDo Kuraseの場合不要となる予定
         if account != "":
             qs_mr = qs_mr.filter(account=account)
         # (5) 有効な費目でfilter
