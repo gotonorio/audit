@@ -29,7 +29,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
+      {% with year_with=year ac_with=ac %}
+        <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' year_with ac_with %}">年間支出</a>
+      {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>

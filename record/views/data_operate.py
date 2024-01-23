@@ -138,6 +138,7 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["himoku_list"] = Himoku.objects.all().order_by(
+            "-is_default",
             "-alive",
             "code",
             "-is_approval",
@@ -179,7 +180,7 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
             }
         )
         if ac_class == "":
-            qs = Himoku.objects.all().order_by("code")
+            qs = Himoku.objects.all().order_by("-is_default", "code")
         else:
             qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("code")
         context["himoku_list"] = qs

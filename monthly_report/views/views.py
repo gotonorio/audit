@@ -56,7 +56,7 @@ def aggregate_passbook(year, flg):
     # 資金移動は除く。（aggregate_flag=True）
     qs = qs.filter(himoku__aggregate_flag=True)
     # 月毎の支出合計を計算して返す。
-    return monthly_total(qs, year, "ammount")
+    return monthly_total(qs, int(year), "ammount")
 
 
 def adjust_month(year, month):
@@ -242,12 +242,12 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         context["form"] = form
         context["total_withdrawals"] = total_withdrawals
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
-        context["year"] = int(year)
-        context["month"] = str(month)
+        context["year"] = year
+        context["month"] = month
         # 会計区分が''だった場合の処理
         if ac_class == "":
             ac_class = 1
-        context["ac"] = int(ac_class)
+        context["ac"] = ac_class
 
         return context
 
@@ -297,12 +297,12 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         context["form"] = form
         context["total_withdrawals"] = total_withdrawals
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
-        context["year"] = int(year)
-        context["month"] = str(month)
+        context["year"] = year
+        context["month"] = month
         # 会計区分が''だった場合の処理
         if ac_class == "":
             ac_class = 1
-        context["ac"] = int(ac_class)
+        context["ac"] = ac_class
 
         return context
 
@@ -316,8 +316,19 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-        ac_class = self.request.GET.get("accounting_class", "")
+        if kwargs:
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(yearとac_classはint)
+            year = kwargs.get("year")
+            ac_class = kwargs.get("ac_class")
+        else:
+            # formで戻った場合、requestからデータを取り出す。（yearとac_classはstr、ALLは""となる）
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+            ac_class = self.request.GET.get("accounting_class")
+        # ac_classが「空白」または「None」の場合の処理
+        if ac_class == "" or ac_class is None:
+            ac_class = 0
+        else:
+            ac_class = int(ac_class)
         # queryset
         qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
         # 支出、資金移動でfiler
@@ -325,10 +336,10 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         # 計算対象でfilter
         qs = qs.filter(calc_flg=True)
         # 費目の会計区分でfilter。2023-11-23
-        if ac_class != "":
-            qs = qs.filter(himoku__accounting_class=ac_class)
+        if ac_class > 0:
+            qs = qs.filter(himoku__accounting_class=int(ac_class))
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
-        mr_total = monthly_total(qs, year, "ammount")
+        mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
         mr_total["year_total"] = sum(mr_total.values())
         context["mr_total"] = mr_total
@@ -347,6 +358,8 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
         context["passbook"] = passbook_total
+        context["year"] = year
+        context["ac"] = ac_class
         return context
 
 
@@ -359,8 +372,19 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-        ac_class = self.request.GET.get("accounting_class", "")
+        if kwargs:
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(yearとac_classはint)
+            year = kwargs.get("year")
+            ac_class = kwargs.get("ac_class")
+        else:
+            # formで戻った場合、requestからデータを取り出す。（yearとac_classはstr、ALLは""となる）
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+            ac_class = self.request.GET.get("accounting_class")
+        # ac_classが「空白」または「None」の場合の処理
+        if ac_class == "" or ac_class is None:
+            ac_class = 0
+        else:
+            ac_class = int(ac_class)
         # queryset
         qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
         # 収入でfiler
@@ -368,10 +392,10 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         # 未収入金をfilter
         qs = qs.filter(mishuu_flg=False)
         # 会計区分でfilter
-        if ac_class != "":
+        if ac_class > 0:
             qs = qs.filter(himoku__accounting_class=ac_class)
         # 月次報告収入の月別合計を計算。
-        mr_total = monthly_total(qs, year, "ammount")
+        mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
         mr_total["year_total"] = sum(mr_total.values())
         context["mr_total"] = mr_total
@@ -391,6 +415,8 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
         context["passbook"] = passbook_total
+        context["year"] = year
+        context["ac"] = ac_class
         return context
 
 

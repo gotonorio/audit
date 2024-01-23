@@ -38,7 +38,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
             year = self.request.GET.get("year", local_now.year)
             month = self.request.GET.get("month", str(local_now.month).zfill(2))
             ac_class = self.request.GET.get("ac_class")
-            list_order = self.request.GET.get("list_order")
+            list_order = self.request.GET.get("list_order", "0")
         # 口座種類は管理会計口座を指定する。不要なので何とかしないと。
         # account = ""
         # 抽出期間
@@ -132,8 +132,11 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 日付
-        sdate = self.request.GET.get("sdate", "")
+        year = localtime(timezone.now()).year
+        start_date = str(year) + "-" + "01-01"
+
+        # 開始日
+        sdate = self.request.GET.get("sdate", start_date)
         # 残高
         balance = self.request.GET.get("balance", 0)
         # 基準日が入力されていれば、チェック開始
@@ -143,6 +146,7 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
             month = start_date[1]
             day = start_date[2]
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
+            # 計算は指定日の翌日分から
             tdate = sdate + timezone.timedelta(days=1)
             qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")
             # 残高の再計算処理

@@ -138,7 +138,7 @@ div.my_field > textarea {
 }
 /* form入力style */
 #form_style {
-  width: 400px;
+  width: 420px;
   margin: auto;
 }
  /* 767px以下ではwidthを80%にする */

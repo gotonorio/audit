@@ -1,14 +1,11 @@
 from django.urls import path
-from .views import data_views
-from .views import views
 
+from .views import data_views, views
 
 app_name = "monthly_report"
 urlpatterns = [
     # データ表示
-    path(
-        "expenslist/", views.MonthlyReportExpenseListView.as_view(), name="expenselist"
-    ),
+    path("expenslist/", views.MonthlyReportExpenseListView.as_view(), name="expenselist"),
     path("incomelist/", views.MonthlyReportIncomeListView.as_view(), name="incomelist"),
     path(
         "year_expenselist/",
@@ -16,7 +13,9 @@ urlpatterns = [
         name="year_expenselist",
     ),
     path(
-        "year_incomelist/", views.YearIncomeListView.as_view(), name="year_incomelist"
+        "year_incomelist/",
+        views.YearIncomeListView.as_view(),
+        name="year_incomelist",
     ),
     path("bs_table/", views.BalanceSheetTableView.as_view(), name="bs_table"),
     path(
@@ -32,14 +31,24 @@ urlpatterns = [
     ),
     # update後に元の画面に戻る処理
     path(
-        "expenslist/<int:year>/<str:month>/<int:ac_class>/",
+        "expenslist/<int:year>/<int:month>/<int:ac_class>/",
         views.MonthlyReportExpenseListView.as_view(),
         name="expenselist",
     ),
     path(
-        "incomelist/<int:year>/<str:month>/<int:ac_class>/",
+        "incomelist/<int:year>/<int:month>/<int:ac_class>/",
         views.MonthlyReportIncomeListView.as_view(),
         name="incomelist",
+    ),
+    path(
+        "year_expenselist/<int:year>/<int:ac_class>/",
+        views.YearExpenseListView.as_view(),
+        name="year_expenselist",
+    ),
+    path(
+        "year_incomelist/<int:year>/<int:ac_class>/",
+        views.YearIncomeListView.as_view(),
+        name="year_incomelist",
     ),
     # データ編集
     path(

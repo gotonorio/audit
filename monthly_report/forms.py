@@ -23,9 +23,7 @@ class MonthlyReportIncomeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
 
     class Meta:
         model = ReportTransaction
@@ -259,7 +257,7 @@ class YearReportChoiceForm(forms.Form):
     accounting_class = forms.ModelChoiceField(
         queryset=AccountingClass.objects.all().order_by("code"),
         label="会計区分",
-        empty_label="ALL",
+        empty_label="会計区分ALL",
         required=False,
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )

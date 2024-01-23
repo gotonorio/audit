@@ -46,6 +46,7 @@
           <th class="has-text-centered">入金費目</th>
           <th class="has-text-centered">支出承認</th>
           <th class="has-text-centered">集計フラグ</th>
+          <th class="has-text-centered">デフォルト</th>
         </tr>
       </thead>
       <tbody>
@@ -82,6 +83,12 @@
             <td class="has-text-centered has-text-danger">
           {% endif %}
           {{record.aggregate_flag}}</td>
+          {% if record.is_default %}
+            <td class="has-text-centered has-text-danger">
+          {% else %}
+            <td class="has-text-centered">
+          {% endif %}
+          {{record.is_default}}</td>
         </tr>
         {% endfor %}
       </tbody>
