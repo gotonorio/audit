@@ -206,25 +206,25 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
-            year = kwargs.get("year")
-            month = kwargs.get("month")
-            ac_class = kwargs.get("ac_class", "0")
+            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
+            year = str(kwargs.get("year"))
+            month = str(kwargs.get("month"))
+            ac_class = str(kwargs.get("ac_class"))
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
             ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
 
         # 口座
         account = self.request.GET.get("account")
-
-        # 抽出期間（monthがALLなら1年分）
+        # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, month)
-
         qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "expense")
         # 「未払金」を除いて合計を計算。
         total_withdrawals = qs.filter(miharai_flg=False)
-
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "calc_flg", "-miharai_flg", "transaction_date")
         # 合計金額
@@ -246,7 +246,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         context["month"] = month
         # 会計区分が''だった場合の処理
         if ac_class == "":
-            ac_class = 1
+            ac_class = "0"
         context["ac"] = ac_class
 
         return context
@@ -262,17 +262,20 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
             year = kwargs.get("year")
             month = kwargs.get("month")
-            ac_class = kwargs.get("ac_class", "0")
+            ac_class = str(kwargs.get("ac_class"))
         else:
+            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
             ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
         # 口座
         account = self.request.GET.get("account")
-
         # 抽出期間
         tstart, tend = select_period(str(year), str(month))
         # 通帳口座名、費目名での絞り込みは停止。
@@ -301,7 +304,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         context["month"] = month
         # 会計区分が''だった場合の処理
         if ac_class == "":
-            ac_class = 1
+            ac_class = "0"
         context["ac"] = ac_class
 
         return context
@@ -317,27 +320,36 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(yearとac_classはint)
-            year = kwargs.get("year")
-            ac_class = kwargs.get("ac_class")
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
+            year = str(kwargs.get("year"))
+            ac_class = str(kwargs.get("ac_class"))
         else:
-            # formで戻った場合、requestからデータを取り出す。（yearとac_classはstr、ALLは""となる）
+            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
-            ac_class = self.request.GET.get("accounting_class")
-        # ac_classが「空白」または「None」の場合の処理
-        if ac_class == "" or ac_class is None:
-            ac_class = 0
-        else:
-            ac_class = int(ac_class)
-        # queryset
-        qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
-        # 支出、資金移動でfiler
-        qs = qs.filter(himoku__is_income=False)
-        # 計算対象でfilter
-        qs = qs.filter(calc_flg=True)
-        # 費目の会計区分でfilter。2023-11-23
-        if ac_class > 0:
-            qs = qs.filter(himoku__accounting_class=int(ac_class))
+            ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
+
+        # # ac_classが「空白」または「None」の場合の処理
+        # if ac_class == "" or ac_class is None:
+        #     ac_class = 0
+        # else:
+        #     ac_class = int(ac_class)
+        # # queryset
+        # qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
+        # # 支出、資金移動でfiler
+        # qs = qs.filter(himoku__is_income=False)
+        # # 計算対象でfilter
+        # qs = qs.filter(calc_flg=True)
+        # # 費目の会計区分でfilter。2023-11-23
+        # if ac_class > 0:
+        #     qs = qs.filter(himoku__accounting_class=int(ac_class))
+
+        # 抽出期間（monthが"0"なら1年分）
+        tstart, tend = select_period(year, "0")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "expense")
+
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
@@ -359,6 +371,9 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["yyyymm"] = str(year) + "年"
         context["passbook"] = passbook_total
         context["year"] = year
+        # 会計区分が''だった場合の処理
+        if ac_class == "":
+            ac_class = "0"
         context["ac"] = ac_class
         return context
 
@@ -373,27 +388,35 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(yearとac_classはint)
-            year = kwargs.get("year")
-            ac_class = kwargs.get("ac_class")
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
+            year = str(kwargs.get("year"))
+            ac_class = str(kwargs.get("ac_class"))
         else:
-            # formで戻った場合、requestからデータを取り出す。（yearとac_classはstr、ALLは""となる）
+            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
-            ac_class = self.request.GET.get("accounting_class")
-        # ac_classが「空白」または「None」の場合の処理
-        if ac_class == "" or ac_class is None:
-            ac_class = 0
-        else:
-            ac_class = int(ac_class)
-        # queryset
-        qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
-        # 収入でfiler
-        qs = qs.filter(himoku__is_income=True)
-        # 未収入金をfilter
-        qs = qs.filter(mishuu_flg=False)
-        # 会計区分でfilter
-        if ac_class > 0:
-            qs = qs.filter(himoku__accounting_class=ac_class)
+            ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
+
+        # # ac_classが「空白」または「None」の場合の処理
+        # if ac_class == "" or ac_class is None:
+        #     ac_class = 0
+        # else:
+        #     ac_class = int(ac_class)
+        # # queryset
+        # qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
+        # # 収入でfiler
+        # qs = qs.filter(himoku__is_income=True)
+        # # 未収入金をfilter
+        # qs = qs.filter(mishuu_flg=False)
+        # # 会計区分でfilter
+        # if ac_class > 0:
+        #     qs = qs.filter(himoku__accounting_class=ac_class)
+
+        # 抽出期間（monthが"0"なら1年分）
+        tstart, tend = select_period(year, "0")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "income")
         # 月次報告収入の月別合計を計算。
         mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
@@ -416,6 +439,9 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         context["yyyymm"] = str(year) + "年"
         context["passbook"] = passbook_total
         context["year"] = year
+        # 会計区分が''だった場合の処理
+        if ac_class == "":
+            ac_class = "0"
         context["ac"] = ac_class
         return context
 

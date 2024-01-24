@@ -82,7 +82,7 @@ class ReportTransaction(models.Model):
         # (5) 有効な費目でfilter
         qs_mr = qs_mr.filter(himoku__alive=True)
         # (6) 費目の会計区分でfilter 2023-11-23に追加
-        if ac_class != "":
+        if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
         return qs_mr
 
