@@ -58,32 +58,38 @@ class ReportTransaction(models.Model):
     #     ]
 
     @classmethod
-    def get_qs_mr(cls, tstart, tend, himoku, account, ac_class, flg):
+    def get_qs_mr(cls, tstart, tend, ac_class, inout_flg, community_flg):
         """指定された「年月」「費目」「口座」「会計区分」「入金・支出」で抽出するquerysetを返す。
         - 資金移動は含むので、必要なら呼び出し側で処理する。
         - flg==''の場合は入出金データを抽出する。
         - himokuが「未収入金」の場合、mishuu_flgで抽出する。
+        - community_flg is Falseの場合、町内会会計を除く 2024-1-25に追加。
         """
-        qs_mr = cls.objects.all().select_related("himoku", "account")
+        qs_mr = cls.objects.all().select_related("himoku", "accounting_class")
         # (1) 期間でfiler
         qs_mr = qs_mr.filter(transaction_date__range=[tstart, tend])
         # (2) 削除フラグをチェック
         qs_mr = qs_mr.filter(delete_flg=False)
         # (3) 収入・支出でfilter
-        if flg == "income":
+        if inout_flg == "income":
             # 収入をfilter。
             qs_mr = qs_mr.filter(himoku__is_income=True)
-        elif flg == "expense":
+        elif inout_flg == "expense":
             # 支出をfilter。
             qs_mr = qs_mr.filter(himoku__is_income=False)
-        # (4) 口座種類でfilter　ToDo Kuraseの場合不要となる予定
-        if account != "":
-            qs_mr = qs_mr.filter(account=account)
-        # (5) 有効な費目でfilter
+        # (4) 有効な費目でfilter
         qs_mr = qs_mr.filter(himoku__alive=True)
-        # (6) 費目の会計区分でfilter 2023-11-23に追加
+        # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
+        # # （6）計算対象でfilter（他会計からの繰入を除くため） 2024-1-24に追加
+        # qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
+        # （6）他会計への資金移動（繰入れ、受入れ）の場合、手動登録で「計算フラグ」のチェックを外す。
+        # qs_mr = qs_mr.filter(calc_flg=True)
+        # （7）Falseの場合、町内会会計を除く
+        if community_flg is False:
+            obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
+            qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
         return qs_mr
 
     #
@@ -109,7 +115,7 @@ class ReportTransaction(models.Model):
     def get_monthly_report_expense(cls, tstart, tend):
         """資金移動を除いて、計算対象データを抽出するsqlを返す"""
         # 月次報告データの取得
-        qs_mr = cls.get_qs_mr(tstart, tend, "", "", "", "expense")
+        qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
         # 資金移動は除く
         qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
         # 未払金を取得。
@@ -120,9 +126,10 @@ class ReportTransaction(models.Model):
 
     @classmethod
     def get_monthly_report_income(cls, tstart, tend):
-        """未収入金を分けて返す"""
+        """管理会計の月次報告（未収入金を分けて返す"""
+
         # 月次報告データの取得
-        qs_mr = cls.get_qs_mr(tstart, tend, "", "", "", "income")
+        qs_mr = cls.get_qs_mr(tstart, tend, "0", "income", False)
         # 資金移動は除く
         qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
         # 通帳データと比較のため、calc_flgがFalseを除く。表示だけはすることにした。

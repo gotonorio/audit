@@ -222,7 +222,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         account = self.request.GET.get("account")
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, month)
-        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "expense")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 「未払金」を除いて合計を計算。
         total_withdrawals = qs.filter(miharai_flg=False)
         # 表示順序
@@ -279,7 +279,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         # 抽出期間
         tstart, tend = select_period(str(year), str(month))
         # 通帳口座名、費目名での絞り込みは停止。
-        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "income")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 「未収入金」を除いて合計を計算。
         qs_total = qs.filter(mishuu_flg=False)
 
@@ -348,7 +348,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, "0")
-        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "expense")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
 
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_total = monthly_total(qs, int(year), "ammount")
@@ -416,7 +416,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, "0")
-        qs = ReportTransaction.get_qs_mr(tstart, tend, "", "", ac_class, "income")
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 月次報告収入の月別合計を計算。
         mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
