@@ -41,7 +41,7 @@
             <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
             {% if perms.record.add_transaction %}
               <hr class="navbar-divider">
-              <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a>
+              {% comment %} <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a> {% endcomment %}
             {% endif %}
           </div>
         </div>
@@ -69,12 +69,13 @@
             <a class="navbar-link is-size-6">管理者用</a>
             <div class="navbar-dropdown">
               <a class="dropdown-item" href="{% url 'register:master_page' %}">データ管理</a>
+              <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a>
               <hr class="navbar-divider">
-              <a class="dropdown-item" href="{% url 'explanation:description_create' %}">ヘルプ新規作成</a>
               {% if perms.register.add_user %}
                 <hr class="navbar-divider">
                 <a class="dropdown-item" href="{% url 'register:user_list' %}">登録者一覧</a>
                 <a class="dropdown-item" href="{% url 'control:control_list' %}">コントロールデータ修正</a>
+                <a class="dropdown-item" href="{% url 'explanation:description_create' %}">ヘルプ新規作成</a>
               {% endif %}
             </div>
           </div>

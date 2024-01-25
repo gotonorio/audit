@@ -1,4 +1,5 @@
 from django import forms
+
 from explanation.models import Description
 
 
@@ -9,7 +10,7 @@ class DescriptionCreateForm(forms.ModelForm):
         """https://docs.djangoproject.com/en/4.0/topics/forms/modelforms/#overriding-the-default-fields"""
 
         model = Description
-        fields = ["no", "title", "description", "data_operation", "alive"]
+        fields = ["no", "title", "description", "alive"]
         widgets = {
             "no": forms.NumberInput(
                 attrs={

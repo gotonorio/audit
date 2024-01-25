@@ -3,7 +3,13 @@ from django.utils import timezone
 
 
 class Description(models.Model):
-    """説明モデル"""
+    """説明モデル
+    - no: プルダウンメニューの表示順
+    - title: ヘルプタイトル
+    - description: 説明文（markdown記法）
+    - alive: 表示の有効/無効用フラグ
+    - data_operation: 未使用（何のために設定したのか忘れた）
+    """
 
     no = models.IntegerField(default=0, unique=True)
     title = models.CharField(verbose_name="タイトル", max_length=32)
