@@ -58,12 +58,13 @@ class ReportTransaction(models.Model):
     #     ]
 
     @classmethod
-    def get_qs_mr(cls, tstart, tend, ac_class, inout_flg, community_flg):
+    def get_qs_mr(cls, tstart, tend, ac_class, inout_flg, community):
         """指定された「年月」「費目」「口座」「会計区分」「入金・支出」で抽出するquerysetを返す。
         - 資金移動は含むので、必要なら呼び出し側で処理する。
+        - ac_class == "0"の場合、全会計区分を対象とする。
         - flg==''の場合は入出金データを抽出する。
         - himokuが「未収入金」の場合、mishuu_flgで抽出する。
-        - community_flg is Falseの場合、町内会会計を除く 2024-1-25に追加。
+        - community is Falseの場合、町内会会計を除く 2024-1-25に追加。
         """
         qs_mr = cls.objects.all().select_related("himoku", "accounting_class")
         # (1) 期間でfiler
@@ -87,7 +88,7 @@ class ReportTransaction(models.Model):
         # （6）他会計への資金移動（繰入れ、受入れ）の場合、手動登録で「計算フラグ」のチェックを外す。
         # qs_mr = qs_mr.filter(calc_flg=True)
         # （7）Falseの場合、町内会会計を除く
-        if community_flg is False:
+        if community is False:
             obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
         return qs_mr
