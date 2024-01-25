@@ -40,6 +40,11 @@ class DescriptionCreateView(PermissionRequiredMixin, generic.CreateView):
     template_name = "explanation/description_form.html"
     success_url = reverse_lazy("register:mypage")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["qs"] = Description.get_description_list()
+        return context
+
 
 class DescriptionUpdateView(PermissionRequiredMixin, generic.UpdateView):
     """説明文モデルのアップデート"""

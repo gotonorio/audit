@@ -67,5 +67,28 @@
       <button type="submit" class="button is-primary is-size-7">登録</button>
       <a class="button is-danger is-size-7" href="javascript:void(0);" onclick="window.history.back();">キャンセル</a>
     </div>
+  </form
+  <br>
+  <div class="table-container">
+    <table class="table table_center_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">no</th>
+          <th class="has-text-centered">title</th>
+          <th class="has-text-centered">alive</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in qs %}
+        <tr>
+          <td class="has-text-centered">{{item.no}}</td>
+          <td class="has-text-left">{{item.title}}</td>
+          <td class="has-text-centered">{{item.alive}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 {% endblock %}
