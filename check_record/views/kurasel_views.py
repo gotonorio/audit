@@ -275,7 +275,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         #
         # 月次収支の収入データを抽出
         #
-        qs_mr, _ = ReportTransaction.get_monthly_report_income(tstart, tend)
+        qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
         # 収入のない費目は除く
         qs_mr = qs_mr.filter(ammount__gt=0)
 
