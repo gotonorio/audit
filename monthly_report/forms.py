@@ -34,12 +34,10 @@ class MonthlyReportIncomeForm(forms.ModelForm):
             "ammount",
             "himoku",
             "description",
-            "mishuu_flg",
             "calc_flg",
         ]
         labels = {
             "transaction_date": "取引月",
-            "mishuu_flg": "未収入金",
             "calc_flg": "計算フラグ",
             "description": "摘要",
         }
@@ -106,13 +104,9 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
             "ammount",
             "himoku",
             "description",
-            "miharai_flg",
             "calc_flg",
             "is_netting",
         ]
-        labels = {
-            "miharai_flg": "未払い",
-        }
         widgets = {
             "account": forms.Select(
                 attrs={

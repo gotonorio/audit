@@ -28,8 +28,6 @@ class ReportTransaction(models.Model):
     transaction_date = models.DateField("取引月")
     ammount = models.IntegerField("金額", default=0)
     himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
-    miharai_flg = models.BooleanField(default=False)
-    mishuu_flg = models.BooleanField(default=False)
     calc_flg = models.BooleanField(verbose_name="計算対象", default=True)
     description = models.CharField("摘要", max_length=64, blank=True, default="")
     author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
@@ -63,7 +61,6 @@ class ReportTransaction(models.Model):
         - 資金移動は含むので、必要なら呼び出し側で処理する。
         - ac_class == "0"の場合、全会計区分を対象とする。
         - flg==''の場合は入出金データを抽出する。
-        - himokuが「未収入金」の場合、mishuu_flgで抽出する。
         - community is Falseの場合、町内会会計を除く 2024-1-25に追加。
         """
         qs_mr = cls.objects.all().select_related("himoku", "accounting_class")
@@ -119,11 +116,9 @@ class ReportTransaction(models.Model):
         qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
         # 資金移動は除く
         qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
-        # 未払金を取得。
-        qs_miharai = qs_mr.filter(miharai_flg=True)
         # 計算対象データだけを抽出。
         qs_mr = qs_mr.filter(calc_flg=True)
-        return qs_mr, qs_miharai
+        return qs_mr
 
     @classmethod
     def get_monthly_report_income(cls, tstart, tend):
@@ -135,11 +130,7 @@ class ReportTransaction(models.Model):
         qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
         # 通帳データと比較のため、calc_flgがFalseを除く。表示だけはすることにした。
         # qs_mr = qs_mr.filter(calc_flg=True)
-        # 未収入金だけを取得。
-        qs_mishuu = qs_mr.filter(mishuu_flg=True)
-        # 未収入金を除くデータを取得。
-        qs_mr = qs_mr.filter(mishuu_flg=False)
-        return qs_mr, qs_mishuu
+        return qs_mr
 
     @classmethod
     def monthly_from_kurasel(cls, ac_class, data):

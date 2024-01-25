@@ -156,7 +156,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 抽出期間
         tstart, tend = select_period(year, month)
         # 月次収支の支出データ
-        qs_mr, _ = ReportTransaction.get_monthly_report_expense(tstart, tend)
+        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
         # 支出のない費目は除く
         qs_mr = qs_mr.filter(ammount__gt=0)
         # 月次収支の支出合計（ネッティング処理の費目を控除する）

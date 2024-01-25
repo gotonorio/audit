@@ -87,15 +87,12 @@
           {% else %}
             <td class="has-text-ledt">{{record.himoku}}</td>
           {% endif %}
-          {% if record.mishuu_flg %}
-            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-            <td class="has-text-left has-text-danger">(未収入金) {{record.description}}</td>
-          {% elif not record.calc_flg %}
-            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-            <td class="has-text-left has-text-danger">(計算除外金) {{record.description}}</td>
-          {% else %}
+          {% if record.calc_flg %}
             <td class="has-text-right">{{record.ammount|intcomma}}</td>
             <td class="has-text-left is-size-7">{{record.description|truncatechars:30}}</td>
+          {% else %}
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-left has-text-danger">(計算除外金) {{record.description}}</td>
           {% endif %}
           {% if perms.record.add_transaction %}
             <td class="has-text-centered">

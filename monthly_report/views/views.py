@@ -223,10 +223,8 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, month)
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
-        # 「未払金」を除いて合計を計算。
-        total_withdrawals = qs.filter(miharai_flg=False)
         # 表示順序
-        qs = qs.order_by("himoku__accounting_class", "calc_flg", "-miharai_flg", "transaction_date")
+        qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # 合計金額
         total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -280,13 +278,10 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         tstart, tend = select_period(str(year), str(month))
         # 通帳口座名、費目名での絞り込みは停止。
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
-        # 「未収入金」を除いて合計を計算。
-        qs_total = qs.filter(mishuu_flg=False)
-
         # 月次データの支出合計
-        total_withdrawals = ReportTransaction.calc_total_withflg(qs_total, True)
+        total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # 表示順序
-        qs = qs.order_by("himoku__accounting_class", "calc_flg", "-mishuu_flg", "transaction_date")
+        qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
@@ -408,8 +403,6 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         # qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
         # # 収入でfiler
         # qs = qs.filter(himoku__is_income=True)
-        # # 未収入金をfilter
-        # qs = qs.filter(mishuu_flg=False)
         # # 会計区分でfilter
         # if ac_class > 0:
         #     qs = qs.filter(himoku__accounting_class=ac_class)

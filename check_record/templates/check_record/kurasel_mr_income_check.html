@@ -78,12 +78,12 @@
             <tr>
               <td class="has-text-ledt">{{record.transaction_date|date:'m-d'}}</td>
               <td class="has-text-ledt">{{record.himoku}}</td>
-              {% if record.mishuu_flg or not record.calc_flg %}
-                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7 has-text-danger">{{record.description}}</td>
-              {% else %}
+              {% if record.calc_flg %}
                 <td class="has-text-right">{{record.ammount|intcomma}}</td>
                 <td class="has-text-ledt is-size-7">{{record.description}}</td>
+              {% else %}
+                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+                <td class="has-text-ledt is-size-7 has-text-danger">{{record.description}}</td>
               {% endif %}
             </tr>
             {% endfor %}
