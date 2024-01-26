@@ -28,23 +28,19 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         local_now = localtime(timezone.now())
-        year = self.request.GET.get("year", local_now.year)
-        month = self.request.GET.get("month", local_now.month)
+        year = self.request.GET.get("year", str(local_now.year))
+        month = self.request.GET.get("month", str(local_now.month))
         day = self.request.GET.get("day", "00")
         # querysetの作成。
-        if day == "00" and month == "0":
-            tstart, tend = select_period(year, month)
+        tstart, tend = select_period(year, month)
+        if day == "00":
             qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
         elif month == "0":
-            tstart, tend = select_period(year, month)
             qs = (
                 Payment.objects.select_related("himoku")
                 .filter(payment_date__range=[tstart, tend])
                 .filter(payment_date__day=day)
             )
-        elif day == "00":
-            tstart, tend = select_period(year, month)
-            qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
         else:
             date_str = str(year) + str(month) + day
             payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")

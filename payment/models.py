@@ -34,7 +34,7 @@ class Payment(models.Model):
         - 費目はdefault費目をセットする。
         """
         # 支払日
-        date_str = str(data["year"]) + str(data["month"]) + data["day"]
+        date_str = str(data["year"]) + str(data["month"]).zfill(2) + data["day"].zfill(2)
         payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")
         error_list = []
         rtn = True
@@ -60,7 +60,7 @@ class Payment(models.Model):
     @classmethod
     def kurasel_get_payment(cls, tstart, tend):
         """承認済み支払いデータを返す"""
-        qs = Payment.objects.filter(payment_date__range=[tstart, tend])
+        qs = cls.objects.filter(payment_date__range=[tstart, tend])
         total = 0
         for i in qs:
             total += i.payment

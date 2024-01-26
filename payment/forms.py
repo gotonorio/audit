@@ -51,9 +51,7 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True)
-        .filter(is_income=False, alive=True)
-        .order_by("code"),
+        queryset=Himoku.objects.filter(alive=True).filter(is_income=False, alive=True).order_by("code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
 
@@ -61,6 +59,7 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
         model = Payment
         fields = [
             "himoku",
+            "payment_date",
             "payment_destination",
             "payment",
             "summary",
@@ -77,6 +76,11 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
                 }
             ),
             "summary": forms.TextInput(
+                attrs={
+                    "class": "input",
+                }
+            ),
+            "payment_date": forms.TextInput(
                 attrs={
                     "class": "input",
                 }
