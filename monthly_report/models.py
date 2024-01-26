@@ -57,11 +57,11 @@ class ReportTransaction(models.Model):
 
     @classmethod
     def get_qs_mr(cls, tstart, tend, ac_class, inout_flg, community):
-        """指定された「年月」「費目」「口座」「会計区分」「入金・支出」で抽出するquerysetを返す。
+        """指定された「年月」「会計区分」「入金・支出」「町内会会計」で抽出する月次報告querysetを返す。
         - 資金移動は含むので、必要なら呼び出し側で処理する。
         - ac_class == "0"の場合、全会計区分を対象とする。
         - flg==''の場合は入出金データを抽出する。
-        - community is Falseの場合、町内会会計を除く 2024-1-25に追加。
+        - communityフラグがFalseの場合、町内会会計を除いて抽出する。 2024-1-25に追加
         """
         qs_mr = cls.objects.all().select_related("himoku", "accounting_class")
         # (1) 期間でfiler
@@ -70,21 +70,15 @@ class ReportTransaction(models.Model):
         qs_mr = qs_mr.filter(delete_flg=False)
         # (3) 収入・支出でfilter
         if inout_flg == "income":
-            # 収入をfilter。
             qs_mr = qs_mr.filter(himoku__is_income=True)
         elif inout_flg == "expense":
-            # 支出をfilter。
             qs_mr = qs_mr.filter(himoku__is_income=False)
         # (4) 有効な費目でfilter
         qs_mr = qs_mr.filter(himoku__alive=True)
         # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
-        # # （6）計算対象でfilter（他会計からの繰入を除くため） 2024-1-24に追加
-        # qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
-        # （6）他会計への資金移動（繰入れ、受入れ）の場合、手動登録で「計算フラグ」のチェックを外す。
-        # qs_mr = qs_mr.filter(calc_flg=True)
-        # （7）Falseの場合、町内会会計を除く
+        # (6) 町内会会計を除くかどうか
         if community is False:
             obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
@@ -102,7 +96,9 @@ class ReportTransaction(models.Model):
         total_withdrawals = 0
         if flg:
             for data in sql:
-                if data.calc_flg:
+                # ToDo
+                # if data.calc_flg:
+                if data.himoku.aggregate_flag:
                     total_withdrawals += data.ammount
         else:
             for data in sql:
@@ -120,17 +116,17 @@ class ReportTransaction(models.Model):
         qs_mr = qs_mr.filter(calc_flg=True)
         return qs_mr
 
-    @classmethod
-    def get_monthly_report_income(cls, tstart, tend):
-        """管理会計の月次報告（未収入金を分けて返す"""
+    # @classmethod
+    # def get_monthly_report_income(cls, tstart, tend):
+    #     """月次報告の収入データのquerysetを返す"""
 
-        # 月次報告データの取得（Kurase監査の月次報告収入チェックでは町内会会計も含める）
-        qs_mr = cls.get_qs_mr(tstart, tend, "0", "income", True)
-        # 資金移動は除く
-        qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
-        # 通帳データと比較のため、calc_flgがFalseを除く。表示だけはすることにした。
-        # qs_mr = qs_mr.filter(calc_flg=True)
-        return qs_mr
+    #     # 月次報告データの取得（Kurase監査の月次報告収入チェックでは町内会会計も含める）
+    #     qs_mr = cls.get_qs_mr(tstart, tend, "0", "income", True)
+    #     # # 資金移動は除く
+    #     # qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
+    #     # 通帳データと比較のため、calc_flgがFalseを除く。表示だけはすることにした。
+    #     # qs_mr = qs_mr.filter(calc_flg=True)
+    #     return qs_mr
 
     @classmethod
     def monthly_from_kurasel(cls, ac_class, data):

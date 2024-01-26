@@ -223,7 +223,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
 
 
 class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
-    """月次収支の収入データと口座収入データの月別比較リスト"""
+    """月次報告の収入データと口座収入データの月別比較リスト"""
 
     template_name = "check_record/kurasel_mr_income_check.html"
     permission_required = ("record.view_transaction",)
@@ -273,9 +273,10 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 抽出期間
         tstart, tend = select_period(year, month)
         #
-        # 月次収支の収入データを抽出
+        # 月次収入データを抽出
         #
-        qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
+        # qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
+        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
         qs_mr = qs_mr.filter(ammount__gt=0)
 

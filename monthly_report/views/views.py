@@ -222,7 +222,16 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         account = self.request.GET.get("account")
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, month)
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+
+        # ToDo qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        # 町内会会計が選択された場合の処理
+        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
+        if ac_name.pk == int(ac_class):
+            # 町内会会計が指定された場合。
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
+        else:
+            # 町内会会計以外が指定された場合。
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # 合計金額
@@ -276,8 +285,14 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         account = self.request.GET.get("account")
         # 抽出期間
         tstart, tend = select_period(str(year), str(month))
-        # 通帳口座名、費目名での絞り込みは停止。
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+        # 町内会会計が選択された場合の処理
+        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
+        if ac_name.pk == int(ac_class):
+            # 町内会会計が指定された場合。
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
+        else:
+            # 町内会会計以外が指定された場合。
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 月次データの支出合計
         total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # 表示順序

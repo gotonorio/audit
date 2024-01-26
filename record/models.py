@@ -86,7 +86,10 @@ class AccountingClass(models.Model):
 
 
 class Himoku(models.Model):
-    """費目マスタ"""
+    """費目マスタ
+    - aggregate_flag: 資金移動などの場合はFalseとする。
+      Falseの場合は表示するが、合計計算では無視する。
+    """
 
     code = models.IntegerField(verbose_name="コード", unique=True)
     himoku_name = models.CharField(verbose_name="費目名", max_length=64)
@@ -139,7 +142,6 @@ class Himoku(models.Model):
     @classmethod
     def get_himoku_obj(cls, himoku, ac_class):
         """費目名からそのオブジェクトを返す
-        ToDo
         - 費目はunique属性（現状は修繕会計の「受取利息」を無効化しているのでget()を使う。
         """
         if ac_class in ("前受金",):

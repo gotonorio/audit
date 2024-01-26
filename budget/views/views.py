@@ -144,8 +144,9 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
             qs_expense = Transaction.objects.select_related("himoku")
         # 入金以外（支出、資金移動）でfiler
         qs_expense = qs_expense.filter(himoku__is_income=False)
-        # 計算対象でfilter
-        qs_expense = qs_expense.filter(calc_flg=True)
+        # ToDo 計算対象でfilter -> 費目のaggregate_flagで置き換える
+        # qs_expense = qs_expense.filter(calc_flg=True)
+        qs_expense = qs_expense.filter(himoku__aggregate_flag=True)
         # 管理会計区分でfilter
         qs_expense = qs_expense.filter(himoku__accounting_class__accounting_name=ac_class_name)
         # 指定された「月度」までの期間でfilte
