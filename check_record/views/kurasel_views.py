@@ -42,10 +42,11 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
+            # 画面が表示された時、年月を指定して表示した時。
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
@@ -70,7 +71,7 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 支払い承認データ
         qs_payment, total_ap = Payment.kurasel_get_payment(tstart, tend)
         # 入出金明細データの取得。（口座は常に""とする）
-        qs_pb = Transaction.get_qs_pb(tstart, tend, "", "", "expense", False)
+        qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", False)
         qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
         # step1 摘要欄コメントで支払い承認の有無をチェック。
         _ = Transaction.set_is_approval_text(qs_pb)
@@ -130,10 +131,11 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
+            # 画面が表示された時、年月を指定して表示した時
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
@@ -163,7 +165,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         qs_mr_without_netting = qs_mr.exclude(is_netting=True)
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # 入出金明細の支出データ
-        qs_pb = Transaction.get_qs_pb(tstart, tend, "", "", "expense", True)
+        qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True)
         qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
         # 通帳データの合計（集計フラグがTrueの費目合計）
         total_pb = 0
@@ -201,10 +203,6 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
             total_last_miharai = settings.MIHARAI_INITIAL
 
-        logger.debug(type(year))
-        logger.debug(type(month))
-        logger.debug(settings.MIHARAI_INITIAL)
-
         context["mr_list"] = qs_mr
         context["pb_list"] = qs_pb
         context["total_mr"] = total_mr
@@ -237,10 +235,11 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
+            # 画面が表示された時、年月を指定して表示した時
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
@@ -287,7 +286,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 入出金明細データ（通帳データ）の収入リスト
         # 監査用補正データも含めて抽出する。2023-08-21
         #
-        qs_pb = Transaction.get_qs_pb(tstart, tend, "", "", "income", True)
+        qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "income", True)
         # 2023年3月以前のデータを除外する。
         start_date = datetime.date(2023, 4, 1)
         qs_pb = qs_pb.filter(transaction_date__gte=start_date)

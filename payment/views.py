@@ -27,10 +27,17 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        local_now = localtime(timezone.now())
-        year = self.request.GET.get("year", str(local_now.year))
-        month = self.request.GET.get("month", str(local_now.month))
-        day = self.request.GET.get("day", "00")
+        if kwargs:
+            # 遷移で表示された時。（kwargsにデータが渡される）
+            year = str(kwargs.get("year"))
+            month = str(kwargs.get("month"))
+            day = self.request.GET.get("day", "00")
+        else:
+            # 画面が表示された時、年月を指定して表示した時。
+            local_now = localtime(timezone.now())
+            year = self.request.GET.get("year", str(local_now.year))
+            month = self.request.GET.get("month", str(local_now.month))
+            day = self.request.GET.get("day", "00")
         # querysetの作成。
         tstart, tend = select_period(year, month)
         if day == "00":
@@ -74,8 +81,16 @@ class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
     permission_required = "record.add_transaction"
     # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
     raise_exception = True
+
     # 保存が成功した場合に遷移するurl
-    success_url = reverse_lazy("payment:payment_list")
+    def get_success_url(self):
+        qs = Payment.objects.filter(pk=self.object.pk).values("payment_date")
+        year = qs[0]["payment_date"].year
+        month = qs[0]["payment_date"].month
+        return reverse_lazy(
+            "payment:payment_list",
+            kwargs={"year": year, "month": month},
+        )
 
     # def form_valid(self, form):
     #     # commitを停止する。

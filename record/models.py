@@ -325,10 +325,10 @@ class Transaction(models.Model):
         elif deposit_flg == "expense":
             qs_pb = qs_pb.filter(is_income=False)
         # 口座種類でfilter（Kuraselでは1口座なので常にacoountは""とする。
-        if account != "":
+        if account != "0":
             qs_pb = qs_pb.filter(account=account)
-        # 費目の会計区分でfilter
-        if ac_class != "":
+        # # ToDo 費目の会計区分でfilter
+        if ac_class != "0":
             qs_pb = qs_pb.filter(himoku__accounting_class=ac_class)
         return qs_pb
 

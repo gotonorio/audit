@@ -31,21 +31,19 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         if kwargs:
             year = kwargs["year"]
             month = kwargs["month"].zfill(2)
-            ac_class = kwargs["ac_class"]
+            # ac_class = kwargs["ac_class"]
             list_order = kwargs["list_order"]
         else:
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", local_now.year)
-            month = self.request.GET.get("month", str(local_now.month).zfill(2))
-            ac_class = self.request.GET.get("ac_class")
+            month = self.request.GET.get("month", local_now.month)
+            # ac_class = self.request.GET.get("ac_class", "0")
             list_order = self.request.GET.get("list_order", "0")
-        # 口座種類は管理会計口座を指定する。不要なので何とかしないと。
-        # account = ""
         # 抽出期間
         tstart, tend = select_period(year, month)
 
         # querysetの作成。（補正データも表示する）
-        qs = Transaction.get_qs_pb(tstart, tend, "", ac_class, "", self.is_manual)
+        qs = Transaction.get_qs_pb(tstart, tend, "0", "0", "", self.is_manual)
 
         # 表示順序
         if list_order == "0":
@@ -59,7 +57,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
             initial={
                 "year": year,
                 "month": month,
-                "ac_class": ac_class,
+                # "ac_class": ac_class,
                 "list_order": list_order,
             }
         )
