@@ -76,6 +76,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "passbook.context_processors.version_no",
+                "passbook.context_processors.is_debug",
             ],
             "libraries": {
                 "my_templatetags": "templatetags.my_extras",

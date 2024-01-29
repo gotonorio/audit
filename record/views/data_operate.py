@@ -180,9 +180,9 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
             }
         )
         if ac_class == "":
-            qs = Himoku.objects.all().order_by("-is_default", "code")
+            qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
         else:
-            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("code")
+            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("-alive", "code")
         context["himoku_list"] = qs
         context["form"] = form
         return context
