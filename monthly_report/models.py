@@ -146,7 +146,7 @@ class ReportTransaction(models.Model):
             himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
             if himoku_id is None:
                 return False, [
-                    "一致する費目名がありません",
+                    "費目名「" + item[0] + "」が費目リストに登録されていません。",
                 ]
             try:
                 ac_class_obj = AccountingClass.get_accountingclass_obj(ac_class)
