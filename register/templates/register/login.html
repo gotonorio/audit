@@ -27,7 +27,11 @@
   <div class="hero-body">
     <div class="container has-text-centered">
       <h1 class="title">会計監査システム</h1>
-      <h2 class="subtitle"> クラセル 開発版</h2>
+      {% if debug %}
+        <h2 class="subtitle"> クラセル 開発版</h2>
+      {% else %}
+        <h2 class="subtitle"> クラセル 運用版</h2>
+      {% endif %}
     </div>
   </div>
  </div>

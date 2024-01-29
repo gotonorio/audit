@@ -109,7 +109,11 @@
 {% block content %}
 <div class="content has-text-centered">
   <br>
-  {% comment %} <h2>Kurasel対応 開発版</h2> {% endcomment %}
+  {% if debug %}
+    <h2 class="subtitle"> クラセル監査 開発版</h2>
+  {% else %}
+    <h2 class="subtitle"> クラセル監査 運用版</h2>
+  {% endif %}
   {% load static%}
   <img src="{% static 'ramune.png' %}" style="max-height:500px" class="img-fluid" />
 </div>

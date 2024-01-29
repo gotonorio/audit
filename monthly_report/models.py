@@ -142,11 +142,13 @@ class ReportTransaction(models.Model):
         error_list = []
         rtn = True
         for item in data["data_list"]:
+            # ToDo Kuraselとauditで費目名が一致しなかった場合、nullが返るので何らの処理が必要。
+            himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
+            if himoku_id is None:
+                return False, [
+                    "一致する費目名がありません",
+                ]
             try:
-                # himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
-                # ToDo allにすると、管理会計の「受取利息」修繕会計の「受取利息」があるため、修繕会計の「受取利息」を「無効」にしている。
-                # Kuraselで修繕会計の「受取利息」を削除した場合に、費目マスタから削除する予定。
-                himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
                 ac_class_obj = AccountingClass.get_accountingclass_obj(ac_class)
                 cls.objects.update_or_create(
                     transaction_date=ymd,
