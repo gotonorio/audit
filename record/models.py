@@ -105,6 +105,11 @@ class Himoku(models.Model):
         return self.himoku_name
 
     class Meta:
+        """ユニーク制約
+        - 費目名は会計区分毎にユニークとする。
+        - デフォルトフラグ（Kuraselから取り込む時のデフォルト費目名）のTrueはユニークとする。
+        """
+
         constraints = [
             models.UniqueConstraint(fields=["himoku_name", "accounting_class"], name="himoku_unique"),
             models.UniqueConstraint(
