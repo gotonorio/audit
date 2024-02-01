@@ -233,7 +233,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 表示順序
-        qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
+        qs = qs.order_by("himoku__accounting_class", "himoku__code", "calc_flg", "transaction_date")
         # 合計金額
         total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # forms.pyのKeikakuListFormに初期値を設定する

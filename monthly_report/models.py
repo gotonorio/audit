@@ -62,6 +62,7 @@ class ReportTransaction(models.Model):
         - ac_class == "0"の場合、全会計区分を対象とする。
         - flg==''の場合は入出金データを抽出する。
         - communityフラグがFalseの場合、町内会会計を除いて抽出する。 2024-1-25に追加
+        - 費目コードが9000以上は使用しないため表示しないようにする。有効フラグをOFFにすると、（Kuraselからの取り込みチェックでアウト）
         """
         qs_mr = cls.objects.all().select_related("himoku", "accounting_class")
         # (1) 期間でfiler
@@ -73,8 +74,8 @@ class ReportTransaction(models.Model):
             qs_mr = qs_mr.filter(himoku__is_income=True)
         elif inout_flg == "expense":
             qs_mr = qs_mr.filter(himoku__is_income=False)
-        # (4) 有効な費目でfilter
-        qs_mr = qs_mr.filter(himoku__alive=True)
+        # (4) 有効な費目、非表示費目（費目コード9000以上）でfilter
+        qs_mr = qs_mr.filter(himoku__alive=True).filter(himoku__code__lt=9000)
         # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
