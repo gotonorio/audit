@@ -147,18 +147,12 @@ class Himoku(models.Model):
     @classmethod
     def get_himoku_obj(cls, himoku, ac_class):
         """費目名からそのオブジェクトを返す
-        - 費目はunique属性（現状は修繕会計の「受取利息」を無効化しているのでget()を使う。
+        ToDo 不明な費目をNoneで返すか、デフォルト費目を返すか。
         """
-        if ac_class in ("前受金",):
-            try:
-                qs = cls.objects.get(alive=True, himoku_name=himoku)
-            except cls.DoesNotExist:
-                qs = None
-        else:
-            try:
-                qs = cls.objects.get(alive=True, himoku_name=himoku, accounting_class=ac_class)
-            except cls.DoesNotExist:
-                qs = None
+        try:
+            qs = cls.objects.get(alive=True, himoku_name__contains=himoku, accounting_class=ac_class)
+        except cls.DoesNotExist:
+            qs = None
         return qs
 
     @classmethod
@@ -332,7 +326,7 @@ class Transaction(models.Model):
         # 口座種類でfilter（Kuraselでは1口座なので常にacoountは""とする。
         if account != "0":
             qs_pb = qs_pb.filter(account=account)
-        # # ToDo 費目の会計区分でfilter
+        # 費目の会計区分でfilter
         if ac_class != "0":
             qs_pb = qs_pb.filter(himoku__accounting_class=ac_class)
         return qs_pb

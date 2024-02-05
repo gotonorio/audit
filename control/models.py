@@ -1,4 +1,5 @@
 from django.db import models
+
 from record.models import Himoku
 
 
@@ -22,6 +23,8 @@ class ControlRecord(models.Model):
 
     @classmethod
     def get_offset_himoku(cls):
-        """相殺処理する費目名を返す"""
+        """相殺処理する費目名を返す
+        - 総裁処理する費目は一つだけの想定
+        """
         offset_himoku = cls.objects.values("to_offset__himoku_name").first()
         return offset_himoku["to_offset__himoku_name"]

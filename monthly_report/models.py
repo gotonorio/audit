@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReportTransaction(models.Model):
-    """月次報告書取引明細"""
+    """月次収支データモデル"""
 
     account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
     accounting_class = models.ForeignKey(
@@ -44,16 +44,6 @@ class ReportTransaction(models.Model):
     #     """
     #     self.delete_flg = True
     #     self.save()
-
-    # 振込手数料は同じ口座、費目、金額があるため、重複制限をなくす。
-    # class Meta:
-    #     """ https://djangobrothers.com/blogs/django_uniqueconstraint/ """
-    #     constraints = [
-    #         # 同じ月に同じ口座、費目、金額を重複させない
-    #         models.UniqueConstraint(
-    #             fields=['transaction_date', 'account', 'ammount', 'himoku'],
-    #             name='unique_himoku'),
-    #     ]
 
     @classmethod
     def get_qs_mr(cls, tstart, tend, ac_class, inout_flg, community):
@@ -97,8 +87,6 @@ class ReportTransaction(models.Model):
         total_withdrawals = 0
         if flg:
             for data in sql:
-                # ToDo
-                # if data.calc_flg:
                 if data.himoku.aggregate_flag:
                     total_withdrawals += data.ammount
         else:
@@ -131,8 +119,8 @@ class ReportTransaction(models.Model):
 
     @classmethod
     def monthly_from_kurasel(cls, ac_class, data):
-        """kurasel_translatorから月次収支データを読み込む
-        - 会計区分を指定して取り込む。ToDo:町内会会計の扱いを検討する。
+        """月次収支データの保存処理を行う
+        - 会計区分を指定して取り込む。
         """
         # 取引月
         date_str = str(data["year"]) + "-" + str(data["month"]) + "-" + "01"
@@ -143,7 +131,7 @@ class ReportTransaction(models.Model):
         error_list = []
         rtn = True
         for item in data["data_list"]:
-            # ToDo Kuraselとauditで費目名が一致しなかった場合、nullが返るので何らの処理が必要。
+            # Kuraselの費目名と一致する費目オブジェクトを得る
             himoku_id = Himoku.get_himoku_obj(item[0], ac_class)
             if himoku_id is None:
                 return False, [

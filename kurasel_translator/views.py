@@ -94,6 +94,15 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         kind = form.cleaned_data["kind"]
         mode = form.cleaned_data["mode"]
         note = form.cleaned_data["note"]
+
+        context = {
+            "form": form,
+            "year": year,
+            "month": month,
+            "kind": kind,
+            "mode": mode,
+            "author": self.request.user.pk,
+        }
         # msgを’\r\n'で区切ってリストを作成する。
         tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
@@ -102,28 +111,23 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         data_list = self.translate(msg_list, 5)
         # ここで取り込んだKuraselのデータの1行目の3列目が数字かどうかで、ヘッダーかどうかチェックする。
         if data_list[0][2].isdigit() is False:
-            msg = "ヘッダーが含まれています。ヘッダーを除いてコピーしてください"
+            msg = "データ以外が含まれています。コピーするのはデータだけにしてください。"
             messages.add_message(self.request, messages.ERROR, msg)
+            return render(self.request, self.template_name, context)
         # 最下行の合計行が含まれているかチェックする。
         if "合計" in data_list[-1][0]:
             msg = "最下行の合計が選択されているようです。最下行を除いてコピーしてください"
             messages.add_message(self.request, messages.ERROR, msg)
+            return render(self.request, self.template_name, context)
 
-        # 会計区分をチェックする。（accounting_classのtypeに注意）
+        # 会計区分、収支区分をチェックする。（accounting_classのtypeに注意）
         chk = check_accountingtype(data_list, str(accounting_class), kind)
         if chk is False:
             msg = "「会計区分」または「収入・支出区分」を確認してください。"
             messages.add_message(self.request, messages.ERROR, msg)
 
-        context = {
-            "form": form,
-            "data_list": data_list,
-            "year": year,
-            "month": month,
-            "kind": kind,
-            "mode": mode,
-            "author": self.request.user.pk,
-        }
+        # チェックと正規化したdata_listをcontextに追加。
+        context["data_list"] = data_list
         if "確認" in mode:
             # 合計を計算
             total = 0
@@ -135,7 +139,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
             rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
-            # ToDo 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
+            # 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
                 ReportTransaction.set_offset_flag(offset_himoku, year, month)

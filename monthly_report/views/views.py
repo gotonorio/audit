@@ -223,7 +223,6 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, month)
 
-        # ToDo qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 町内会会計が選択された場合の処理
         ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
         if ac_name.pk == int(ac_class):
