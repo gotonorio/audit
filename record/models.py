@@ -147,12 +147,16 @@ class Himoku(models.Model):
     @classmethod
     def get_himoku_obj(cls, himoku, ac_class):
         """費目名からそのオブジェクトを返す
-        ToDo 不明な費目をNoneで返すか、デフォルト費目を返すか。
+        - containsでfilterする。
+        - 費目名が存在しない場合はNoneを返す。
+        - 複数の場合はデフォルト費目名を返す。
         """
         try:
             qs = cls.objects.get(alive=True, himoku_name__contains=himoku, accounting_class=ac_class)
         except cls.DoesNotExist:
             qs = None
+        except cls.MultipleObjectsReturned:
+            qs = cls.get_default_himoku()
         return qs
 
     @classmethod
