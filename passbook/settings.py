@@ -319,5 +319,4 @@ if DEBUG:
     ]
 else:
     # for nginx
-    # STATIC_ROOT = "/code/static"
-    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+    STATIC_ROOT = "/code/static"
