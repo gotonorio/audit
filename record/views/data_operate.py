@@ -71,14 +71,12 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
         year = qs[0].year
         month = qs[0].month
         # UPDATE後の会計区分は「全会計区分」を表示させる。
-        ac_class = 0
         list_order = 0
         return reverse_lazy(
             "record:transaction_list",
             kwargs={
                 "year": year,
                 "month": month,
-                "ac_class": ac_class,
                 "list_order": list_order,
             },
         )

@@ -257,7 +257,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
                 msg = "データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
-                return redirect("record:transaction_list")
+                return redirect("record:transaction_list", year=year, month=rtn, list_order=0)
             else:
                 for i in error_list:
                     msg = f"データの取り込みに失敗しています。{i}"

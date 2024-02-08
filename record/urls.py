@@ -1,6 +1,6 @@
 from django.urls import path
-from record.views import views
-from record.views import data_operate
+
+from record.views import data_operate, views
 
 app_name = "record"
 urlpatterns = [
@@ -17,7 +17,7 @@ urlpatterns = [
     ),
     # update後の遷移url
     path(
-        "transaction_list/<int:year>/<str:month>/<int:ac_class>/<int:list_order>/",
+        "transaction_list/<int:year>/<int:month>/<int:list_order>/",
         views.TransactionListView.as_view(),
         name="transaction_list",
     ),
@@ -41,9 +41,7 @@ urlpatterns = [
         data_operate.TransactionDeleteView.as_view(),
         name="transaction_delete",
     ),
-    path(
-        "himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"
-    ),
+    path("himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"),
     path("himoku_list/", data_operate.HimokuListView.as_view(), name="himoku_list"),
     path(
         "himoku_update/<int:pk>/",

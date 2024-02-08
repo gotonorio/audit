@@ -8,7 +8,7 @@ from django.views import generic
 
 from kurasel_translator.my_lib.append_list import select_period
 from record.forms import RecalcBalanceForm, TransactionDisplayForm
-from record.models import Himoku, Transaction
+from record.models import AccountingClass, Himoku, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         # update後に元のviewに戻る処理のためkwargsを使う。TransactionUpdateViewを参照。
         if kwargs:
             year = kwargs["year"]
-            month = kwargs["month"].zfill(2)
+            month = kwargs["month"]
             # ac_class = kwargs["ac_class"]
             list_order = kwargs["list_order"]
         else:
@@ -97,8 +97,10 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         qs = (
             Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])
         )
+        # 管理会計区分を指定する
+        ac_class = AccountingClass.get_class_name("管理")
         # 費目名「前受金」でfilter
-        maeukekin = Himoku.get_himoku_obj(settings.MAEUKE, "前受金")
+        maeukekin = Himoku.get_himoku_obj(settings.MAEUKE, ac_class)
         qs = qs.filter(himoku=maeukekin).order_by("-transaction_date")
         form = TransactionDisplayForm(
             initial={

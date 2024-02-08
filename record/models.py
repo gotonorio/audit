@@ -152,7 +152,9 @@ class Himoku(models.Model):
         - 複数の場合はデフォルト費目名を返す。
         """
         try:
-            qs = cls.objects.get(alive=True, himoku_name__contains=himoku, accounting_class=ac_class)
+            qs = cls.objects.get(
+                alive=True, himoku_name__contains=himoku, accounting_class__accounting_name=ac_class
+            )
         except cls.DoesNotExist:
             qs = None
         except cls.MultipleObjectsReturned:
