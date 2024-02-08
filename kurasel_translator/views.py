@@ -253,7 +253,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
                 requester_list,
                 default_himoku,
             )
-            if rtn:
+            if rtn > 0:
                 msg = "データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
