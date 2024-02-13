@@ -320,3 +320,11 @@ if DEBUG:
 else:
     # for nginx
     STATIC_ROOT = "/code/static"
+
+#
+# グループ権限(各グループは下位グループの権限も含むようにする)
+#
+# login(区分所有者グループで予算実績対比表のみ閲覧可能): view_expensebudget
+# director(理事会、専門委員会グループ): view_transaction
+# data_manager(データ登録権限グループ): add_transaction
+# chairman(プログラム開発グループ): add_user
