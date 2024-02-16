@@ -19,13 +19,13 @@ urlpatterns = [
     ),
     path("bs_table/", views.BalanceSheetTableView.as_view(), name="bs_table"),
     path(
-        "bs_table/<int:year>/<str:month>/<int:ac_class>/",
+        "bs_table/<int:year>/<int:month>/<int:ac_class>/",
         views.BalanceSheetTableView.as_view(),
         name="bs_table",
     ),
     path("bs_list/", views.BalanceSheetListView.as_view(), name="bs_list"),
     path(
-        "bs_list/<int:year>/<str:month>/",
+        "bs_list/<int:year>/<int:month>/<int:ac_class>/",
         views.BalanceSheetListView.as_view(),
         name="bs_list",
     ),

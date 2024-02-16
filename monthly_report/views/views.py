@@ -467,7 +467,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
             year = kwargs.get("year")
             month = kwargs.get("month")
-            ac_class = kwargs.get("ac_class", 1)
+            ac_class = kwargs.get("ac_class")
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
@@ -477,6 +477,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         # Noneならばdefault値だが、''の場合は、自分で処理しなければならない。
         if ac_class == "":
             ac_class_name = "合算会計"
+            ac_class = 0
         else:
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
         # 抽出期間
@@ -484,7 +485,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
         asset_list = []
         debt_list = []
-        if ac_class == "":
+        if ac_class == 0:
             # 会計区分全体の貸借対照表
             all_asset = BalanceSheet.get_bs(tstart, tend, False, True)
             for item in all_asset:
@@ -531,6 +532,9 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             balance_list.append(last_line)
         else:
             context["form"] = form
+            context["year"] = year
+            context["month"] = month
+            context["ac_class"] = ac_class
             return context
 
         context["title"] = f"{year}年 {month}月 {ac_class_name}"
@@ -538,6 +542,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         context["form"] = form
         context["year"] = year
         context["month"] = month
+        context["ac_class"] = ac_class
         return context
 
     @staticmethod
@@ -569,9 +574,15 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = self.request.GET.get("year", localtime(timezone.now()).year)
-        month = self.request.GET.get("month", localtime(timezone.now()).month)
-        ac_class = self.request.GET.get("accounting_class", 0)
+        if kwargs:
+            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
+            year = kwargs.get("year")
+            month = kwargs.get("month")
+            ac_class = kwargs.get("ac_class", 1)
+        else:
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+            month = self.request.GET.get("month", localtime(timezone.now()).month)
+            ac_class = self.request.GET.get("accounting_class", 0)
         # context変数をリンクのパラメータにする方法はなさそう。
         # そのため、bs_table.htmlのリンクから飛んできた場合、 ac_class==''となる。
         if ac_class == "":
@@ -599,6 +610,9 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
 
         context["bs_list"] = qs
         context["form"] = form
+        context["year"] = year
+        context["month"] = month
+        context["ac_class"] = ac_class
 
         return context
 

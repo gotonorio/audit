@@ -161,8 +161,8 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
         # 支出のない費目は除く
         qs_mr = qs_mr.filter(ammount__gt=0)
-        # 月次収支の支出合計（ネッティング処理の費目を控除する）
-        qs_mr_without_netting = qs_mr.exclude(is_netting=True)
+        # 月次収支の支出合計（ネッティング処理、集計フラグがFalseの費目を除外する）
+        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(himoku__aggregate_flag=False)
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # 入出金明細の支出データ
         qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True)

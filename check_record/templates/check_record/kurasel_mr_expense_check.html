@@ -52,7 +52,8 @@
       {% if warning_kurasel %}
         <li class="has-text-danger has-text-weight-bold is-size-5" >{{warning_kurasel}}</li>
       {% else %}
-        <li class="has-text-danger" >月次支出データの赤数字は「入出金の相殺処理」のため合計金額から除外。</li>
+        <li class="has-text-danger" >月次支出データの赤数字は「入出金の相殺処理」「共用保険料を発生主義で処理」するのため、合計金額から除外。</li>
+        <li class="has-text-danger" >通帳支払い報告の赤数字は「振替」のため合計金額から除外。</li>
       {% endif %}
     </ul>
   </div>
@@ -77,7 +78,7 @@
             {% for record in mr_list %}
             <tr>
               <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
-              {% if record.is_netting %}
+              {% if record.is_netting or not record.himoku.aggregate_flag %}
                 <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
                 <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
@@ -136,7 +137,7 @@
     </div>
     <div class='column is-half'>
       <div class="content has-text-centered">
-        <h4>通帳支払報告</h4>
+        <h4>通帳支払い</h4>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
@@ -151,14 +152,17 @@
           <tbody>
             {% for record in pb_list %}
             <tr>
-              <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
-              <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
               {% if record.himoku.aggregate_flag %}
+                <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
                 <td class="has-text-right">{{record.ammount|intcomma}}</td>
+                <td class="has-text-left is-size-7">{{record.description}}</td>
               {% else %}
+                <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
                 <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+                <td class="has-text-left has-text-danger is-size-7">{{record.description}}</td>
               {% endif %}
-              <td class="has-text-left is-size-7">{{record.description}}</td>
             </tr>
             {% endfor %}
             <tr>

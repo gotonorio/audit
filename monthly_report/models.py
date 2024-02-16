@@ -81,8 +81,9 @@ class ReportTransaction(models.Model):
     @staticmethod
     def calc_total_withflg(sql, flg):
         """合計計算
-        flg = Trueの場合、計算対象のデータだけ合計する。
+        flg = Trueの場合、計算対象の費目データだけ合計する。
         flg = Falseの場合、全てのデータを合計する。
+        2024-02-15 上記に関わらず、費目のaggregate_flagがoffの場合は集計しない。
         """
         total_withdrawals = 0
         if flg:
@@ -99,8 +100,8 @@ class ReportTransaction(models.Model):
         """資金移動を除いて、計算対象データを抽出するsqlを返す"""
         # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
         qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
-        # 資金移動は除く
-        qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
+        # 資金移動は除く ToDo 2024-02-15 資金移動は表示して合計計算から除外する。
+        # qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
         # 計算対象データだけを抽出。
         qs_mr = qs_mr.filter(calc_flg=True)
         return qs_mr
