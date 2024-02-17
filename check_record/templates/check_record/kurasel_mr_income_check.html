@@ -128,8 +128,8 @@
             </tr>
             <tr>
               <td></td>
-              <td class="has-text-right">前月からの増減</td>
-              <td class="has-text-right">{{total_mishuu|subtract:total_last_mishuu|intcomma}}</td>
+              <td class="has-text-right">計算上の未収金</td>
+              <td class="has-text-right">{{total_last_mishuu|subtract:total_diff|intcomma}}</td>
             </tr>
           </tbody>
         </table>
@@ -182,13 +182,13 @@
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_pb|add:netting_total|add:last_maeuke|intcomma}}</td>
+              <td class="has-text-right">{{total_pb|intcomma}}</td>
               <td class="has-text-ledt is-size-7">相殺処理分を考慮</td>
             </tr>
             <tr>
               <td></td>
-              <td class="has-text-right">差額</td>
-              <td class="has-text-right">{{total_pb|add:netting_total|add:last_maeuke|subtract:total_mr|intcomma}}</td>
+              <td class="has-text-right">月次報告との差額</td>
+              <td class="has-text-right">{{total_diff|intcomma}}</td>
               <td class="has-text-ledt is-size-7">通帳収入-月次収入</td>
             </tr>
           </tbody>

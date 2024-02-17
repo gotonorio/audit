@@ -233,8 +233,8 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "himoku__code", "calc_flg", "transaction_date")
-        # 合計金額
-        total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
+        # 合計金額（月次支出一覧の場合、aggregate_flagがFalseでも修正する。
+        total_withdrawals = ReportTransaction.calc_total_withflg(qs, False)
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={

@@ -28,7 +28,8 @@ def subtract(value, arg):
     str1 = str(value)
     str2 = str(arg)
     # if arg is not None and value is not None:
-    if str1.isnumeric() and str2.isnumeric():
+    # if str1.isnumeric() and str2.isnumeric():
+    if str1 and str2:
         rtn = int(value) - int(arg)
     return rtn
 

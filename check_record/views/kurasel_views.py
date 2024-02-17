@@ -350,8 +350,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["last_maeuke"] = last_maeuke
         context["pb_list"] = qs_pb
         context["total_mr"] = total_mr
-        context["total_pb"] = total_pb
-        context["total_diff"] = total_pb - total_mr
+        context["total_pb"] = total_pb + netting_total + last_maeuke
+        context["total_diff"] = context["total_pb"] - total_mr
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year

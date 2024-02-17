@@ -83,7 +83,7 @@ class ReportTransaction(models.Model):
         """合計計算
         flg = Trueの場合、計算対象の費目データだけ合計する。
         flg = Falseの場合、全てのデータを合計する。
-        2024-02-15 上記に関わらず、費目のaggregate_flagがoffの場合は集計しない。
+        2024-02-15 上記に関わらず、費目のaggregate_flagがFalseの場合は集計しない。
         """
         total_withdrawals = 0
         if flg:
