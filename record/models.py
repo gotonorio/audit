@@ -153,7 +153,7 @@ class Himoku(models.Model):
         """
         try:
             qs = cls.objects.get(
-                alive=True, himoku_name__contains=himoku, accounting_class__accounting_name=ac_class
+                alive=True, himoku_name__contains=himoku, accounting_class__accounting_name__contains=ac_class
             )
         except cls.DoesNotExist:
             qs = None
@@ -270,7 +270,7 @@ class Transaction(models.Model):
         他の関数（stattic method）に依存するため、インスタンス関数とする。
         """
         # 前受金の費目id
-        id = Himoku.get_himoku_obj(settings.MAEUKE, "前受金")
+        id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
         total = 0
         qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
         for i in qs:
