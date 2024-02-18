@@ -166,7 +166,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # 入出金明細の支出データ
         qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True)
-        qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
+        qs_pb = qs_pb.order_by("transaction_date", "himoku__code", "description")
         # 通帳データの合計（集計フラグがTrueの費目合計）
         total_pb = 0
         for d in qs_pb:

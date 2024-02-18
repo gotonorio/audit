@@ -106,21 +106,22 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
         month = qs[0].month
         return reverse_lazy(
             "record:transaction_list",
-            kwargs={"year": year, "month": month, "ac_class": 0, "list_order": 0},
+            kwargs={"year": year, "month": month, "list_order": 0},
         )
 
-    # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。
-    # https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
-    def form_valid(self, form):
-        logger.warning(
-            "delete {}:{}:{}:{}".format(
-                self.request.user,
-                self.object.transaction_date,
-                self.object,
-                self.object.ammount,
-            )
-        )
-        return super().form_valid(form)
+    # ToDo 削除のログをどうするか。
+    # # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。
+    # # https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
+    # def form_valid(self, form):
+    #     logger.warning(
+    #         "delete {}:{}:{}:{}".format(
+    #             self.request.user,
+    #             self.object.transaction_date,
+    #             self.object,
+    #             self.object.ammount,
+    #         )
+    #     )
+    #     return super().form_valid(form)
 
 
 class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
@@ -370,7 +371,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         # 保存が成功したら入出金明細にredirectする。
         year = transaction_date.year
         month = transaction_date.month
-        return redirect("record:transaction_list", year=year, month=month, ac_class=0, list_order=0)
+        return redirect("record:transaction_list", year=year, month=month, list_order=0)
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
