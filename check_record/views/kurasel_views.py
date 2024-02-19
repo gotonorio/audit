@@ -277,7 +277,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
-        qs_mr = qs_mr.filter(ammount__gt=0)
+        qs_mr = qs_mr.exclude(ammount=0)
 
         # 月次収支の収入合計
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
