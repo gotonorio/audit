@@ -4,7 +4,9 @@ from .views import data_views, views
 
 app_name = "monthly_report"
 urlpatterns = [
+    # ------------------------------------------------------------------------
     # データ表示
+    # ------------------------------------------------------------------------
     path("expenslist/", views.MonthlyReportExpenseListView.as_view(), name="expenselist"),
     path("incomelist/", views.MonthlyReportIncomeListView.as_view(), name="incomelist"),
     path(
@@ -50,7 +52,9 @@ urlpatterns = [
         views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
+    # ------------------------------------------------------------------------
     # データ編集
+    # ------------------------------------------------------------------------
     path(
         "create_income/",
         data_views.MonthlyReportIncomeCreateView.as_view(),

@@ -53,11 +53,11 @@
 </div>
 {% endif %}
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  <div class="content">
     <h4>{{title}} 貸借対照表</h4>
   </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-bordered">
+    <table class="table is-bordered">
       <thead>
         <tr>
           <th class="has-text-centered is-size-6" colspan="3">資産の部</th>
@@ -80,12 +80,10 @@
           <td class="has-text-left">{{data.0}}</td>
           <td class="has-text-right">{{data.1|intcomma}}</td>
           <td class="has-text-left is-size-7">{{data.2|default_if_none:''|markdown_to_html}}</td>
-          {% comment %} <td class="has-text-left is-size-7">{{data.2|default_if_none:''}}</td> {% endcomment %}
           <td></td>
           <td class="has-text-left">{{data.3}}</td>
           <td class="has-text-right">{{data.4|intcomma}}</td>
           <td class="has-text-left is-size-7">{{data.5|default_if_none:''|markdown_to_html}}</td>
-          {% comment %} <td class="has-text-left is-size-7">{{data.5|default_if_none:''}}</td> {% endcomment %}
         </tr>
         {% endfor %}
         <tr>

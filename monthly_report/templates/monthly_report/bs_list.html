@@ -23,7 +23,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a href="{% url 'monthly_report:bs_table' %}" class="navbar-item">戻る</a>
+      {% with year_with=year month_with=month ac_with=ac_class %}
+        <a href="{% url 'monthly_report:bs_table' year_with month_with ac_with %}" class="navbar-item">戻る</a>
+      {% endwith %}
     </div>
   </div>
 </nav>
@@ -32,11 +34,12 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  <div class="content">
     <h4>貸借対照表 前受金・未収金・未払金の入力/修正</h4>
+    <br>
   </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
+    <table class="table is-narrow is-striped">
       <thead>
         <tr>
           <th class="has-text-centered">日付</th>
