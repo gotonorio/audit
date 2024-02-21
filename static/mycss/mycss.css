@@ -141,60 +141,16 @@ div.my_field > textarea {
   width: 420px;
   margin: auto;
 }
- /* 767px以下ではwidthを80%にする */
-@media screen and (max-width: 321px) {
-  .login_container {
-    width: 80%;
-    margin: auto;
-  }
-  #form_style {
-    width: 90%;
-    margin: auto;
-  }
-}
-
-/*
-グラフ表示用
-https://obel.hatenablog.jp/entry/20160626/1466937585 
-*/
-/* 769px以上ではwidthは60% */
-.graph_container {
-  width: 70%;
-  margin: auto;
-}
-/* 768px以下ではwidthは100% */
-@media screen and (max-width: 768px) {
-  .graph_container {
-    width: 100%;
-    margin: auto;
-  }
-}
-
 /* tableの中央配置 */
 .table_center_nowrap {
   width: auto;
   margin: 3px auto;
   white-space: nowrap;
 }
-
-/* mobile画面でのメニュー折りたたみ用 */
-/* make dropdowns in mobile dropdown bar not always show */
-/* https://github.com/jgthms/bulma/issues/1567 */
-@media only screen and (max-width: 960px) {
-    .navbar-item {
-        &.has-dropdown {
-            .navbar-dropdown {
-                display: none;
-            }
-            &.is-active {
-                .navbar-dropdown {
-                    display: block;
-                }
-            }
-        }
-    }
+.table_nowrap {
+  width: auto;
+  white-space: nowrap;
 }
-
 .markdown table {
   /* 表の外枠表示 */
   border: dotted 1px;

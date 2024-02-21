@@ -49,7 +49,8 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  {% comment %} <div class="content has-text-centered"> {% endcomment %}
+  <div class="content">
     <h4>{{yyyymm}} 管理費等 承認・支出監査</h4>
   </div>
   <div class="content">
@@ -99,10 +100,12 @@
 
     <div class='column is-half'>
       <div class="content has-text-centered">
+      {% comment %} <div class="content"> {% endcomment %}
         <h4>通帳支払データ</h4>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
+        {% comment %} <table class="table is-narrow is-striped"> {% endcomment %}
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
