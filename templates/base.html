@@ -45,7 +45,11 @@
         <script language="JavaScript" type="text/javascript">
         document.write(new Date().getFullYear());
         </script>
-        N.Goto Ver-{{VERSION_NO}}
+        {% if debug %}
+          N.Goto Ver-{{VERSION_NO}} 開発版
+        {% else %}
+          N.Goto Ver-{{VERSION_NO}} 運用版
+        {% endif %}
       </div>
     </div>
   </footer>
