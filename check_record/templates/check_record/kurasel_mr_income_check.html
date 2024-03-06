@@ -85,7 +85,7 @@
                 <td class="has-text-ledt is-size-7">{{record.description}}</td>
               {% else %}
                 <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7 has-text-danger">{{record.description}}</td>
+                <td class="has-text-ledt is-size-7 has-text-danger">{{record.description|markdown_to_html}}</td>
               {% endif %}
             </tr>
             {% endfor %}
@@ -160,12 +160,12 @@
                 <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt">{{record.himoku}}</td>
                 <td class="has-text-right">{{record.ammount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7">{{record.description}}</td>
+                <td class="has-text-ledt is-size-7">{{record.description|markdown_to_html}}</td>
               {% else %}
                 <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt has-text-danger">{{record.himoku}}</td>
                 <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7 has-text-danger">(計算除外) {{record.description}}</td>
+                <td class="has-text-ledt is-size-7 has-text-danger">(計算除外) {{record.description|markdown_to_html}}</td>
               {% endif %}
             </tr>
             {% endfor %}

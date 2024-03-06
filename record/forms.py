@@ -149,7 +149,7 @@ class TransactionCreateForm(forms.ModelForm):
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
             "calc_flg": "※ 前受金の場合はチェックしない。",
-            "is_approval": "支払い承認が不要の場合、チェックを外す。",
+            "is_approval": "収入項目、支払い承認が不要の場合はチェックを外す。",
         }
 
     def clean_transaction_date(self):

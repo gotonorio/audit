@@ -84,7 +84,7 @@
               <td class="has-text-left">{{record.payment_date|date:'m-d'}}</td>
               <td class="has-text-ledt">{{record.himoku}}</td>
               <td class="has-text-right">{{record.payment|intcomma}}</td>
-              <td class="has-text-left is-size-7">{{record.summary}}</td>
+              <td class="has-text-left is-size-7">{{record.summary|markdown_to_html}}</td>
             </tr>
             {% endfor %}
             <tr>
@@ -124,7 +124,7 @@
               {% else %}
                 <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
               {% endif %}
-              <td class="has-text-left is-size-7">{{record.description}}</td>
+              <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
             </tr>
             {% endfor %}
             <tr>
