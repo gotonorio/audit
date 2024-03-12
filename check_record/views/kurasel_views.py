@@ -10,7 +10,8 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from check_record.forms import KuraselCheckForm
-from kurasel_translator.my_lib.append_list import check_period, select_period
+from kurasel_translator.my_lib.append_list import select_period
+from kurasel_translator.my_lib.check_lib import check_period
 
 # from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction

@@ -64,8 +64,8 @@ class ReportTransaction(models.Model):
             qs_mr = qs_mr.filter(himoku__is_income=True)
         elif inout_flg == "expense":
             qs_mr = qs_mr.filter(himoku__is_income=False)
-        # (4) 有効な費目、非表示費目（費目コード9000以上）でfilter
-        qs_mr = qs_mr.filter(himoku__alive=True).filter(himoku__code__lt=9000)
+        # (4) 有効な費目、支出のある費目でfilter
+        qs_mr = qs_mr.filter(himoku__alive=True).exclude(ammount=0)
         # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)

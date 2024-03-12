@@ -31,7 +31,7 @@ class ExpenseBudget(models.Model):
     def __str__(self):
         return self.himoku.himoku_name
 
-    # 登録は同じ費目を複数登録できるようにconstraints制約をコメントアウトする。2023-12-29
+    # 登録は同じ費目を複数登録できるようにunique制約をコメントアウトする。2023-12-29
     # class Meta:
     #     constraints = [
     #         models.UniqueConstraint(
@@ -41,15 +41,13 @@ class ExpenseBudget(models.Model):
 
     @classmethod
     def get_expense_budget(cls, year, ac_class):
-        """支出予算の一覧querysetを返す
-        - year: 年度
-        - ac_class: 会計区分
-        """
+        """支出予算0円を除く支出予算の一覧querysetを返す"""
         # 年間の支出予算
         qs = (
             cls.objects.select_related("himoku")
             .filter(year=year)
             .filter(himoku__alive=True)
             .filter(himoku__is_income=False)
+            .exclude(budget_expense=0)
         )
         return qs
