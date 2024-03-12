@@ -39,14 +39,9 @@
           <div class="navbar-dropdown">
             <a class="navbar-item" href="{% url 'monthly_report:incomelist' %}">月別収入</a>
             <a class="navbar-item" href="{% url 'monthly_report:expenselist' %}">月別支出</a>
-            <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
             <hr class="navbar-divider">
             <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' %}"%>年間収入</a>
             <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
-            {% if perms.record.add_transaction %}
-              <hr class="navbar-divider">
-              {% comment %} <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a> {% endcomment %}
-            {% endif %}
           </div>
         </div>
 
@@ -63,8 +58,14 @@
             </div>
           </div>
         {% comment %} {% endif %} {% endcomment %}
-
-        <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績一覧</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link is-size-6">（月次）決算</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績一覧</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
+          </div>
+        </div>
       </div>
       <div class="navbar-end">
         <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>

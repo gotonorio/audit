@@ -340,21 +340,6 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
             if ac_class == "":
                 ac_class = "0"
 
-        # # ac_classが「空白」または「None」の場合の処理
-        # if ac_class == "" or ac_class is None:
-        #     ac_class = 0
-        # else:
-        #     ac_class = int(ac_class)
-        # # queryset
-        # qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
-        # # 支出、資金移動でfiler
-        # qs = qs.filter(himoku__is_income=False)
-        # # 計算対象でfilter
-        # qs = qs.filter(calc_flg=True)
-        # # 費目の会計区分でfilter。2023-11-23
-        # if ac_class > 0:
-        #     qs = qs.filter(himoku__accounting_class=int(ac_class))
-
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, "0")
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
@@ -407,19 +392,6 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
             # ac_classが「空」の場合の処理
             if ac_class == "":
                 ac_class = "0"
-
-        # # ac_classが「空白」または「None」の場合の処理
-        # if ac_class == "" or ac_class is None:
-        #     ac_class = 0
-        # else:
-        #     ac_class = int(ac_class)
-        # # queryset
-        # qs = ReportTransaction.objects.all().select_related("himoku", "accounting_class")
-        # # 収入でfiler
-        # qs = qs.filter(himoku__is_income=True)
-        # # 会計区分でfilter
-        # if ac_class > 0:
-        #     qs = qs.filter(himoku__accounting_class=ac_class)
 
         # 抽出期間（monthが"0"なら1年分）
         tstart, tend = select_period(year, "0")

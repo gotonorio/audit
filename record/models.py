@@ -147,13 +147,15 @@ class Himoku(models.Model):
     @classmethod
     def get_himoku_obj(cls, himoku, ac_class):
         """費目名からそのオブジェクトを返す
-        - containsでfilterする。
+        - 費目名はKuraselに合わせる。「他会計からの受け入れ」は独自の費目となる。
         - 費目名が存在しない場合はNoneを返す。
-        - 複数の場合はデフォルト費目名を返す。
+        - 複数の場合はデフォルト費目名を返す。ToDo : 「default費目」は出金費目になっている。収入の場合表示されない!!
         """
         try:
             qs = cls.objects.get(
-                alive=True, himoku_name__contains=himoku, accounting_class__accounting_name__contains=ac_class
+                alive=True,
+                himoku_name__contains=himoku,
+                accounting_class__accounting_name__contains=ac_class,
             )
         except cls.DoesNotExist:
             qs = None
@@ -164,7 +166,7 @@ class Himoku(models.Model):
     @classmethod
     def get_default_himoku(cls):
         """デフォルト費目オブジェクトを返す。
-        - 前提として、default費目が1つだけ設定されていること。
+        - 前提として、default費目が「収入」「支出」でそれぞれ1つだけ設定されている。
         - is_defaultはUniqueConstraintでuniqueを担保しているためget()を使う。
         - 費目名は、呼び出し側で default_himoku.himoku_nameとする。
         - https://qiita.com/Bashi50/items/9e1d62c4159f065b662b

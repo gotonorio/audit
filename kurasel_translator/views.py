@@ -2,7 +2,6 @@ import datetime
 import logging
 import unicodedata
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
@@ -15,64 +14,12 @@ from kurasel_translator.forms import (
     MonthlyBalanceForm,
     PaymentAuditForm,
 )
-from kurasel_translator.my_lib import append_list
+from kurasel_translator.my_lib import append_list, check_lib
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment, PaymentMethod
 from record.models import AccountingClass, Himoku, Transaction, TransferRequester
 
 logger = logging.getLogger(__name__)
-
-
-def check_accountingtype(data, ac, kind):
-    """取り込んだ月次収支データのチェック
-    - d[0] : 費目名
-    - ac   : 会計区分
-    - kind : 収入 or 支出
-    """
-    for d in data:
-        if d[0] in settings.KANRI_INCOME and kind in settings.KANRI_INCOME and ac in settings.KANRI_INCOME:
-            return True
-        elif (
-            d[0] in settings.KANRI_PAYMENT and kind in settings.KANRI_PAYMENT and ac in settings.KANRI_PAYMENT
-        ):
-            return True
-        elif (
-            d[0] in settings.SHUUZEN_INCOME
-            and kind in settings.SHUUZEN_INCOME
-            and ac in settings.SHUUZEN_INCOME
-        ):
-            return True
-        elif (
-            d[0] in settings.SHUUZEN_PAYMENT
-            and kind in settings.SHUUZEN_PAYMENT
-            and ac in settings.SHUUZEN_PAYMENT
-        ):
-            return True
-        elif (
-            d[0] in settings.PARKING_INCOME
-            and kind in settings.PARKING_INCOME
-            and ac in settings.PARKING_INCOME
-        ):
-            return True
-        elif (
-            d[0] in settings.PARKING_PAYMENT
-            and kind in settings.PARKING_PAYMENT
-            and ac in settings.PARKING_PAYMENT
-        ):
-            return True
-        elif (
-            d[0] in settings.COMMUNITY_INCOME
-            and kind in settings.COMMUNITY_INCOME
-            and ac in settings.COMMUNITY_INCOME
-        ):
-            return True
-        elif (
-            d[0] in settings.COMMUNITY_PAYMENT
-            and kind in settings.COMMUNITY_PAYMENT
-            and ac in settings.COMMUNITY_PAYMENT
-        ):
-            return True
-    return False
 
 
 class MonthlyBalanceView(PermissionRequiredMixin, FormView):
@@ -107,24 +54,32 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         tmp_list = note.splitlines()
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
-        # 月次収支の場合、5行で1レコード。
-        data_list = self.translate(msg_list, 5)
-        # ここで取り込んだKuraselのデータの1行目の3列目が数字かどうかで、ヘッダーかどうかチェックする。
-        if data_list[0][2].isdigit() is False:
-            msg = "データ以外が含まれています。コピーするのはデータだけにしてください。"
-            messages.add_message(self.request, messages.ERROR, msg)
+        # (1) msg_listがKurasel月次収支データのヘッダを正しくコピーしているかをチェック。
+        err_msg = check_lib.check_copy_area(msg_list)
+        if err_msg:
+            messages.add_message(self.request, messages.ERROR, err_msg)
             return render(self.request, self.template_name, context)
-        # 最下行の合計行が含まれているかチェックする。
-        if "合計" in data_list[-1][0]:
-            msg = "最下行の合計が選択されているようです。最下行を除いてコピーしてください"
-            messages.add_message(self.request, messages.ERROR, msg)
+        # ヘッダから「収入」「支出」を判断した後、不要なヘッダ部分を除去する。
+        data_kind, msg_list = check_lib.check_data_kind(msg_list)
+        # (2) 収支区分（収入・支出）のチェック
+        if data_kind != kind:
+            err_msg = "「収支区分」がデータと一致していません！"
+            messages.add_message(self.request, messages.ERROR, err_msg)
             return render(self.request, self.template_name, context)
 
-        # 会計区分、収支区分をチェックする。（accounting_classのtypeに注意）
-        chk = check_accountingtype(data_list, str(accounting_class), kind)
+        # msg_listデータを5行で1レコードのListに変換する。
+        data_list = self.translate(msg_list, 5)
+
+        # 会計区分をチェックする。
+        chk = check_lib.check_accountingclass(data_list, str(accounting_class))
         if chk is False:
-            msg = "「会計区分」または「収入・支出区分」を確認してください。"
+            msg = "「会計区分」を確認してください。"
             messages.add_message(self.request, messages.ERROR, msg)
+
+        # -------------------------------------------------------------
+        # DEBUG用に処理を中断する。
+        # -------------------------------------------------------------
+        # return render(self.request, self.template_name, context)
 
         # チェックと正規化したdata_listをcontextに追加。
         context["data_list"] = data_list

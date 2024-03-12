@@ -65,7 +65,7 @@
           <td class="has-text-left">{{record.requesters_name}}</td>
           <td class="has-text-right">{{record.ammount|intcomma}}</td>
           <td class="has-text-centered">{{record.calc_flg}}</td>
-          <td class="has-text-left">{{record.description }}</td>
+          <td class="has-text-left">{{record.description|markdown_to_html}}</td>
         </tr>
         {% endfor %}
       </tbody>
