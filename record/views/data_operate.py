@@ -2,6 +2,7 @@ import csv
 import logging
 from io import TextIOWrapper
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
@@ -51,9 +52,17 @@ class TransactionCreateView(PermissionRequiredMixin, generic.CreateView):
         self.object.author = self.request.user
         # 入力した日時をセット。
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"日付「{self.object.created_date.date()}」"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"作成者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "保存しました。")
         return super().form_valid(form)
 
 
@@ -87,9 +96,17 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
         # updated_dateをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"日付「{self.object.created_date.date()}」"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"作成者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "修正しました。")
         return super().form_valid(form)
 
 
@@ -109,19 +126,23 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
             kwargs={"year": year, "month": month, "list_order": 0},
         )
 
-    # ToDo 削除のログをどうするか。
-    # # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。
-    # # https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
-    # def form_valid(self, form):
-    #     logger.warning(
-    #         "delete {}:{}:{}:{}".format(
-    #             self.request.user,
-    #             self.object.transaction_date,
-    #             self.object,
-    #             self.object.ammount,
-    #         )
-    #     )
-    #     return super().form_valid(form)
+    def form_valid(self, form):
+        """djang 4.0で、delete()で行う処理はform_valid()を使うようになったみたい。
+        https://stackoverflow.com/questions/53145279/edit-record-before-delete-django-deleteview
+        https://docs.djangoproject.com/ja/4.0/ref/class-based-views/generic-editing/#deleteview
+        """
+        # ログに削除の情報を記録する
+        msg = (
+            f"削除 日付「{self.object.transaction_date}」"
+            f"費目「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"摘要「{self.object.description}」"
+            f"削除者「{self.request.user}」"
+        )
+        logger.info(msg)
+        # メッセージ表示
+        messages.success(self.request, "削除しました。")
+        return super().form_valid(form)
 
 
 class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
@@ -153,9 +174,10 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
         code = form.cleaned_data["code"]
         name = form.cleaned_data["himoku_name"]
         accounting_class = form.cleaned_data["accounting_class"]
-        # log message
+        # ログの記録
         msg = f"費目コード:{code} 費目名:{name} 会計区分:{accounting_class} を追加。by {user}"
         logger.info(msg)
+        self.object.save()
         return super().form_valid(form)
 
 
@@ -213,6 +235,7 @@ class HimokuUpdateView(PermissionRequiredMixin, generic.UpdateView):
         # log message
         msg = f"費目コード:{code} 費目名:{name} 会計区分:{accounting_class}に修正。by {user}"
         logger.info(msg)
+        self.object.save()
         return super().form_valid(form)
 
 
@@ -323,7 +346,6 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         - 金額0は保存しない。
         """
         error_list = []
-        user_id = self.request.user.pk
         # 分割元のデータpk
         pk = self.kwargs.get("pk")
         # デフォルト値の設定
@@ -359,9 +381,13 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     divide.ammount = ammount
                     divide.requesters_name = requesters_name
                     divide.description = description
-                    divide.author = user.objects.get(id=user_id)
+                    # divide.author = user.objects.get(id=user_id)
+                    divide.author = self.request.user
                     divide.is_manualinput = True
                     divide.calc_flg = True
+                    # ログを記録
+                    msg = f"{transaction_date} : 金額:{ammount:,}を作成。by {self.request.user}"
+                    logger.info(msg)
                     divide.save()
                 except Exception as e:
                     logger.error(e)
@@ -397,9 +423,9 @@ class HimokuCsvReadView(PermissionRequiredMixin, generic.FormView):
         """このViewがGETで呼ばれた時、テンプレートに変数を渡す。"""
         context = super().get_context_data(**kwargs)
         context["title"] = "費目マスタCSVファイルの読み込み"
-        context[
-            "help_text1"
-        ] = "※1 「csvデータ」はヘッダ無しのutf-8で「会計区分名」「費目コード」「費目名」の3列データです。"
+        context["help_text1"] = (
+            "※1 「csvデータ」はヘッダ無しのutf-8で「会計区分名」「費目コード」「費目名」の3列データです。"
+        )
         context["help_text2"] = "※2 「会計区分名」は管理画面で登録した名前です。"
         context["help_text3"] = "※3 「費目コード」は費目表示の並び順で使われます。"
         context["help_text4"] = "※4 「費目名」はKuraselで設定した名前にしてください。"

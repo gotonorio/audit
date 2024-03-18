@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -42,9 +43,17 @@ class MonthlyReportIncomeCreateView(PermissionRequiredMixin, generic.CreateView)
         # authorをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"日付「{self.object.created_date.date()}」"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"作成者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "保存しました。")
         return super().form_valid(form)
 
 
@@ -70,9 +79,17 @@ class MonthlyReportExpenseCreateView(MonthlyReportIncomeCreateView):
         # authorをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"{self.object.created_date.date()}"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"作成者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "保存しました。")
         return super().form_valid(form)
 
 
@@ -109,9 +126,17 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, generic.UpdateView)
         # updated_dateをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"{self.object.created_date.date()}"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"修正者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "修正しました。")
         return super().form_valid(form)
 
 
@@ -141,9 +166,17 @@ class MonthlyReportExpenseUpdateView(MonthlyReportIncomeUpdateView):
         # updated_dateをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # ログの記録
+        msg = (
+            f"{self.object.created_date.date()}"
+            f"費目名「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"修正者「{self.request.user}」"
+        )
+        logger.info(msg)
         # データを保存。
         self.object.save()
-        # messages.success(self.request, "保存しました。")
+        messages.success(self.request, "修正しました。")
         return super().form_valid(form)
 
 
@@ -164,6 +197,21 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
         return reverse_lazy(
             "monthly_report:incomelist", kwargs={"year": year, "month": month, "ac_class": ac_class}
         )
+
+    def form_valid(self, form):
+        """djang 4.0で、delete()で行う処理はform_valid()を使うようになったみたい。
+        https://stackoverflow.com/questions/53145279/edit-record-before-delete-django-deleteview
+        """
+        # ログに削除の情報を記録する
+        logger.info(
+            f"費目「{self.object.himoku}」"
+            f"金額「{self.object.ammount:,}」"
+            f"摘要「{self.object.description}」"
+            f"削除者「{self.request.user}」"
+        )
+        # メッセージ表示
+        messages.success(self.request, "削除しました。")
+        return super().form_valid(form)
 
 
 class DeleteExpenseView(DeleteIncomeView):
