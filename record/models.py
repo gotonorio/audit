@@ -463,3 +463,18 @@ class ApprovalCheckData(models.Model):
 
     def __str__(self):
         return self.atext
+
+
+class ClaimData(models.Model):
+    """請求一覧データ"""
+
+    claim_date = models.DateField(verbose_name="取引日")
+    claim_type = models.CharField(
+        verbose_name="請求種別", choices=settings.CLAIMTYPE, max_length=4, default="未収金"
+    )
+    room_no = models.CharField(verbose_name="部屋番号", max_length=16, default="")
+    name = models.CharField(verbose_name="氏名", max_length=16, default="")
+    ammount = models.IntegerField(verbose_name="金額", default=0)
+
+    def __str__(self):
+        return self.claim_type

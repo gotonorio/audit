@@ -56,7 +56,7 @@ class MonthlyBalanceForm(DepositWithdrawalForm):
         label="月",
         initial=localtime(timezone.now()).month,
         widget=forms.Select(attrs={"class": "select-css"}),
-        choices=settings.MONTH
+        choices=settings.MONTH,
     )
     kind = forms.ChoiceField(
         label="収支区分",
@@ -82,7 +82,7 @@ class PaymentAuditForm(DepositWithdrawalForm):
         label="月",
         initial=localtime(timezone.now()).month,
         widget=forms.Select(attrs={"class": "select-css"}),
-        choices=settings.MONTH
+        choices=settings.MONTH,
     )
     # month = forms.IntegerField(
     #     label="月",
@@ -116,12 +116,34 @@ class BalanceSheetTranslateForm(DepositWithdrawalForm):
         label="月",
         initial=localtime(timezone.now()).month,
         widget=forms.Select(attrs={"class": "select-css"}),
-        choices=settings.MONTH
+        choices=settings.MONTH,
     )
     accounting_class = forms.ModelChoiceField(
         label="会計区分",
         required=True,
         queryset=AccountingClass.objects.all().order_by("code"),
         initial=0,
+        widget=forms.Select(attrs={"class": "select-css"}),
+    )
+
+
+class ClaimTranslateForm(DepositWithdrawalForm):
+    """貸借対照表入力フォーム
+    - DepositWithdrawalFormを継承する。
+    - Kuraselでは管理会計、修繕会計に同じ「受取利息」費目があるため、
+    管理会計では「受取利息」を「雑収入」として記録するため、会計区分フラグを使う。
+    （口座は一つなのに...）
+    """
+
+    month = forms.ChoiceField(
+        label="月",
+        initial=localtime(timezone.now()).month,
+        widget=forms.Select(attrs={"class": "select-css"}),
+        choices=settings.MONTH,
+    )
+    claim_type = forms.ChoiceField(
+        label="請求種別",
+        choices=settings.CLAIMTYPE,
+        initial="滞納金",
         widget=forms.Select(attrs={"class": "select-css"}),
     )
