@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 
@@ -478,3 +479,26 @@ class ClaimData(models.Model):
 
     def __str__(self):
         return self.claim_type
+
+    @classmethod
+    def claim_from_kurasel(cls, data, year, month, claim_type):
+        """管理費等請求一覧データを保存処理する"""
+        # 支払日
+        date_str = str(data["year"]) + str(data["month"]).zfill(2) + "01"
+        claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        error_list = []
+        rtn = True
+        for item in data["data_list"]:
+            try:
+                cls.objects.get_or_create(
+                    claim_date=claim_date,
+                    claim_type=claim_type,
+                    room_no=item[1],
+                    name=item[2],
+                    ammount=item[3],
+                )
+            except Exception as e:
+                logger.error(e)
+                error_list.append(item[0])
+                rtn = False
+        return rtn, error_list

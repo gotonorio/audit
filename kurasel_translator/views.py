@@ -18,7 +18,7 @@ from kurasel_translator.forms import (
 from kurasel_translator.my_lib import append_list, check_lib
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment, PaymentMethod
-from record.models import AccountingClass, Himoku, Transaction, TransferRequester
+from record.models import AccountingClass, ClaimData, Himoku, Transaction, TransferRequester
 
 logger = logging.getLogger(__name__)
 
@@ -512,7 +512,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
         # 支払管理の場合、4行で1レコード。(区分所有者、部屋番号、氏名、請求金額)
-        data_list = self.translate_payment(msg_list, 4)
+        data_list = self.translate_claim(msg_list, 4)
         context = {
             "form": form,
             "data_list": data_list,
@@ -539,7 +539,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = Payment.payment_from_kurasel(context)
+            rtn, error_list = ClaimData.claim_from_kurasel(context, year, month, claim_type)
             if rtn:
                 msg = f"{year}-{month}-{claim_type}の承認済み支払いデータの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
@@ -556,7 +556,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 # 取り込みに失敗したら、取り込み画面に戻る。
                 return render(self.request, self.template_name, context)
 
-    def translate_payment(self, msg_list, row):
+    def translate_claim(self, msg_list, row):
         """Kuraselの表示をコピペで取り込む
         - "¥"マーク、","の2つを削除。
         - strip()は最後に行う。
@@ -565,7 +565,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
         record_list = []
         line_list = []
         for line in msg_list:
-            line_list.append(line.replace("¥", "").replace(",", "").strip())
+            line_list.append(line.replace("¥", "").replace(",", "").replace("部屋番号", "").strip())
             cnt += 1
             if cnt == row:
                 record_list.append(line_list)

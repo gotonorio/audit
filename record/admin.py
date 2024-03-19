@@ -3,11 +3,12 @@ from django.contrib import admin
 from record.models import (
     Account,
     AccountingClass,
+    ApprovalCheckData,
     Bank,
+    ClaimData,
     Himoku,
     Transaction,
     TransferRequester,
-    ApprovalCheckData,
 )
 
 
@@ -64,6 +65,10 @@ class ApprovalCheckDataAdmin(admin.ModelAdmin):
     list_display = ["atext", "comment", "alive"]
 
 
+class ClaimDataAdmin(admin.ModelAdmin):
+    list_display = ["claim_date", "claim_type", "room_no", "name", "ammount"]
+
+
 # Register your models here.
 admin.site.register(Bank, BankAdmin)
 admin.site.register(Account, AccountAdmin)
@@ -72,3 +77,4 @@ admin.site.register(Himoku, HimokuAdmin)
 admin.site.register(TransferRequester, TransferRequesterAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(ApprovalCheckData, ApprovalCheckDataAdmin)
+admin.site.register(ClaimData, ClaimDataAdmin)
