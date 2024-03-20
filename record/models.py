@@ -481,11 +481,12 @@ class ClaimData(models.Model):
         return self.claim_type
 
     @classmethod
-    def claim_from_kurasel(cls, data, year, month, claim_type):
+    def claim_from_kurasel(cls, data):
         """管理費等請求一覧データを保存処理する"""
         # 支払日
         date_str = str(data["year"]) + str(data["month"]).zfill(2) + "01"
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        claim_type = data["claim_type"]
         error_list = []
         rtn = True
         for item in data["data_list"]:
@@ -502,3 +503,20 @@ class ClaimData(models.Model):
                 error_list.append(item[0])
                 rtn = False
         return rtn, error_list
+
+    @classmethod
+    def get_maeuke(cls, year, month):
+        """指定された年月に使われる前受金を返す"""
+        date_str = str(year) + str(month).zfill(2) + "01"
+        claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        maeuke_dict = (
+            cls.objects.filter(claim_date=claim_date)
+            .filter(claim_type="前受金")
+            .values("claim_date", "room_no", "ammount")
+        )
+        # 前受金の合駅
+        total = 0
+        for i in maeuke_dict:
+            total += i["ammount"]
+
+        return total, maeuke_dict

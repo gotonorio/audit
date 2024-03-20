@@ -16,7 +16,7 @@ from kurasel_translator.my_lib.check_lib import check_period
 # from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment
-from record.models import Transaction
+from record.models import ClaimData, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -341,6 +341,13 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # Kurasel監査の開始月前月の前受金
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             last_maeuke = settings.MAEUKE_INITIAL
+
+        # 使用する前受金
+        total, maeuke_dict = ClaimData.get_maeuke(year, month)
+        # DEBUG
+        logger.debug(total)
+        for i in maeuke_dict:
+            logger.debug(f"{i["claim_date"]}--{i["room_no"]}-{i["ammount"]:,}")
 
         context["mr_list"] = qs_mr
         context["netting_total"] = netting_total
