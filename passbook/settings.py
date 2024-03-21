@@ -147,7 +147,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2024-03-18"
+VERSION_NO = "2024-03-21"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -207,9 +207,9 @@ MONTH = (
     (12, "12月"),
 )
 CLAIMTYPE = (
-    ("未収金", "未収金"),
-    ("前受金", "前受金"),
-    ("振替不備", "振替不備"),
+    ("未収金", "請求時点未収金一覧"),
+    ("前受金", "請求時点前受金一覧"),
+    ("振替不備", "口座振替不備分"),
 )
 
 # カスタムユーザモデルを使う。

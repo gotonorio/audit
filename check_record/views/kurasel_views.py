@@ -344,10 +344,6 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
 
         # 使用する前受金
         total, maeuke_dict = ClaimData.get_maeuke(year, month)
-        # DEBUG
-        logger.debug(total)
-        for i in maeuke_dict:
-            logger.debug(f"{i["claim_date"]}--{i["room_no"]}-{i["ammount"]:,}")
 
         context["mr_list"] = qs_mr
         context["netting_total"] = netting_total

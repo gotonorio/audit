@@ -29,7 +29,6 @@ def check_accountingclass(data, ac):
     - ac   : 会計区分
     """
     for d in data:
-        # logger.debug(d)
         if d[0] in settings.KANRI_INCOME and ac in settings.KANRI_INCOME:
             return True
         elif d[0] in settings.KANRI_PAYMENT and ac in settings.KANRI_PAYMENT:
