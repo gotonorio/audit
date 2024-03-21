@@ -530,12 +530,15 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
         #     messages.add_message(self.request, messages.ERROR, msg)
         if "確認" in mode:
             # 合計を計算
-            total = 0
-            for data in data_list:
-                total += int(data[3])
+            try:
+                total = 0
+                for data in data_list:
+                    total += int(data[3])
+            except ValueError:
+                err_msg = "コピー範囲が間違っているようです。データ本体だけをコピーしてください。"
+                messages.add_message(self.request, messages.ERROR, err_msg)
             context["total"] = total
             # 確認モードの場合、表示のみを行う。
-            logger.debug(data_list)
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
