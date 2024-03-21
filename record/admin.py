@@ -67,6 +67,7 @@ class ApprovalCheckDataAdmin(admin.ModelAdmin):
 
 class ClaimDataAdmin(admin.ModelAdmin):
     list_display = ["claim_date", "claim_type", "room_no", "name", "ammount"]
+    ordering = ("claim_type", "claim_date")
 
 
 # Register your models here.

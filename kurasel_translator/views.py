@@ -512,7 +512,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
         # 支払管理の場合、4行で1レコード。(区分所有者、部屋番号、氏名、請求金額)
-        data_list = self.translate_claim(msg_list, 4)
+        data_list = self.normalize_claim(msg_list, 4)
         context = {
             "form": form,
             "data_list": data_list,
@@ -530,16 +530,19 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
         #     messages.add_message(self.request, messages.ERROR, msg)
         if "確認" in mode:
             # 合計を計算
-            total = 0
-            for data in data_list:
-                total += int(data[3])
+            try:
+                total = 0
+                for data in data_list:
+                    total += int(data[3])
+            except ValueError:
+                err_msg = "コピー範囲が間違っているようです。データ本体だけをコピーしてください。"
+                messages.add_message(self.request, messages.ERROR, err_msg)
             context["total"] = total
             # 確認モードの場合、表示のみを行う。
-            logger.debug(data_list)
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = ClaimData.claim_from_kurasel(context, year, month, claim_type)
+            rtn, error_list = ClaimData.claim_from_kurasel(context)
             if rtn:
                 msg = f"{year}-{month}-{claim_type}の承認済み支払いデータの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
@@ -548,7 +551,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 # # 取り込みに成功したら、一覧表表示する。
                 # url = append_list.redirect_with_param("payment:payment_list", param)
                 # return redirect(url)
-                return redirect("register:mypage")
+                return redirect("register:master_page")
             else:
                 for i in error_list:
                     msg = f"データの取り込みに失敗しました。{i}"
@@ -556,16 +559,24 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 # 取り込みに失敗したら、取り込み画面に戻る。
                 return render(self.request, self.template_name, context)
 
-    def translate_claim(self, msg_list, row):
-        """Kuraselの表示をコピペで取り込む
+    def normalize_claim(self, msg_list, row):
+        """Kuraselの表示をコピペで取り込んだデータの正規化を行う。
         - "¥"マーク、","の2つを削除。
+        - 余計な文字を削除。
         - strip()は最後に行う。
         """
         cnt = 0
         record_list = []
         line_list = []
         for line in msg_list:
-            line_list.append(line.replace("¥", "").replace(",", "").replace("部屋番号", "").strip())
+            line_list.append(
+                line.replace("¥", "")
+                .replace(",", "")
+                .replace("部屋番号", "")
+                .replace("号室", "")
+                .replace("(区分所有者)", "")
+                .strip()
+            )
             cnt += 1
             if cnt == row:
                 record_list.append(line_list)
