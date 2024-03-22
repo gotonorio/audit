@@ -506,7 +506,7 @@ class ClaimData(models.Model):
 
     @classmethod
     def get_maeuke(cls, year, month):
-        """指定された年月に使われる前受金を返す"""
+        """指定された年月に使われる前受金dictのリストを返す"""
         date_str = str(year) + str(month).zfill(2) + "01"
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
         maeuke_dict = (
@@ -520,3 +520,20 @@ class ClaimData(models.Model):
             total += i["ammount"]
 
         return total, maeuke_dict
+
+    @classmethod
+    def get_mishuu(cls, year, month):
+        """指定された年月の請求時未収金dictのリストを返す"""
+        date_str = str(year) + str(month).zfill(2) + "01"
+        claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        mishuu_dict = (
+            cls.objects.filter(claim_date=claim_date)
+            .filter(claim_type="未収金")
+            .values("claim_date", "room_no", "ammount")
+        )
+        # 未収金の合駅
+        total = 0
+        for i in mishuu_dict:
+            total += i["ammount"]
+
+        return total, mishuu_dict

@@ -574,7 +574,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 .replace(",", "")
                 .replace("部屋番号", "")
                 .replace("号室", "")
-                .replace("(区分所有者)", "")
+                .replace("（区分所有者）", "")
                 .strip()
             )
             cnt += 1

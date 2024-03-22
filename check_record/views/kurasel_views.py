@@ -246,9 +246,9 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
 
         # 追加contextデータの初期化
         context["netting_total"] = 0
-        context["last_maeuke"] = 0
-        context["total_maeuke"] = 0
-        context["total_mishuu"] = 0
+        context["pb_last_maeuke"] = 0
+        context["total_last_maeuke"] = 0
+        context["total_mishuu_bs"] = 0
         context["total_last_mishuu"] = 0
         context["total_mr"] = 0
         context["total_pb"] = 0
@@ -273,7 +273,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 抽出期間
         tstart, tend = select_period(year, month)
         #
-        # 月次収入データを抽出
+        # (1) 月次収入データを抽出
         #
         # qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
@@ -284,8 +284,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
         #
-        # 入出金明細データ（通帳データ）の収入リスト
-        # 監査用補正データも含めて抽出する。2023-08-21
+        # (2) 入出金明細データ（通帳データ）の収入リスト
         #
         qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "income", True)
         # 2023年3月以前のデータを除外する。
@@ -295,6 +294,24 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by("transaction_date", "himoku")
         # 収入合計金額
         total_pb, _ = Transaction.calc_total(qs_pb)
+
+        #
+        # (3) 請求時点前受金リスト（当月使用する前受金）
+        #
+        total_last_maeuke, qs_last_maeuke = ClaimData.get_maeuke(year, month)
+        if settings.DEBUG:
+            logger.debug(f"請求時前受金＝{total_last_maeuke:,}")
+            for i in qs_last_maeuke:
+                logger.debug(i)
+
+        #
+        # (4) 請求時点未収金リスト->貸借対照表上の前月未収金であり、不要？
+        #
+        total_mishuu, qs_mishuu = ClaimData.get_mishuu(year, month)
+        if settings.DEBUG:
+            logger.debug(f"請求時未収金＝{total_mishuu:,}")
+            for i in qs_mishuu:
+                logger.debug(i)
 
         # 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
         qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
@@ -307,54 +324,66 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             netting_total = 0
 
         # 貸借対照表データから当月の未収金を求める。
-        qs_this_mishuu = (
+        qs_mishuu_bs = (
             BalanceSheet.objects.filter(monthly_date__range=[tstart, tend])
             .filter(item_name__item_name__contains="未収金")
             .order_by("item_name")
         )
         # 当月の未収金合計
-        total_mishuu = 0
-        for d in qs_this_mishuu:
-            total_mishuu += d.amounts
+        total_mishuu_bs = 0
+        for d in qs_mishuu_bs:
+            total_mishuu_bs += d.amounts
 
         # 前月の期間を計算。
         lastyear, lastmonth = get_lastmonth(year, month)
         last_tstart, last_tend = select_period(lastyear, lastmonth)
-        # 前月の未収金
-        last_mishuu = (
+        # 貸借対照表上の前月の未収金
+        last_mishuu_bs = (
             BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend])
             .filter(item_name__item_name__contains="未収金")
             .order_by("item_name")
         )
-        # 前月の未収金合計
+        # 貸借対照表上の前月の未収金合計
         total_last_mishuu = 0
-        for d in last_mishuu:
+        for d in last_mishuu_bs:
             total_last_mishuu += d.amounts
 
-        # Kurasel監査の開始月前月の未収金
+        # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の未収金は規定値とする。
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
         # 前月の通帳データから前受金を計算する。
-        last_maeuke = Transaction.get_maeuke(last_tstart, last_tend)
+        pb_last_maeuke = Transaction.get_maeuke(last_tstart, last_tend)
 
-        # Kurasel監査の開始月前月の前受金
+        # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の前受金は規定値とする。
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
-            last_maeuke = settings.MAEUKE_INITIAL
+            pb_last_maeuke = settings.MAEUKE_INITIAL
 
         # 使用する前受金
         total, maeuke_dict = ClaimData.get_maeuke(year, month)
 
+        # 月次収入データ
         context["mr_list"] = qs_mr
-        context["netting_total"] = netting_total
-        context["this_mishuu"] = qs_this_mishuu
-        context["total_mishuu"] = total_mishuu
-        context["last_mishuu"] = last_mishuu
-        context["total_last_mishuu"] = total_last_mishuu
-        context["last_maeuke"] = last_maeuke
+        # 入出金明細データ
         context["pb_list"] = qs_pb
+        # ネッティング額（相殺処理額）
+        context["netting_total"] = netting_total
+        # 貸借対照表上の未収金リストと未収金額
+        context["mishuu_bs"] = qs_mishuu_bs
+        context["total_mishuu_bs"] = total_mishuu_bs
+        # 貸借対照表上の前月未収金額
+        context["last_mishuu_bs"] = last_mishuu_bs
+        context["total_last_mishuu"] = total_last_mishuu
+        # 通帳（入出金明細データ）上の前月前受金
+        context["pb_last_maeuke"] = pb_last_maeuke
+        # 使用する前受金
+        context["qs_last_maeuke"] = qs_last_maeuke
+        # 使用する前受金の合計
+        context["total_last_maeuke"] = total_last_maeuke
+        # 月次収入データの合計
         context["total_mr"] = total_mr
-        context["total_pb"] = total_pb + netting_total + last_maeuke
+        # 入出金明細データの合計
+        context["total_pb"] = total_pb + netting_total + pb_last_maeuke
         context["total_diff"] = context["total_pb"] - total_mr
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
