@@ -61,6 +61,7 @@
   </div>
 
   <div class='columns'>
+{% comment %} left side--------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
         <h4>月次収入データ</h4>
@@ -89,15 +90,28 @@
               {% endif %}
             </tr>
             {% endfor %}
+            {% if qs_last_maeuke %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">使用する前受金</td>
+              <td class="has-text-right">{{total_last_maeuke|intcomma}}</td>
+            </tr>
+            {% endif %}
+            {% if last_mishuu_bs %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">請求時点の未収金</td>
+              <td class="has-text-right">{{total_last_mishuu|intcomma}}</td>
+            </tr>
+            {% endif %}
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mr|intcomma}}</td>
+              <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_last_mishuu|intcomma}}</td>
             </tr>
           </tbody>
         </table>
       </div>
-
       <br>
       <div class="content has-text-centered">
         <h5>貸借対照表による当月の未収金</h5>
@@ -128,17 +142,16 @@
               <td class="has-text-right">合計</td>
               <td class="has-text-right">{{total_mishuu_bs|intcomma}}</td>
             </tr>
-            <tr>
+            {% comment %} <tr>
               <td></td>
               <td class="has-text-right">計算上の未収金</td>
               <td class="has-text-right">{{total_last_mishuu|subtract:total_diff|intcomma}}</td>
-            </tr>
+            </tr> {% endcomment %}
           </tbody>
         </table>
       </div>
-{% comment %} --------------------------------------- {% endcomment %}
-
     </div>
+{% comment %} right side --------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
         <h4>通帳収入データ</h4>
@@ -196,8 +209,6 @@
           </tbody>
         </table>
       </div>
-
-{% comment %} --------------------------------------- {% endcomment %}
       <br>
       <div class="content has-text-centered">
         <h5>前月の未収金</h5>
@@ -229,9 +240,8 @@
           </tbody>
         </table>
       </div>
-{% comment %} --------------------------------------- {% endcomment %}
-
     </div>
+{% comment %} --------------------------------------- {% endcomment %}
   </div>
 </div>
 {% endblock %}
