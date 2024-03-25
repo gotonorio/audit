@@ -352,8 +352,23 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         qs = Transaction.objects.get(pk=pk)
         transaction_date = qs.transaction_date
         balance = qs.balance
+        # 分割する金額
+        base_ammount = -qs.ammount
         # ToDo 確認すること
         default_himoku = Himoku.get_default_himoku()
+
+        # 分割したデータの合計金額をチェックする。
+        total_divide_ammount = 0
+        for subform in form:
+            if subform.cleaned_data.get("ammount") is not None:
+                total_divide_ammount += subform.cleaned_data.get("ammount")
+        if total_divide_ammount != base_ammount:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                f"{total_divide_ammount:,} != {base_ammount:,} 合計の不一致",
+            )
+            return self.render_to_response(self.get_context_data(form=form))
 
         # formにはformsetがセットされているので、繰り返し処理する。
         for subform in form:
