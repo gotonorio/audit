@@ -234,7 +234,6 @@ class BalanceSheet(models.Model):
         error_list = []
         rtn = True
         for item_name, amounts in data["bs_dict"].items():
-            # item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(item_name=item_name)
             try:
                 item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(item_name=item_name)
                 cls.objects.update_or_create(

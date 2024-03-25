@@ -412,9 +412,12 @@ class BalanceSheetTranslateView(FormView):
         # コピーした貸借対照表データのチェック。
         error_msg = self.check_bs_data(msg_list, form)
         if error_msg:
-            # エラーがあった場合
+            # エラーがあった場合、messageを作成してデータを破棄する。
             messages.add_message(self.request, messages.ERROR, error_msg)
             msg_list = []
+        else:
+            # 先頭行（会計区分名）を読み込んで、先頭行を削除。
+            ac_class = msg_list.pop(0)
 
         # データ行の正規化
         asset_list, debt_list = self.bs_translate(msg_list)
@@ -432,7 +435,10 @@ class BalanceSheetTranslateView(FormView):
             "author": self.request.user.pk,
         }
         if "確認" in mode:
-            # 確認モードの場合、表示のみを行う。
+            # 確認モードの場合、会計区分のチェックをして表示のみを行う。（accounting_classのtypeに注意）
+            if str(accounting_class) != ac_class:
+                msg = f"{ac_class} != {accounting_class} 会計区分を見直してください"
+                messages.add_message(self.request, messages.ERROR, msg)
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
@@ -481,12 +487,14 @@ class BalanceSheetTranslateView(FormView):
         return asset_list, debt_list
 
     def check_bs_data(self, msg_list, form):
-        """コピーした貸借対照表データのチェック"""
+        """コピーした貸借対照表データのチェック
+        - 1行目は会計区分「管理費会計」「修繕積立金会計」「駐車場会計」「町内会費会計」となる。
+        """
         # 取り込んだデータの1行目が「資産の部」であることを確認する。
-        if msg_list[0] in ("資産の部",):
+        if msg_list[0] in ("管理費会計", "修繕積立金会計", "駐車場会計", "町内会費会計"):
             return False
         else:
-            msg = "データコピーの範囲が間違っています。「資産の部」から「剰余の部」までをコピーしてください"
+            msg = "タイトルの「会計区分名」から「剰余の部合計」までをコピーしてください"
             return msg
 
 
