@@ -45,9 +45,12 @@
   </div>
   {% endif %}
 
-  <div class="content has-text-centered">
+  <div class="content">
     <h4>Kurasel月次収支データの取込み</h4>
-    <div class='has-text-danger'>※ 「年月」「会計区分」「収支区分」の確認をして取込んでください。</div>
+    <ul>
+      <li class="has-text-danger">ヘッダの「収入の部」または「支出の部」からコピペしてください。</li>
+      <li class="has-text-danger">「年月」「会計区分」「収支区分」の確認をして取込んでください。</li>
+    </ul>
   </div>
   <form action="" method='POST' enctype="multipart/form-data">
     {% csrf_token %}
@@ -128,11 +131,11 @@
   </form>
   <br>
   {# 結果表示 #}
-  <div class="has-text-centered control">
-    {{year}}年{{month}}月 データ種類【{{kind}}］ モード【{{mode}}】
+  <div class="control">
+    {{year}}年{{month}}月 データ種類【{{kind}}】
   </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-striped is-narrow is-responsible">
+    <table class="table table_nowrap is-striped is-narrow is-responsible">
       <thead>
         <tr>
           <th class="has-text-centered">費目</th>

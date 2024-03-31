@@ -45,8 +45,11 @@
   </div>
   {% endif %}
 
-  <div class="content has-text-centered">
+  <div class="content">
     <h4>Kurasel入出金明細データの取込み</h4>
+    <ul>
+      <li class="has-text-danger">「入出金明細」のデータ部分だけをコピペしてください。</li>
+    </ul>
   </div>
   <form action="" method='POST' enctype="multipart/form-data">
     {% csrf_token %}
@@ -98,11 +101,8 @@
   </form>
   <br>
   {# 結果表示 #}
-  <div class="has-text-centered control">
-    モード【{{mode}}】
-  </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-striped is-narrow is-responsible">
+    <table class="table table_nowrap is-striped is-narrow is-responsible">
       <thead>
         <tr>
           <th class="has-text-centered">種類</th>

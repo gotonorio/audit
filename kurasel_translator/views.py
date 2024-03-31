@@ -431,7 +431,7 @@ class BalanceSheetTranslateView(FormView):
             "bs_dict": bs_dict,
             "year": year,
             "month": month,
-            "mode": mode,
+            "accounting_class": accounting_class,
             "author": self.request.user.pk,
         }
         if "確認" in mode:

@@ -45,9 +45,13 @@
   </div>
   {% endif %}
 
-  <div class="content has-text-centered">
+  {% comment %} <div class="content has-text-centered"> {% endcomment %}
+  <div class="content">
     <h4>Kurasel承認済み支払いデータの取込み</h4>
-    <div class="has-text-danger">※ 「年月」「支払日」を確認してから、取込んでください。</div>
+    <ul>
+      <li class="has-text-danger">「支払い管理」のデータ部分だけをコピペしてください。</li>
+      <li class="has-text-danger">「年月」「支払日」を確認してから、取込んでください。</li>
+    </ul>
   </div>
   <form action="" method='POST' enctype="multipart/form-data">
     {% csrf_token %}
@@ -119,11 +123,9 @@
   </form>
   <br>
   {# 結果表示 #}
-  <div class="has-text-centered control">
-    モード【{{mode}}】
-  </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-striped is-narrow is-responsible">
+    {% comment %} <table class="table table_center_nowrap is-striped is-narrow is-responsible"> {% endcomment %}
+    <table class="table table_nowrap is-striped is-narrow is-responsible">
       <thead>
         <tr>
           <th class="has-text-centered">支払日</th>
