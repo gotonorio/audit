@@ -91,8 +91,8 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = self.request.GET.get("year", localtime(timezone.now()).year)
-        # 抽出期間(0:全月)
-        tstart, tend = select_period(year, "0")
+        # 抽出期間
+        tstart, tend = select_period(year, "all")
         # 期間でfiler
         qs = (
             Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])

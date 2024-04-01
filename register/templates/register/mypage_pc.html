@@ -28,10 +28,6 @@
           <a class="navbar-link is-size-6">通帳明細</a>
           <div class="navbar-dropdown">
             <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Original)</a>
-            {% if perms.record.add_transaction %}
-              <a class="navbar-item" href="{% url 'record:recalc_balance' %}">残高チェック</a>
-              <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
-            {% endif %}
           </div>
         </div>
         <div class="navbar-item has-dropdown is-hoverable">
@@ -44,28 +40,19 @@
             <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
           </div>
         </div>
-
-        {% comment %} {% if perms.record.add_transaction %} {% endcomment %}
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link is-size-6">クラセル監査</a>
-            <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
-              <a class="navbar-item" href="{% url 'record:transaction_list' %}">入出金明細の一覧</a>
-              <hr class="navbar-divider">
-              <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' %}">支払い承認チェック</a>
-              <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' %}">月次支出チェック</a>
-              <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' %}">月次収入チェック</a>
-            </div>
-          </div>
-        {% comment %} {% endif %} {% endcomment %}
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link is-size-6">（月次）決算</a>
+          <a class="navbar-link is-size-6">クラセル監査</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績一覧</a>
-            <hr class="navbar-divider">
+            <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
+            <a class="navbar-item" href="{% url 'record:transaction_list' %}">入出金明細の一覧</a>
             <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' %}">支払い承認チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' %}">月次支出チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' %}">月次収入チェック</a>
           </div>
         </div>
+        <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
       </div>
       <div class="navbar-end">
         <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
@@ -74,7 +61,10 @@
             <a class="navbar-link is-size-6">管理者用</a>
             <div class="navbar-dropdown">
               <a class="dropdown-item" href="{% url 'register:master_page' %}">データ管理</a>
+              <hr class="navbar-divider">
               <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a>
+              <a class="navbar-item" href="{% url 'record:recalc_balance' %}">残高チェック</a>
+              <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
               <hr class="navbar-divider">
               {% if perms.register.add_user %}
                 <hr class="navbar-divider">
@@ -93,13 +83,16 @@
         </div>
       </div>
     {% else %}
-    <!--ログインユーザ以外に表示する 必要ないか？-->
+    <!--理事会メンバー以外に表示-->
       <div class="navbar-start">
-        <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績一覧</a>
+        <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
       </div>
       <div class="navbar-end">
         <div class="navbar-item">
-          <a class="button" href="{% url 'register:logout' %}" >ログアウト</a>
+          <form method="post" action="{% url 'register:logout' %}">
+            {% csrf_token %}
+            <button type="submit">ログアウト</button>
+          </form>
         </div>
       </div>
     {% endif %}
