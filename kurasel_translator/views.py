@@ -198,9 +198,9 @@ class DepositWithdrawalView(MonthlyBalanceView):
             return render(self.request, self.template_name, context)
         else:
             """登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する"""
-            # 費目推定のためPaymentMethodのオブジェクトを作成。
+            # (1) 支払い方法から費目推定のためPaymentMethodのオブジェクトを作成。
             payment_method_list = PaymentMethod.get_paymentmethod_obj()
-            # 費目名推定のためrequesterのオブジェクトを作成。
+            # (2) 振込依頼人名から費目推定のためrequesterのオブジェクトを作成。
             requester_list = TransferRequester.get_requester_obj()
             # 入出金入出金明細データの取り込み。
             rtn, error_list = Transaction.dwd_from_kurasel(

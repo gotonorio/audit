@@ -100,6 +100,7 @@ class PaymentMethod(models.Model):
 
     @staticmethod
     def get_paymentmethod_obj():
+        """支払い方法データ一覧をリストで返す"""
         qs = PaymentMethod.objects.all()
         obj_list = [obj for obj in qs]
         return obj_list

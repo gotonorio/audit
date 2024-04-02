@@ -384,13 +384,13 @@ class Transaction(models.Model):
             else:
                 # 最初に費目をdefault費目にセットする。
                 himoku_obj = default_himoku
-                # (1)「支払先」で費目を推定する。
+                # (1)「振込依頼人」で費目を推定する。
                 for requester in requester_list:
                     if item[4] == requester.requester:
                         himoku_obj = requester.himoku
                         himoku_chk = False
                         break
-                # (2)「支払先」で推定できない場合「摘要」で費目を推定する。
+                # (2)「振込依頼人」で推定できない場合「摘要」で費目を推定する。
                 if himoku_chk:
                     for paymentmethod in paymentmethod_list:
                         if item[5] == paymentmethod.account_description:
