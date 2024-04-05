@@ -367,7 +367,6 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         """
         new_data_list = []
         # default費目名を求める。
-        # default_himoku = Himoku.get_default_himoku().values("himoku_name")[0]
         default_himoku = Himoku.get_default_himoku()
         if default_himoku:
             default_himoku_name = default_himoku.himoku_name
@@ -381,6 +380,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
                     data.append(himoku)
                     chk = False
                     break
+            # 費目名が推定できなければ、デフォルト費目名（不明）をリストに追加
             if chk:
                 data.append(default_himoku_name)
             new_data_list.append(data)
