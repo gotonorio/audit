@@ -513,14 +513,16 @@ class ClaimData(models.Model):
         maeuke_dict = (
             cls.objects.filter(claim_date=claim_date)
             .filter(claim_type="前受金")
-            .values("claim_date", "room_no", "ammount")
+            .values("claim_date", "room_no", "ammount", "comment")
         )
         # 前受金の合駅
         total = 0
+        comment = ""
         for i in maeuke_dict:
             total += i["ammount"]
+            comment += i["comment"]
 
-        return total, maeuke_dict
+        return total, maeuke_dict, comment
 
     @classmethod
     def get_mishuu(cls, year, month):

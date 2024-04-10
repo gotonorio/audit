@@ -298,7 +298,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         #
         # (3) 請求時点前受金リスト（当月使用する前受金）
         #
-        total_last_maeuke, qs_last_maeuke = ClaimData.get_maeuke(year, month)
+        total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke(year, month)
         if settings.DEBUG:
             logger.debug(f"請求時前受金＝{total_last_maeuke:,}")
             for i in qs_last_maeuke:
@@ -359,8 +359,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             pb_last_maeuke = settings.MAEUKE_INITIAL
 
-        # 使用する前受金
-        total, maeuke_dict = ClaimData.get_maeuke(year, month)
+        # # 使用する前受金
+        # total, maeuke_dict, total_comment = ClaimData.get_maeuke(year, month)
 
         # 月次収入データ
         context["mr_list"] = qs_mr
@@ -376,10 +376,11 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_last_mishuu"] = total_last_mishuu
         # 通帳（入出金明細データ）上の前月前受金
         context["pb_last_maeuke"] = pb_last_maeuke
-        # 使用する前受金
-        context["qs_last_maeuke"] = qs_last_maeuke
+        # # 使用する前受金
+        # context["qs_last_maeuke"] = qs_last_maeuke
         # 使用する前受金の合計
         context["total_last_maeuke"] = -total_last_maeuke
+        context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
         # 入出金明細データの合計

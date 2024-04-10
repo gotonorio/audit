@@ -90,11 +90,12 @@
               {% endif %}
             </tr>
             {% endfor %}
-            {% if qs_last_maeuke %}
+            {% if total_last_maeuke %}
             <tr>
               <td></td>
               <td class="has-text-right">使用する前受金</td>
               <td class="has-text-right">{{total_last_maeuke|intcomma}}</td>
+              <td class="has-text-left is-size-7">{{total_comment}}</td>
             </tr>
             {% endif %}
             {% if last_mishuu_bs %}
@@ -102,12 +103,14 @@
               <td></td>
               <td class="has-text-right">請求時点の未収金</td>
               <td class="has-text-right">{{total_last_mishuu|intcomma}}</td>
+              <td></td>
             </tr>
             {% endif %}
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
               <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_last_mishuu|intcomma}}</td>
+              <td></td>
             </tr>
           </tbody>
         </table>
