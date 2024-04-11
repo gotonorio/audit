@@ -283,7 +283,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         # 口座
         account = self.request.GET.get("account")
         # 抽出期間
-        tstart, tend = select_period(str(year), str(month))
+        tstart, tend = select_period(year, month)
         # 町内会会計が選択された場合の処理
         ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
         if ac_name.pk == int(ac_class):
@@ -341,7 +341,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
                 ac_class = "0"
 
         # 抽出期間
-        tstart, tend = select_period(year, "all")
+        tstart, tend = select_period(year, 0)
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
 
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
@@ -394,7 +394,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
                 ac_class = "0"
 
         # 抽出期間（monthが"all"なら1年分）
-        tstart, tend = select_period(year, "all")
+        tstart, tend = select_period(year, 0)
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 月次報告収入の月別合計を計算。
         mr_total = monthly_total(qs, int(year), "ammount")
@@ -453,7 +453,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         else:
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
         # 抽出期間
-        tstart, tend = select_period(str(year), str(month))
+        tstart, tend = select_period(year, month)
 
         asset_list = []
         debt_list = []
@@ -601,7 +601,7 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間
-        tstart, tend = select_period(year, "all")
+        tstart, tend = select_period(year, 0)
         # 費目名「口座振替手数料」でfilter
         offset_himoku_name = ControlRecord.get_offset_himoku()
         if offset_himoku_name is None:

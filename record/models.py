@@ -155,7 +155,8 @@ class Himoku(models.Model):
         try:
             qs = cls.objects.get(
                 alive=True,
-                himoku_name__contains=himoku,
+                # himoku_name__contains=himoku,
+                himoku_name=himoku,
                 accounting_class__accounting_name__contains=ac_class,
             )
         except cls.DoesNotExist:

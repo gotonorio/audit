@@ -85,8 +85,10 @@ def select_period(year, month):
     - start_date:月初の日付は1日を返す。
     - end_date:月末の日付を返す。
     - 受け取り側では __range=[start_date, end_date]でfilterする。
+    - month=0の場合、年初から年末を返す。
     """
-    if str(month).isdecimal():
+    # if str(month).isdecimal():
+    if int(month) > 0:
         last_day = calendar.monthrange(int(year), int(month))[1]
         tstart = timezone.datetime(int(year), int(month), 1, 0, 0, 0)
         tend = timezone.datetime(int(year), int(month), last_day, 0, 0, 0)

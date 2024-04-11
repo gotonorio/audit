@@ -71,7 +71,7 @@
           <th class="has-text-centered">費目</th>
           <th class="has-text-centered">入金</th>
           <th class="has-text-centered">出金</th>
-          <th class="has-text-centered">当日残高</th>
+          {% comment %} <th class="has-text-centered">当日残高</th> {% endcomment %}
           <th class="has-text-centered">振込依頼人名</th>
           <th class="has-text-centered">摘要</th>
           {% if perms.record.add_transaction %}
@@ -106,7 +106,7 @@
             <td class="has-text-right">0</td>
             <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
           {% endif%}
-          <td class="has-text-right">{{record.balance|default_if_none:'0'|intcomma}}</td>
+          {% comment %} <td class="has-text-right">{{record.balance|default_if_none:'0'|intcomma}}</td> {% endcomment %}
           {% if record.requesters_name == "ソウゴウフリコミBIZ" %}
             <td class="has-text-left is-size-7 has-text-danger">
               <a href="{% url 'record:transaction_offset_create' record.pk %}"> {{record.requesters_name }}</a>

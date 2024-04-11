@@ -23,12 +23,12 @@ def check_copy_area(data_list):
     return err_msg
 
 
-def check_accountingclass(data, ac):
+def check_accountingclass(data_list, ac):
     """取り込んだ月次収支データのチェック
     - d[0] : 費目名
     - ac   : 会計区分
     """
-    for d in data:
+    for d in data_list:
         if d[0] in settings.KANRI_INCOME and ac in settings.KANRI_INCOME:
             return True
         elif d[0] in settings.KANRI_PAYMENT and ac in settings.KANRI_PAYMENT:

@@ -147,7 +147,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2024-04-05"
+VERSION_NO = "2024-04-11"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -173,12 +173,13 @@ SHUUZEN_INCOME = ["収入", "修繕積立金会計", "修繕積立金", "専用�
 SHUUZEN_PAYMENT = ["支出", "修繕積立金会計", "計画修繕工事費", "消防設備更新費用"]
 PARKING_INCOME = ["収入", "駐車場会計", "駐車料"]
 PARKING_PAYMENT = ["支出", "駐車場会計", "機械式駐車機保守料", "機械式駐車機工事費"]
-COMMUNITY_INCOME = ["収入", "町内会会計", "町内会費"]
-COMMUNITY_PAYMENT = ["支出", "町内会会計", "町会費", "寄付金"]
+COMMUNITY_INCOME = ["収入", "町内会会計", "町内会費", "町内会費会計"]
+COMMUNITY_PAYMENT = ["支出", "町内会会計", "町会費", "寄付金", "町内会費会計"]
 # 相殺処理後のデータ入力個数
 FORMSET_NUM = 10
 MONTH_ALL = (
-    ("ALL", "ALL"),
+    # ("ALL", "ALL"),
+    (0, "ALL"),
     (1, "1月"),
     (2, "2月"),
     (3, "3月"),

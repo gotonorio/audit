@@ -71,7 +71,7 @@ class MonthlyReportIncomeForm(forms.ModelForm):
         }
         help_texts = {
             "transaction_date": "* 不明な日付は01日とする。",
-            "calc_flg": "* 資金移動はチェックを外す。",
+            "calc_flg": "* 前受金・資金移動はチェックを外す。",
         }
 
     def clean_transaction_date(self):
