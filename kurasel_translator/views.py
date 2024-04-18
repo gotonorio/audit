@@ -18,7 +18,13 @@ from kurasel_translator.forms import (
 from kurasel_translator.my_lib import append_list, check_lib
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment, PaymentMethod
-from record.models import AccountingClass, ClaimData, Himoku, Transaction, TransferRequester
+from record.models import (
+    AccountingClass,
+    ClaimData,
+    Himoku,
+    Transaction,
+    TransferRequester,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +100,9 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
+            rtn, error_list = ReportTransaction.monthly_from_kurasel(
+                accounting_class, context
+            )
             # 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
@@ -109,11 +117,15 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
                 # 取り込みに成功したら、一覧表表示する。
                 if kind == "収入":
                     # 収入データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param("monthly_report:incomelist", param)
+                    url = append_list.redirect_with_param(
+                        "monthly_report:incomelist", param
+                    )
                     return redirect(url)
                 else:
                     # 支出データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param("monthly_report:expenselist", param)
+                    url = append_list.redirect_with_param(
+                        "monthly_report:expenselist", param
+                    )
                     return redirect(url)
             else:
                 # msg = f'月次収支データの取り込みに失敗しました。費目名 ＝ {error_list[0]}'
@@ -132,7 +144,9 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         record_list = []
         line_list = []
         for line in msg_list:
-            line_list.append(line.replace("¥", "").replace("（円）", "").replace(",", "").strip())
+            line_list.append(
+                line.replace("¥", "").replace("（円）", "").replace(",", "").strip()
+            )
             cnt += 1
             if cnt == row:
                 record_list.append(line_list)
@@ -191,7 +205,10 @@ class DepositWithdrawalView(MonthlyBalanceView):
         # デフォルトの費目オブジェクトを準備する。
         default_himoku = Himoku.get_default_himoku()
         if default_himoku is None:
-            messages.info(self.request, "defaultの費目名が設定されていません。管理者に連絡してください")
+            messages.info(
+                self.request,
+                "defaultの費目名が設定されていません。管理者に連絡してください",
+            )
             return render(self.request, self.template_name, context)
         # 確認・取り込み処理
         if "確認" in mode:
@@ -213,7 +230,9 @@ class DepositWithdrawalView(MonthlyBalanceView):
                 msg = "データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
-                return redirect("record:transaction_list", year=year, month=rtn, list_order=0)
+                return redirect(
+                    "record:transaction_list", year=year, month=rtn, list_order=0
+                )
             else:
                 for i in error_list:
                     msg = f"データの取り込みに失敗しています。{i}"
@@ -371,7 +390,10 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         if default_himoku:
             default_himoku_name = default_himoku.himoku_name
         else:
-            messages.info(self.request, "defaultの費目名が設定されていません。管理者に連絡してください")
+            messages.info(
+                self.request,
+                "defaultの費目名が設定されていません。管理者に連絡してください",
+            )
             return None
         for data in data_list:
             chk = True
@@ -491,7 +513,12 @@ class BalanceSheetTranslateView(FormView):
         - 1行目は会計区分「管理費会計」「修繕積立金会計」「駐車場会計」「町内会費会計」となる。
         """
         # 取り込んだデータの1行目が「資産の部」であることを確認する。
-        if msg_list[0] in ("管理費会計", "修繕積立金会計", "駐車場会計", "町内会費会計"):
+        if msg_list[0] in (
+            "管理費会計",
+            "修繕積立金会計",
+            "駐車場会計",
+            "町内会費会計",
+        ):
             return False
         else:
             msg = "タイトルの「会計区分名」から「剰余の部合計」までをコピーしてください"
@@ -549,7 +576,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
             # 確認モードの場合、表示のみを行う。
             return render(self.request, self.template_name, context)
         else:
-            # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
+            # 登録モードの場合、ClaimDataモデルクラス関数でデータ保存する
             rtn, error_list = ClaimData.claim_from_kurasel(context)
             if rtn:
                 msg = f"{year}-{month}-{claim_type}の承認済み支払いデータの取り込みが完了しました。"
@@ -582,7 +609,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 .replace(",", "")
                 .replace("部屋番号", "")
                 .replace("号室", "")
-                .replace("（区分所有者）", "")
+                # .replace("（区分所有者）", "")
                 .strip()
             )
             cnt += 1

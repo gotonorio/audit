@@ -41,7 +41,9 @@ urlpatterns = [
         data_operate.TransactionDeleteView.as_view(),
         name="transaction_delete",
     ),
-    path("himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"),
+    path(
+        "himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"
+    ),
     path("himoku_list/", data_operate.HimokuListView.as_view(), name="himoku_list"),
     path(
         "himoku_update/<int:pk>/",
@@ -87,4 +89,5 @@ urlpatterns = [
     ),
     # 残高チェック
     path("recalc_balance/", views.RecalcBalance.as_view(), name="recalc_balance"),
+    path("claim_list/", views.ClaimDataListView.as_view(), name="claim_list"),
 ]

@@ -7,8 +7,9 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from kurasel_translator.my_lib.append_list import select_period
-from record.forms import RecalcBalanceForm, TransactionDisplayForm
-from record.models import AccountingClass, Himoku, Transaction
+from record.forms import RecalcBalanceForm, TransactionDisplayForm, ClaimListForm
+
+from record.models import AccountingClass, Himoku, Transaction, ClaimData
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,9 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 表示順序
         if list_order == "0":
-            qs = qs.order_by("-transaction_date", "himoku", "is_manualinput", "requesters_name")
+            qs = qs.order_by(
+                "-transaction_date", "himoku", "is_manualinput", "requesters_name"
+            )
         else:
             qs = qs.order_by("himoku", "-transaction_date", "requesters_name")
         # 合計金額
@@ -95,7 +98,9 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, 0)
         # 期間でfiler
         qs = (
-            Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])
+            Transaction.objects.all()
+            .select_related("account")
+            .filter(transaction_date__range=[tstart, tend])
         )
         # 管理会計区分を指定する
         ac_class = AccountingClass.get_class_name("管理")
@@ -148,7 +153,9 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
             # 計算は指定日の翌日分から
             tdate = sdate + timezone.timedelta(days=1)
-            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")
+            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by(
+                "transaction_date"
+            )
             # 残高の再計算処理
             rebalance = self.recalc(qs, int(balance))
             context["rebalance_list"] = rebalance
@@ -161,4 +168,33 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
             }
         )
         context["form"] = form
+        return context
+
+
+class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
+    """管理費等請求データ一覧表示"""
+
+    template_name = "record/claim_list.html"
+    permission_required = "record.add_transaction"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        local_now = localtime(timezone.now())
+        year = self.request.GET.get("year", local_now.year)
+        month = self.request.GET.get("month", local_now.month)
+        # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
+        claim_type = self.request.GET.get("claim_type", "未収金")
+        # 抽出期間
+        tstart, tend = select_period(year, month)
+        # querysetの作成。
+        claim_qs, claim_total = ClaimData.get_claim_list(tstart, tend, claim_type)
+        # Formに初期値を設定する
+        form = ClaimListForm(
+            initial={"year": year, "month": month, "claim_type": claim_type}
+        )
+        context["claim_list"] = claim_qs
+        context["claim_total"] = claim_total
+        context["form"] = form
+        context["title"] = claim_type
+        context["yyyymm"] = str(year) + "年" + str(month) + "月"
         return context

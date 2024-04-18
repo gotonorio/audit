@@ -98,7 +98,9 @@ class TransactionCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
     class Meta:
         model = Transaction
@@ -170,7 +172,9 @@ class TransactionCreateForm(forms.ModelForm):
             settings.MAEUKE,
         ]:
             if calc_flag:
-                raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
+                raise forms.ValidationError(
+                    "費目が「前受金」、の場合、計算フラグのチェックは外してください"
+                )
         return calc_flag
 
 
@@ -384,7 +388,9 @@ class TransactionDivideForm(forms.Form):
 
 
 # TransactionDivideFormを複数（settings.FORMSET_NUM）並べるためのFormSet。
-TransactionDivideFormSet = forms.formset_factory(TransactionDivideForm, extra=settings.FORMSET_NUM)
+TransactionDivideFormSet = forms.formset_factory(
+    TransactionDivideForm, extra=settings.FORMSET_NUM
+)
 
 
 class HimokuCsvFileSelectForm(forms.Form):
@@ -400,7 +406,9 @@ class HimokuCsvFileSelectForm(forms.Form):
         if file.name.endswith(".csv"):
             return file
         else:
-            raise forms.ValidationError("拡張子がcsvのファイルをアップロードしてください")
+            raise forms.ValidationError(
+                "拡張子がcsvのファイルをアップロードしてください"
+            )
 
     # fieldにcssを設定するためのclassを設定する。
     def __init__(self, *args, **kwargs):
@@ -478,4 +486,36 @@ class RecalcBalanceForm(forms.Form):
         required=True,
         help_text="* 基準日の最終残高を設定。",
         widget=forms.NumberInput(attrs={"class": "input"}),
+    )
+
+
+class ClaimListForm(forms.Form):
+    """管理費等請求データ一覧表示用Form"""
+
+    year = forms.IntegerField(
+        label="西暦",
+        widget=forms.NumberInput(
+            attrs={
+                "class": "input is-size-7",
+                "style": "width:9ch",
+            }
+        ),
+    )
+    month = forms.ChoiceField(
+        label="月",
+        widget=forms.Select(
+            attrs={
+                "class": "select-css is-size-7",
+                "style": "width:10ch",
+            }
+        ),
+        choices=settings.MONTH_ALL,
+        required=True,
+    )
+    # データ区分
+    claim_type = forms.ChoiceField(
+        label="会計区分",
+        required=False,
+        choices=settings.CLAIMTYPE,
+        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
