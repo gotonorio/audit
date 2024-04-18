@@ -1,18 +1,15 @@
 import calendar
 import logging
 
+from control.models import ControlRecord
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Case, Sum, When
-
-# from django.db.models.functions import TruncMonth
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
-from control.models import ControlRecord
 from kurasel_translator.my_lib.append_list import append_list, select_period
 from monthly_report.forms import (
     BalanceSheetTableForm,
@@ -94,61 +91,91 @@ def get_allmonths_data(qs, year):
     rtn = qs.values("himoku__himoku_name", "himoku__accounting_class__accounting_name").annotate(
         month1=Sum(
             Case(
-                When(transaction_date__range=[period[0][0], period[0][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[0][0], period[0][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month2=Sum(
             Case(
-                When(transaction_date__range=[period[1][0], period[1][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[1][0], period[1][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month3=Sum(
             Case(
-                When(transaction_date__range=[period[2][0], period[2][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[2][0], period[2][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month4=Sum(
             Case(
-                When(transaction_date__range=[period[3][0], period[3][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[3][0], period[3][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month5=Sum(
             Case(
-                When(transaction_date__range=[period[4][0], period[4][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[4][0], period[4][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month6=Sum(
             Case(
-                When(transaction_date__range=[period[5][0], period[5][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[5][0], period[5][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month7=Sum(
             Case(
-                When(transaction_date__range=[period[6][0], period[6][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[6][0], period[6][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month8=Sum(
             Case(
-                When(transaction_date__range=[period[7][0], period[7][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[7][0], period[7][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month9=Sum(
             Case(
-                When(transaction_date__range=[period[8][0], period[8][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[8][0], period[8][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
         month10=Sum(
             Case(
-                When(transaction_date__range=[period[9][0], period[9][1]], then="ammount"),
+                When(
+                    transaction_date__range=[period[9][0], period[9][1]],
+                    then="ammount",
+                ),
                 default=0,
             )
         ),
@@ -232,7 +259,12 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 表示順序
-        qs = qs.order_by("himoku__accounting_class", "himoku__code", "calc_flg", "transaction_date")
+        qs = qs.order_by(
+            "himoku__accounting_class",
+            "himoku__code",
+            "calc_flg",
+            "transaction_date",
+        )
         # 合計金額（月次支出一覧の場合、aggregate_flagがFalseでも修正する。
         total_withdrawals = ReportTransaction.calc_total_withflg(qs, False)
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -500,7 +532,14 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         if len(asset_list) > 0 and len(debt_list) > 0:
             balance_list = append_list(asset_list, debt_list, "")
             # 最後に「資産の部合計」と「負債・剰余金の合計」行を追加する。
-            last_line = ["資産の部合計", total_bs, None, "負債・剰余金の合計", total_bs, None]
+            last_line = [
+                "資産の部合計",
+                total_bs,
+                None,
+                "負債・剰余金の合計",
+                total_bs,
+                None,
+            ]
             balance_list.append(last_line)
         else:
             context["form"] = form

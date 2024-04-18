@@ -7,9 +7,12 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from kurasel_translator.my_lib.append_list import select_period
-from record.forms import RecalcBalanceForm, TransactionDisplayForm, ClaimListForm
-
-from record.models import AccountingClass, Himoku, Transaction, ClaimData
+from record.forms import (
+    ClaimListForm,
+    RecalcBalanceForm,
+    TransactionDisplayForm,
+)
+from record.models import AccountingClass, ClaimData, Himoku, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +52,10 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         # 表示順序
         if list_order == "0":
             qs = qs.order_by(
-                "-transaction_date", "himoku", "is_manualinput", "requesters_name"
+                "-transaction_date",
+                "himoku",
+                "is_manualinput",
+                "requesters_name",
             )
         else:
             qs = qs.order_by("himoku", "-transaction_date", "requesters_name")
@@ -153,9 +159,9 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
             # 計算は指定日の翌日分から
             tdate = sdate + timezone.timedelta(days=1)
-            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by(
-                "transaction_date"
-            )
+            qs = Transaction.objects.filter(
+                transaction_date__gte=tdate
+            ).order_by("transaction_date")
             # 残高の再計算処理
             rebalance = self.recalc(qs, int(balance))
             context["rebalance_list"] = rebalance
@@ -187,7 +193,9 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         # 抽出期間
         tstart, tend = select_period(year, month)
         # querysetの作成。
-        claim_qs, claim_total = ClaimData.get_claim_list(tstart, tend, claim_type)
+        claim_qs, claim_total = ClaimData.get_claim_list(
+            tstart, tend, claim_type
+        )
         # Formに初期値を設定する
         form = ClaimListForm(
             initial={"year": year, "month": month, "claim_type": claim_type}
