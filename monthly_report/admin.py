@@ -12,6 +12,7 @@ class ReportTransactionAdmin(admin.ModelAdmin):
         "himoku",
         "description",
         "is_netting",
+        "is_miharai",
     ]
     ordering = ("transaction_date",)
 

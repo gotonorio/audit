@@ -23,7 +23,9 @@ class MonthlyReportIncomeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
+            "%Y-%m-%d"
+        )
 
     class Meta:
         model = ReportTransaction
@@ -106,6 +108,7 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
             "description",
             "calc_flg",
             "is_netting",
+            "is_miharai",
         ]
         widgets = {
             "account": forms.Select(
@@ -139,6 +142,7 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
         help_texts = {
             "transaction_date": "* 不明な日付は01日とする。",
             "calc_flg": "* 今の所、支出の場合は全てチェックする。",
+            "is_miharai": "未払いの場合にチェックする。",
         }
 
 

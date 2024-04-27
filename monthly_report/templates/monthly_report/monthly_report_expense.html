@@ -95,6 +95,9 @@
           {% elif record.is_netting %}
             <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
             <td class="has-text-left has-text-danger">【相殺処理】 {{record.description}}</td>
+          {% elif record.is_miharai %}
+            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-left has-text-danger">【未払い】 {{record.description}}</td>
           {% else %}
             <td class="has-text-right">{{record.ammount|intcomma}}</td>
             <td class="has-text-left is-size-7">{{record.description|truncatechars:40}}</td>
