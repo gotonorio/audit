@@ -1,14 +1,13 @@
 import calendar
 import logging
 
+from budget.forms import Budget_listForm
+from budget.models import ExpenseBudget
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.aggregates import Max, Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView
-
-from budget.forms import Budget_listForm
-from budget.models import ExpenseBudget
 from monthly_report.models import ReportTransaction
 from record.models import AccountingClass, Transaction
 
@@ -94,7 +93,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         month = int(self.request.GET.get("month", 12))
         ac_class = self.request.GET.get("ac_class", 1)
-        # 月次報告データ、入出金明細データの選択
+        # 月次報告データ(0)、入出金明細データ(1)の選択
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]
         # 会計年度
