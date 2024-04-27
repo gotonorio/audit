@@ -660,3 +660,34 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
         context["chk_obj"] = qs
         context["form"] = form
         return context
+
+
+class UnpaidBalanceListView(PermissionRequiredMixin, generic.TemplateView):
+    """未払金一覧"""
+
+    template_name = "monthly_report/unpaid_list.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        year = self.request.GET.get("year", localtime(timezone.now()).year - 1)
+        # 抽出期間
+        tstart, tend = select_period(year, 0)
+        # 未払金リスト
+        qs = ReportTransaction.get_unpaid_balance(tstart, tend)
+        # 未払金の合計
+        total = 0
+        for i in qs:
+            total += i.ammount
+        # formに初期値を設定する
+        form = MonthlyReportViewForm(
+            initial={
+                "year": year,
+            }
+        )
+        context["unpaid_list"] = qs
+        context["total"] = total
+        context["form"] = form
+        context["year"] = year
+        return context

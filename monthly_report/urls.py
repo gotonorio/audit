@@ -52,6 +52,7 @@ urlpatterns = [
         views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
+    path("unpaid_list/", views.UnpaidBalanceListView.as_view(), name="unpaid_list"),
     # ------------------------------------------------------------------------
     # データ編集
     # ------------------------------------------------------------------------

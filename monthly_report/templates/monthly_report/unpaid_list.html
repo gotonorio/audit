@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+未払いリスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'monthly_report:unpaid_list'%}" method="get">
+        {{form.year}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content">
+    <h4>{{year}}年 未払金リスト</h4>
+  </div>
+  <div class="table-container">
+    <table class="table table_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">日付</th>
+          <th class="has-text-centered">会計区分</th>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">金額</th>
+          <th class="has-text-centered">摘要</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in unpaid_list %}
+        <tr>
+          <td class="has-text-left">{{record.transaction_date}}</td>
+          <td class="has-text-left">{{record.accounting_class}}</td>
+          <td class="has-text-left">{{record.himoku}}</td>
+          <td class="has-text-right">{{record.ammount|intcomma}}</td>
+          <td class="has-text-left">{{record.description}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="has-text-right">{{total|intcomma}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock %}

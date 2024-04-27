@@ -66,6 +66,7 @@
               <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理チェック</a>
               <a class="navbar-item" href="{% url 'record:recalc_balance' %}">残高チェック</a>
               <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
+              <a class="navbar-item" href="{% url 'monthly_report:unpaid_list' %}">未払い一覧</a>
               <hr class="navbar-divider">
               {% if perms.register.add_user %}
                 <hr class="navbar-divider">
