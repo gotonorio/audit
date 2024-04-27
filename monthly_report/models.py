@@ -41,6 +41,7 @@ class ReportTransaction(models.Model):
     delete_flg = models.BooleanField(default=False)
     is_netting = models.BooleanField(verbose_name="相殺処理", default=False)
     is_miharai = models.BooleanField(verbose_name="未払い", default=False)
+    is_manualinput = models.BooleanField(default=False)
 
     def __str__(self):
         return self.himoku.himoku_name

@@ -73,7 +73,7 @@
           <th class="has-text-centered">摘要</th>
           {% if perms.record.add_transaction %}
             <th class="has-text-centered">計算対象</th>
-            <th class="has-text-centered">削除</th>
+            <th class="has-text-centered"></th>
           {% endif %}
         </tr>
       </thead>
@@ -105,9 +105,11 @@
 
           {% if perms.record.add_transaction %}
             <td class="has-text-centered">{{record.calc_flg}}</td>
-            <td class="has-text-centered">
-              <a href="{% url 'monthly_report:delete_expense' record.pk %}">削除</a>
-            </td>
+            {% if record.is_manualinput %}
+              <td class="has-text-centered">
+                <a href="{% url 'monthly_report:delete_expense' record.pk %}">削除</a>
+              </td>
+            {% endif %}
           {% endif %}
         </tr>
         {% endfor %}

@@ -43,6 +43,8 @@ class MonthlyReportIncomeCreateView(PermissionRequiredMixin, generic.CreateView)
         # authorをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # 月次報告データをCreateViewで保存する場合はis_manualinputフラグをオンにする
+        self.object.is_manualinput = True
         # ログの記録
         msg = (
             f"日付「{self.object.created_date.date()}」"
@@ -59,7 +61,7 @@ class MonthlyReportIncomeCreateView(PermissionRequiredMixin, generic.CreateView)
 
 class MonthlyReportExpenseCreateView(MonthlyReportIncomeCreateView):
     """月次報告 支出データ登録用View
-    MonthlyReportIncomeCreateViewを継承する。
+    - MonthlyReportIncomeCreateViewを継承する。
     """
 
     form_class = MonthlyReportExpenseForm
@@ -79,6 +81,8 @@ class MonthlyReportExpenseCreateView(MonthlyReportIncomeCreateView):
         # authorをセット。
         self.object.author = self.request.user
         self.object.created_date = timezone.now()
+        # 月次報告データをCreateViewで保存する場合はis_manualinputフラグをオンにする
+        self.object.is_manualinput = True
         # ログの記録
         msg = (
             f"{self.object.created_date.date()}"
@@ -190,12 +194,15 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
 
     def get_success_url(self):
         obj = self.object
-        qs = ReportTransaction.objects.filter(pk=obj.pk).values("transaction_date", "accounting_class")
+        qs = ReportTransaction.objects.filter(pk=obj.pk).values(
+            "transaction_date", "accounting_class"
+        )
         year = qs[0]["transaction_date"].year
         month = qs[0]["transaction_date"].month
         ac_class = qs[0]["accounting_class"]
         return reverse_lazy(
-            "monthly_report:incomelist", kwargs={"year": year, "month": month, "ac_class": ac_class}
+            "monthly_report:incomelist",
+            kwargs={"year": year, "month": month, "ac_class": ac_class},
         )
 
     def form_valid(self, form):
@@ -245,9 +252,9 @@ class BalanceSheetCreateView(PermissionRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = localtime(timezone.now()).year
-        context["bs_list"] = BalanceSheet.objects.filter(monthly_date__contains=year).order_by(
-            "-monthly_date", "item_name"
-        )
+        context["bs_list"] = BalanceSheet.objects.filter(
+            monthly_date__contains=year
+        ).order_by("-monthly_date", "item_name")
         return context
 
 
@@ -297,7 +304,9 @@ class BalanceSheetItemCreateView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["bs_item_list"] = BalanceSheetItem.objects.all().order_by("code", "is_asset")
+        context["bs_item_list"] = BalanceSheetItem.objects.all().order_by(
+            "code", "is_asset"
+        )
         return context
 
 

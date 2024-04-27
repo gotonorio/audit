@@ -71,7 +71,7 @@
           <th class="has-text-centered">収入</th>
           <th class="has-text-centered">摘要</th>
           {% if perms.record.add_transaction %}
-            <th class="has-text-centered">#</th>
+            <th class="has-text-centered"></th>
           {% endif %}
         </tr>
       </thead>
@@ -95,9 +95,11 @@
             <td class="has-text-left has-text-danger">(計算除外金) {{record.description}}</td>
           {% endif %}
           {% if perms.record.add_transaction %}
+          {% if record.is_manualinput %}
             <td class="has-text-centered">
               <a href="{% url 'monthly_report:delete_income' record.pk %}">削除</a>
             </td>
+          {% endif %}
           {% endif %}
         </tr>
         {% endfor %}
