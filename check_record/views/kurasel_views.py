@@ -42,11 +42,9 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
-            # 画面が表示された時、年月を指定して表示した時。
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
@@ -131,11 +129,9 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
-            # 画面が表示された時、年月を指定して表示した時
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
@@ -235,11 +231,9 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            # 遷移で表示された時。（kwargsにデータが渡される）
             year = kwargs.get("year")
             month = kwargs.get("month")
         else:
-            # 画面が表示された時、年月を指定して表示した時
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 

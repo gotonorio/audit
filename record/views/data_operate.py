@@ -10,7 +10,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import FormView
-
 from record.forms import (
     ApprovalCheckDataForm,
     HimokuCsvFileSelectForm,

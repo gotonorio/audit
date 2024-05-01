@@ -5,7 +5,6 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
 from kurasel_translator.my_lib.append_list import select_period
 from record.forms import (
     ClaimListForm,
@@ -35,14 +34,12 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         if kwargs:
             year = kwargs["year"]
             month = kwargs["month"]
-            # ac_class = kwargs["ac_class"]
-            list_order = kwargs["list_order"]
+            list_order = str(kwargs["list_order"])
         else:
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", local_now.year)
             month = self.request.GET.get("month", local_now.month)
-            # ac_class = self.request.GET.get("ac_class", "0")
-            list_order = self.request.GET.get("list_order", "0")
+            list_order = self.request.GET.get("list_order", 0)
         # 抽出期間
         tstart, tend = select_period(year, month)
 
@@ -104,9 +101,7 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, 0)
         # 期間でfiler
         qs = (
-            Transaction.objects.all()
-            .select_related("account")
-            .filter(transaction_date__range=[tstart, tend])
+            Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])
         )
         # 管理会計区分を指定する
         ac_class = AccountingClass.get_class_name("管理")
@@ -159,9 +154,7 @@ class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
             sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
             # 計算は指定日の翌日分から
             tdate = sdate + timezone.timedelta(days=1)
-            qs = Transaction.objects.filter(
-                transaction_date__gte=tdate
-            ).order_by("transaction_date")
+            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")
             # 残高の再計算処理
             rebalance = self.recalc(qs, int(balance))
             context["rebalance_list"] = rebalance
@@ -193,13 +186,9 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         # 抽出期間
         tstart, tend = select_period(year, month)
         # querysetの作成。
-        claim_qs, claim_total = ClaimData.get_claim_list(
-            tstart, tend, claim_type
-        )
+        claim_qs, claim_total = ClaimData.get_claim_list(tstart, tend, claim_type)
         # Formに初期値を設定する
-        form = ClaimListForm(
-            initial={"year": year, "month": month, "claim_type": claim_type}
-        )
+        form = ClaimListForm(initial={"year": year, "month": month, "claim_type": claim_type})
         context["claim_list"] = claim_qs
         context["claim_total"] = claim_total
         context["form"] = form
