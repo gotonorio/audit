@@ -21,25 +21,25 @@
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">マスターデータ</a>
         <div class="navbar-dropdown">
-          <a class="dropdown-item" href="{% url 'record:himoku_list' %}">費目マスタ一覧</a>
-          <a class="dropdown-item" href="{% url 'record:himoku_create' %}">費目マスタの登録/修正</a>
-          <a class="dropdown-item" href="{% url 'record:read_himoku_csv' %}">費目マスタのCSV読込み</a>
-          <a class="dropdown-item" href="{% url 'monthly_report:create_bs_item' %}">貸借対照表科目の登録/修正</a>
+          <a class="navbar-item" href="{% url 'record:himoku_list' %}">費目マスタ一覧</a>
+          <a class="navbar-item" href="{% url 'record:himoku_create' %}">費目マスタの登録/修正</a>
+          <a class="navbar-item" href="{% url 'record:read_himoku_csv' %}">費目マスタのCSV読込み</a>
+          <a class="navbar-item" href="{% url 'monthly_report:create_bs_item' %}">貸借対照表科目の登録/修正</a>
           <hr class="dropdown-divider">
-          <a class="dropdown-item" href="{% url 'record:requester_create' %}">振込依頼者マスタの登録/修正</a>
-          <a class="dropdown-item" href="{% url 'payment:create_paymentmethod' %}">支払方法の登録/修正</a>
-          <a class="dropdown-item" href="{% url 'record:approval_text_create' %}">支払い承認判定用文字列の登録/修正</a>
+          <a class="navbar-item" href="{% url 'record:requester_create' %}">振込依頼者マスタの登録/修正</a>
+          <a class="navbar-item" href="{% url 'payment:create_paymentmethod' %}">支払方法の登録/修正</a>
+          <a class="navbar-item" href="{% url 'record:approval_text_create' %}">支払い承認判定用文字列の登録/修正</a>
         </div>
       </div>
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">Kuraselデータ取込み</a>
         <div class="navbar-dropdown">
-          <a class="dropdown-item" href="{% url 'kurasel_translator:create_payment' %}">(1) 支払承認 取込み</a>
-          <a class="dropdown-item" href="{% url 'kurasel_translator:create_deposit' %}">(2) 入出金明細 取込み</a>
-          <a class="dropdown-item" href="{% url 'kurasel_translator:create_monthly' %}">(3) 月次収支 取込み</a>
-          <a class="dropdown-item" href="{% url 'kurasel_translator:create_bs' %}">(4) 貸借対照表 取込み</a>
-          <a class="dropdown-item" href="{% url 'kurasel_translator:create_claim' %}">(5) 未収金・前受金・振替不備 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_payment' %}">(1) 支払承認 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_deposit' %}">(2) 入出金明細 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_monthly' %}">(3) 月次収支 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">(4) 貸借対照表 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">(5) 未収金・前受金・振替不備 取込み</a>
           <hr class="navbar-divider">
         </div>
       </div>
@@ -47,11 +47,11 @@
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">年次予算データ</a>
         <div class="navbar-dropdown">
-          <a class="dropdown-item" href="{% url 'budget:create_budget' %}">管理会計予算作成</a>
-          <a class="dropdown-item" href="{% url 'budget:create_shuuzen_budget' %}">修繕会計予算作成</a>
-          <a class="dropdown-item" href="{% url 'budget:create_parking_budget' %}">駐車場会計予算作成</a>
+          <a class="navbar-item" href="{% url 'budget:create_budget' %}">管理会計予算作成</a>
+          <a class="navbar-item" href="{% url 'budget:create_shuuzen_budget' %}">修繕会計予算作成</a>
+          <a class="navbar-item" href="{% url 'budget:create_parking_budget' %}">駐車場会計予算作成</a>
           <hr class="navbar-divider">
-          <a class="dropdown-item" href="{% url 'budget:budget_update_list' %}">予算修正</a>
+          <a class="navbar-item" href="{% url 'budget:budget_update_list' %}">予算修正</a>
           <hr class="navbar-divider">
           <a class="navbar-item" href="{% url 'budget:duplicate' %}">管理会計予算の複製</a>
         </div>
@@ -59,10 +59,10 @@
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">手動登録</a>
         <div class="navbar-dropdown">
-          <a class="dropdown-item" href="{% url 'monthly_report:create_income' %}">月次報告収入登録</a>
-          <a class="dropdown-item" href="{% url 'monthly_report:create_expense' %}">月次報告支出登録</a>
+          <a class="navbar-item" href="{% url 'monthly_report:create_income' %}">月次報告収入登録</a>
+          <a class="navbar-item" href="{% url 'monthly_report:create_expense' %}">月次報告支出登録</a>
           <hr class="navbar-divider">
-          <a class="dropdown-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
+          <a class="navbar-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
           <hr class="navbar-divider">
         </div>
       </div>
