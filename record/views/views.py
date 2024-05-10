@@ -52,6 +52,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
                 "-transaction_date",
                 "himoku",
                 "is_manualinput",
+                "is_income",
                 "requesters_name",
             )
         else:

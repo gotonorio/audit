@@ -375,8 +375,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
-        # 入出金明細データの合計
-        context["total_pb"] = total_pb + netting_total + pb_last_maeuke
+        # 入出金明細データの合計（前受金は月次報告で処理のため合計には加えない）
+        context["total_pb"] = total_pb + netting_total
         context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_last_mishuu)
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
