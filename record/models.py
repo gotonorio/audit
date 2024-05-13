@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+from kurasel_translator.my_lib.append_list import select_period
 
 user = get_user_model()
 logger = logging.getLogger(__name__)
@@ -269,10 +270,11 @@ class Transaction(models.Model):
     #     self.save()
 
     @staticmethod
-    def get_maeuke(tstart, tend):
+    def get_maeuke(year, month):
         """通帳データの前受金合計を返す
         他の関数（stattic method）に依存するため、インスタンス関数とする。
         """
+        tstart, tend = select_period(year, month)
         # 前受金の費目id
         id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
         total = 0
@@ -510,7 +512,7 @@ class ClaimData(models.Model):
         return rtn, error_list
 
     @classmethod
-    def get_maeuke(cls, year, month):
+    def get_maeuke_claim(cls, year, month):
         """指定された年月に使われる前受金dictのリストを返す"""
         date_str = str(year) + str(month).zfill(2) + "01"
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")

@@ -11,8 +11,6 @@ from django.utils.timezone import localtime
 from django.views import generic
 from kurasel_translator.my_lib.append_list import select_period
 from kurasel_translator.my_lib.check_lib import check_period
-
-# from check_record.views.views import get_lastmonth
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment
 from record.models import ClaimData, Transaction
@@ -47,6 +45,9 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
+
+        # 前月の年月
+        lastyear, lastmonth = get_lastmonth(year, month)
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         year, month = check_period(year, month)
@@ -92,7 +93,6 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
             total_miharai += d.amounts
 
         # 前月の期間を計算。
-        lastyear, lastmonth = get_lastmonth(year, month)
         last_tstart, last_tend = select_period(lastyear, lastmonth)
         # 前月の未払金
         qs_last_miharai = BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend]).filter(
@@ -237,11 +237,15 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
+        # 前月の年月
+        lastyear, lastmonth = get_lastmonth(year, month)
+
         # 追加contextデータの初期化
         context["netting_total"] = 0
         context["pb_last_maeuke"] = 0
         context["total_last_maeuke"] = 0
         context["total_mishuu_bs"] = 0
+        context["total_mishuu_claim"] = 0
         context["total_last_mishuu"] = 0
         context["total_mr"] = 0
         context["total_pb"] = 0
@@ -272,7 +276,6 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
         qs_mr = qs_mr.exclude(ammount=0)
-
         # 月次収支の収入合計
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
@@ -287,72 +290,51 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by("transaction_date", "himoku")
         # 収入合計金額
         total_pb, _ = Transaction.calc_total(qs_pb)
+
         #
         # (3) 請求時点前受金リスト（当月使用する前受金）
         #
-        total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke(year, month)
+        total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke_claim(year, month)
         if settings.DEBUG:
             logger.debug(f"{month}月度の請求時前受金＝{total_last_maeuke:,}")
-            # for i in qs_last_maeuke:
-            #     logger.debug(i)
 
         #
-        # (4) 請求時点未収金リスト->貸借対照表上の前月未収金のはずだが違う？
+        # (4) 請求時点の未収金リストおよび未収金額
         #
-        total_mishuu, qs_mishuu = ClaimData.get_mishuu(year, month)
+        total_mishuu_claim, qs_mishuu = ClaimData.get_mishuu(year, month)
         if settings.DEBUG:
-            logger.debug(f"{month}月度の請求時未収金＝{total_mishuu:,}")
-            # for i in qs_mishuu:
-            #     logger.debug(i)
+            logger.debug(f"{month}月度の請求時未収金＝{total_mishuu_claim:,}")
+        # 確認のため貸借対照表データから前月の未収金を計算する。
+        last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(lastyear, lastmonth)
+        if settings.DEBUG:
+            logger.debug(f"{lastmonth}月度貸借対照表の未収金＝{total_last_mishuu:,}")
 
-        # 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
+        #
+        # (5) 貸借対照表データから当月の未収金を計算する。
+        #
+        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(year, month)
+
+        #
+        # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
+        #
         qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
         qs_is_netting = qs_is_netting.filter(is_netting=True)
-        # qs_is_netting = qs_is_netting.aggregate(commission_fee=Sum('ammount'))
         dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("ammount"))
         netting_total = dict_is_netting["netting_total"]
         # 相殺項目合計が存在しない場合をチェック
         if netting_total is None:
             netting_total = 0
-
-        # 貸借対照表データから当月の未収金を求める。
-        qs_mishuu_bs = (
-            BalanceSheet.objects.filter(monthly_date__range=[tstart, tend])
-            .filter(item_name__item_name__contains="未収金")
-            .order_by("item_name")
-        )
-        # 当月の未収金合計
-        total_mishuu_bs = 0
-        for d in qs_mishuu_bs:
-            total_mishuu_bs += d.amounts
-
-        # 前月の期間を計算。
-        lastyear, lastmonth = get_lastmonth(year, month)
-        last_tstart, last_tend = select_period(lastyear, lastmonth)
-        # 貸借対照表上の前月の未収金
-        last_mishuu_bs = (
-            BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend])
-            .filter(item_name__item_name__contains="未収金")
-            .order_by("item_name")
-        )
-        # 貸借対照表上の前月の未収金合計
-        total_last_mishuu = 0
-        for d in last_mishuu_bs:
-            total_last_mishuu += d.amounts
-
         # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の未収金は規定値とする。
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
-        # 前月の通帳データから前受金を計算する。
-        pb_last_maeuke = Transaction.get_maeuke(last_tstart, last_tend)
-
+        #
+        # (7) 前月の通帳データから前受金を計算する。
+        #
+        pb_last_maeuke = Transaction.get_maeuke(lastyear, lastmonth)
         # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の前受金は規定値とする。
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             pb_last_maeuke = settings.MAEUKE_INITIAL
-
-        # # 使用する前受金
-        # total, maeuke_dict, total_comment = ClaimData.get_maeuke(year, month)
 
         # 月次収入データ
         context["mr_list"] = qs_mr
@@ -361,10 +343,13 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # ネッティング額（相殺処理額）
         context["netting_total"] = netting_total
         # 貸借対照表上の未収金リストと未収金額
-        context["mishuu_bs"] = qs_mishuu_bs
+        context["mishuu_list"] = qs_mishuu_bs
         context["total_mishuu_bs"] = total_mishuu_bs
         # 貸借対照表上の前月未収金額
         context["last_mishuu_bs"] = last_mishuu_bs
+        # 請求時点未収金一覧の合計
+        context["total_mishuu_claim"] = total_mishuu_claim
+        # 前月の貸借対照表データの未収金
         context["total_last_mishuu"] = total_last_mishuu
         # 通帳（入出金明細データ）上の前月前受金
         context["pb_last_maeuke"] = pb_last_maeuke
@@ -377,7 +362,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_mr"] = total_mr
         # 入出金明細データの合計（前受金は月次報告で処理のため合計には加えない）
         context["total_pb"] = total_pb + netting_total
-        context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_last_mishuu)
+        context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_mishuu_claim)
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year

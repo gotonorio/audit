@@ -260,3 +260,19 @@ class BalanceSheet(models.Model):
                 error_list.append(item_name)
                 rtn = False
         return rtn, error_list
+
+    @classmethod
+    def get_mishuu_bs(cls, year, month):
+        """支持された年月の貸借対照表の未収金を返す"""
+        tstart, tend = select_period(year, month)
+        qs_mishuu_bs = (
+            cls.objects.filter(monthly_date__range=[tstart, tend])
+            .filter(item_name__item_name__contains="未収金")
+            .order_by("item_name")
+        )
+        # 貸借対照表上の前月の未収金合計
+        total_mishuu = 0
+        for d in qs_mishuu_bs:
+            total_mishuu += d.amounts
+
+        return qs_mishuu_bs, total_mishuu
