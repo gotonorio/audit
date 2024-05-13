@@ -25,6 +25,7 @@ from kurasel_translator.forms import (
     PaymentAuditForm,
 )
 from kurasel_translator.my_lib import append_list, check_lib
+from kurasel_translator.my_lib.append_list import select_period
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,8 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             # 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
-                ReportTransaction.set_offset_flag(offset_himoku, year, month)
+                tstart, tend = select_period(year, month)
+                ReportTransaction.set_offset_flag(offset_himoku, tstart, tend)
             # データ取込みが成功した場合の戻り処理を行う。
             if rtn:
                 msg = "月次収支データの取り込みが完了しました。"

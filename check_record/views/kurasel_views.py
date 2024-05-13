@@ -65,8 +65,11 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
             context["form"] = form
             return context
 
-        # 抽出期間
+        # 冬月の抽出期間
         tstart, tend = select_period(year, month)
+        # 前月の抽出期間
+        last_tstart, last_tend = select_period(lastyear, lastmonth)
+
         # 支払い承認データ
         qs_payment, total_ap = Payment.kurasel_get_payment(tstart, tend)
         # 入出金明細データの取得。（口座は常に""とする）
@@ -84,16 +87,8 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
                 total_pb += d.ammount
 
         # 未払いデータ
-        qs_this_miharai = BalanceSheet.objects.filter(monthly_date__range=[tstart, tend]).filter(
-            item_name__item_name__contains="未払金"
-        )
-        # 未払金合計
-        total_miharai = 0
-        for d in qs_this_miharai:
-            total_miharai += d.amounts
+        qs_this_miharai, total_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
 
-        # 前月の期間を計算。
-        last_tstart, last_tend = select_period(lastyear, lastmonth)
         # 前月の未払金
         qs_last_miharai = BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend]).filter(
             item_name__item_name__contains="未払金"
@@ -135,6 +130,9 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
+        # 前月の年月
+        lastyear, lastmonth = get_lastmonth(year, month)
+
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         year, month = check_period(year, month)
 
@@ -151,8 +149,11 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
             context["form"] = form
             return context
 
-        # 抽出期間
+        # 冬月の抽出期間
         tstart, tend = select_period(year, month)
+        # 前月の抽出期間
+        last_tstart, last_tend = select_period(lastyear, lastmonth)
+
         # 月次収支の支出データ
         qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
         # 支出のない費目は除く
@@ -181,9 +182,6 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         for d in qs_this_miharai:
             total_miharai += d.amounts
 
-        # 前月の期間を計算。
-        lastyear, lastmonth = get_lastmonth(year, month)
-        last_tstart, last_tend = select_period(lastyear, lastmonth)
         # 前月の未払金
         qs_last_miharai = (
             BalanceSheet.objects.filter(amounts__gt=0)
@@ -267,12 +265,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             context["form"] = form
             return context
 
-        # 抽出期間
+        # 冬月の抽出期間
         tstart, tend = select_period(year, month)
+        # 前月の抽出期間
+        last_tstart, last_tend = select_period(lastyear, lastmonth)
+
         #
         # (1) 月次収入データを抽出
         #
-        # qs_mr = ReportTransaction.get_monthly_report_income(tstart, tend)
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
         qs_mr = qs_mr.exclude(ammount=0)
@@ -305,14 +305,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         if settings.DEBUG:
             logger.debug(f"{month}月度の請求時未収金＝{total_mishuu_claim:,}")
         # 確認のため貸借対照表データから前月の未収金を計算する。
-        last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(lastyear, lastmonth)
+        last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(last_tstart, last_tend)
         if settings.DEBUG:
             logger.debug(f"{lastmonth}月度貸借対照表の未収金＝{total_last_mishuu:,}")
 
         #
         # (5) 貸借対照表データから当月の未収金を計算する。
         #
-        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(year, month)
+        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(tstart, tend)
 
         #
         # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。

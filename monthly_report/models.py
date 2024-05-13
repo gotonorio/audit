@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.utils import timezone
-from kurasel_translator.my_lib.append_list import select_period
 from record.models import Account, AccountingClass, Himoku
 
 user = get_user_model()
@@ -160,10 +159,9 @@ class ReportTransaction(models.Model):
         return rtn, error_list
 
     @classmethod
-    def set_offset_flag(cls, himoku, year, month):
+    def set_offset_flag(cls, himoku, tstart, tend):
         """設定された費目名のレコードにis_nettingをセットする"""
         # 指定された年月の月次収支データで処理を行う。
-        tstart, tend = select_period(str(year), str(month))
         qs = cls.objects.filter(transaction_date__range=[tstart, tend])
         for data in qs:
             if data.himoku and data.himoku.himoku_name == himoku:
@@ -262,9 +260,8 @@ class BalanceSheet(models.Model):
         return rtn, error_list
 
     @classmethod
-    def get_mishuu_bs(cls, year, month):
-        """支持された年月の貸借対照表の未収金を返す"""
-        tstart, tend = select_period(year, month)
+    def get_mishuu_bs(cls, tstart, tend):
+        """指定期間の貸借対照表の未収金を返す"""
         qs_mishuu_bs = (
             cls.objects.filter(monthly_date__range=[tstart, tend])
             .filter(item_name__item_name__contains="未収金")
@@ -276,3 +273,16 @@ class BalanceSheet(models.Model):
             total_mishuu += d.amounts
 
         return qs_mishuu_bs, total_mishuu
+
+    @classmethod
+    def get_miharai_bs(cls, tstart, tend):
+        """期間の貸借対照表の未払金を返す"""
+        qs_miharai = BalanceSheet.objects.filter(monthly_date__range=[tstart, tend]).filter(
+            item_name__item_name__contains="未払金"
+        )
+        # 未払金合計
+        total_miharai = 0
+        for d in qs_miharai:
+            total_miharai += d.amounts
+
+        return qs_miharai, total_miharai
