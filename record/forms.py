@@ -98,9 +98,7 @@ class TransactionCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
 
     class Meta:
         model = Transaction
@@ -172,9 +170,7 @@ class TransactionCreateForm(forms.ModelForm):
             settings.MAEUKE,
         ]:
             if calc_flag:
-                raise forms.ValidationError(
-                    "費目が「前受金」、の場合、計算フラグのチェックは外してください"
-                )
+                raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
         return calc_flag
 
 
@@ -242,8 +238,8 @@ class HimokuForm(forms.ModelForm):
             "code": "* 有効だが非表示にする費目は、費目コードを9000以上に設定する。",
             "himoku_name": "* 費目名はKuraselの費目名に合わせる。",
             "alive": "* 必要のない費目は削除ではなく、有効フラグのチェックを外す。",
-            "aggregate_flag": "* クラセル監査の集計計算に含めるかのフラグ。<br>（同一口座内の会計区分間の資金移動、共用保険料の支出はチェックを外す）",
-            "is_approval": "* 入出金明細データで承認無しで支出される費目。<br>（電気・水道料金の口座振替、管理業務委託費など）",
+            "aggregate_flag": "* クラセル監査の集計計算に含めるかのフラグ。基本的にチェックする<br>（同一口座内の会計区分間の資金移動、共用保険料の支出はチェックを外す）",
+            "is_approval": "* 入出金明細データで承認が必要な費目。<br>（電気・水道料金の口座振替、管理業務委託費などはチェックを外す）",
             "is_default": "* 入出金明細データの取込みで、デフォルトで設定される費目名にチェックする。<br>（「不明」という費目をデフォルトとする）",
         }
 
@@ -388,9 +384,7 @@ class TransactionDivideForm(forms.Form):
 
 
 # TransactionDivideFormを複数（settings.FORMSET_NUM）並べるためのFormSet。
-TransactionDivideFormSet = forms.formset_factory(
-    TransactionDivideForm, extra=settings.FORMSET_NUM
-)
+TransactionDivideFormSet = forms.formset_factory(TransactionDivideForm, extra=settings.FORMSET_NUM)
 
 
 class HimokuCsvFileSelectForm(forms.Form):
@@ -406,9 +400,7 @@ class HimokuCsvFileSelectForm(forms.Form):
         if file.name.endswith(".csv"):
             return file
         else:
-            raise forms.ValidationError(
-                "拡張子がcsvのファイルをアップロードしてください"
-            )
+            raise forms.ValidationError("拡張子がcsvのファイルをアップロードしてください")
 
     # fieldにcssを設定するためのclassを設定する。
     def __init__(self, *args, **kwargs):
