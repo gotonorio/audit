@@ -81,7 +81,9 @@
       <tbody>
         {% for item in qs %}
         <tr>
-          <td class="has-text-centered">{{item.no}}</td>
+          <td class="has-text-centered">
+            <a href="{% url 'explanation:description_update' item.pk %}">{{item.no}}</a>
+          </td>
           <td class="has-text-left">{{item.title}}</td>
           <td class="has-text-centered">{{item.alive}}</td>
         </tr>
