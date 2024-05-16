@@ -39,7 +39,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", local_now.year)
             month = self.request.GET.get("month", local_now.month)
-            list_order = self.request.GET.get("list_order", 0)
+            list_order = self.request.GET.get("list_order", "0")
         # 抽出期間
         tstart, tend = select_period(year, month)
 
@@ -50,13 +50,13 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         if list_order == "0":
             qs = qs.order_by(
                 "-transaction_date",
-                "himoku",
+                "himoku__himoku_name",
                 "is_manualinput",
                 "is_income",
                 "requesters_name",
             )
         else:
-            qs = qs.order_by("himoku", "-transaction_date", "requesters_name")
+            qs = qs.order_by("himoku__himoku_name", "-transaction_date", "requesters_name")
         # 合計金額
         total_deposit, total_withdrawals = Transaction.all_total(qs)
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -64,7 +64,6 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
             initial={
                 "year": year,
                 "month": month,
-                # "ac_class": ac_class,
                 "list_order": list_order,
             }
         )
