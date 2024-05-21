@@ -190,6 +190,16 @@ class Himoku(models.Model):
         return himoku_list
 
     @classmethod
+    def get_without_community(cls):
+        """町内会費会計を除外した有効な費目を返す"""
+        qs = (
+            Himoku.objects.exclude(accounting_class__accounting_name=settings.COMMUNITY_ACCOUNTING)
+            .filter(alive=True)
+            .distinct()
+        )
+        return qs
+
+    @classmethod
     def save_himoku(cls, data_list):
         """費目マスタデータが存在しない場合だけDB登録する"""
         rtn = True

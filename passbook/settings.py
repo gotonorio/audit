@@ -147,7 +147,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2024-05-17"
+VERSION_NO = "2024-05-21"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -155,6 +155,8 @@ BACKUP_NUM = 20
 
 # 前受金の費目名を設定
 MAEUKE = "前受金"
+# 町内会費会計
+COMMUNITY_ACCOUNTING = "町内会費会計"
 # Kurasel監査のスタート年月
 START_KURASEL = {"year": 2023, "month": 4}
 # Kurasel監査のスタート前月の未払金額

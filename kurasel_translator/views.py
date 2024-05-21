@@ -3,6 +3,7 @@ import logging
 import unicodedata
 
 from control.models import ControlRecord
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
@@ -85,9 +86,18 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             messages.add_message(self.request, messages.ERROR, msg)
 
         # -------------------------------------------------------------
-        # DEBUG用に処理を中断する。
+        # 管理組合会計の場合、無効な町内会関係の費目を除外する
         # -------------------------------------------------------------
-        # return render(self.request, self.template_name, context)
+        if str(accounting_class) != settings.COMMUNITY_ACCOUNTING:
+            logger.debug("管理組合会計")
+            himoku_qs = Himoku.get_without_community()
+            test_list = []
+            for data in data_list:
+                for himoku in himoku_qs:
+                    if data[0] == himoku.himoku_name:
+                        test_list.append(data)
+                        break
+            data_list = test_list
 
         # チェックと正規化したdata_listをcontextに追加。
         context["data_list"] = data_list
