@@ -178,11 +178,16 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        local_now = localtime(timezone.now())
-        year = self.request.GET.get("year", local_now.year)
-        month = self.request.GET.get("month", local_now.month)
-        # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
-        claim_type = self.request.GET.get("claim_type", "未収金")
+        if kwargs:
+            year = kwargs["year"]
+            month = kwargs["month"]
+            claim_type = str(kwargs["claim_type"])
+        else:
+            local_now = localtime(timezone.now())
+            year = self.request.GET.get("year", local_now.year)
+            month = self.request.GET.get("month", local_now.month)
+            # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
+            claim_type = self.request.GET.get("claim_type", "未収金")
         # 抽出期間
         tstart, tend = select_period(year, month)
         # querysetの作成。

@@ -8,6 +8,7 @@ from record.models import (
     Account,
     AccountingClass,
     ApprovalCheckData,
+    ClaimData,
     Himoku,
     Transaction,
     TransferRequester,
@@ -511,3 +512,42 @@ class ClaimListForm(forms.Form):
         choices=settings.CLAIMTYPE,
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
+
+
+class ClaimUpdateForm(forms.ModelForm):
+    """振込依頼者データ登録/修正用Form"""
+
+    comment = forms.CharField(
+        label="摘要",
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "class": "input",
+            }
+        ),
+    )
+
+    class Meta:
+        model = ClaimData
+        fields = [
+            "claim_date",
+            "claim_type",
+            "room_no",
+            "name",
+            "comment",
+        ]
+        widgets = {
+            "comment": forms.TextInput(
+                attrs={
+                    "class": "input",
+                }
+            ),
+        }
+
+    # fieldにcssを設定するためのclassを設定する。
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["claim_date"].disabled = True
+        self.fields["claim_type"].disabled = True
+        self.fields["room_no"].disabled = True
+        self.fields["name"].disabled = True

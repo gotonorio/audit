@@ -88,4 +88,10 @@ urlpatterns = [
     # 残高チェック
     path("recalc_balance/", views.RecalcBalance.as_view(), name="recalc_balance"),
     path("claim_list/", views.ClaimDataListView.as_view(), name="claim_list"),
+    path(
+        "claim_list/<int:year>/<int:month>/<str:claim_type>",
+        views.ClaimDataListView.as_view(),
+        name="claim_list",
+    ),
+    path("claim_update/<int:pk>", data_operate.ClaimdataUpdateView.as_view(), name="claim_update"),
 ]

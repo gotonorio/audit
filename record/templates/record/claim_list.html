@@ -70,7 +70,9 @@
       <tbody>
         {% for record in claim_list %}
         <tr>
-          <td class="has-text-centered">{{forloop.counter}}</td>
+          <td class="has-text-centered">
+            <a href="{% url 'record:claim_update' record.pk %}">{{forloop.counter}}</a>
+          </td>
           <td class="has-text-left">{{record.claim_date|date:'m-d'}}</td>
           <td class="has-text-centered">{{record.claim_type}}</td>
           <td class="has-text-centered">{{record.room_no}}</td>

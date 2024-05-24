@@ -12,6 +12,7 @@ from django.views import generic
 from django.views.generic.edit import FormView
 from record.forms import (
     ApprovalCheckDataForm,
+    ClaimUpdateForm,
     HimokuCsvFileSelectForm,
     HimokuForm,
     HimokuListForm,
@@ -23,6 +24,7 @@ from record.forms import (
 from record.models import (
     Account,
     ApprovalCheckData,
+    ClaimData,
     Himoku,
     Transaction,
     TransferRequester,
@@ -497,3 +499,25 @@ class ApprovalTextUpdateView(PermissionRequiredMixin, generic.UpdateView):
         context = super().get_context_data(**kwargs)
         context["approval_text_list"] = ApprovalCheckData.objects.all()
         return context
+
+
+class ClaimdataUpdateView(PermissionRequiredMixin, generic.UpdateView):
+    """請求時点データのUpdateView"""
+
+    model = ClaimData
+    form_class = ClaimUpdateForm
+    template_name = "record/claim_update_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    success_url = reverse_lazy("record:claim_list")
+
+    # 保存が成功した場合に遷移するurl
+    def get_success_url(self):
+        qs = ClaimData.objects.filter(pk=self.object.pk).values("claim_date", "claim_type")
+        year = qs[0]["claim_date"].year
+        month = qs[0]["claim_date"].month
+        claim_type = qs[0]["claim_type"]
+        return reverse_lazy(
+            "record:claim_list",
+            kwargs={"year": year, "month": month, "claim_type": claim_type},
+        )
