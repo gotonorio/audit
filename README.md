@@ -27,6 +27,8 @@
     - record|transaction|Can view transaction
 - director
     - record|transaction|Can view transaction
+- login
+    - budget|expense budget|Can view expensebudget
 
 ##### (2) コントロールの初期設定
 
