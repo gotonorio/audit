@@ -356,7 +356,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 
     model = ReportTransaction
     template_name = "monthly_report/year_expenselist.html"
-    permission_required = ("record.view_transaction",)
+    permission_required = ("budget.view_expensebudget",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -409,7 +409,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
     model = ReportTransaction
     template_name = "monthly_report/year_incomelist.html"
-    permission_required = ("record.view_transaction",)
+    permission_required = ("budget.view_expensebudget",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -462,7 +462,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
     model = BalanceSheet
     template_name = "monthly_report/bs_table.html"
-    permission_required = ("record.view_transaction",)
+    permission_required = ("budget.view_expensebudget",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -480,7 +480,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         # 会計区分名(ac_class)
         # Noneならばdefault値だが、''の場合は、自分で処理しなければならない。
         if ac_class == "":
-            ac_class_name = "合算会計"
+            ac_class_name = "合算会計（町内会費会計除く）"
             ac_class = 0
         else:
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
@@ -490,8 +490,10 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         asset_list = []
         debt_list = []
         if ac_class == 0:
-            # 会計区分全体の貸借対照表
-            all_asset = BalanceSheet.get_bs(tstart, tend, False, True)
+            # 会計区分全体の貸借対照表（町内会会計を除く）
+            all_asset = BalanceSheet.get_bs(tstart, tend, False, True).exclude(
+                item_name__ac_class__accounting_name=settings.COMMUNITY_ACCOUNTING
+            )
             for item in all_asset:
                 tmp_list = list(item.values())
                 tmp_list.append("")

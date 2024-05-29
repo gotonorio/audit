@@ -87,7 +87,10 @@
     {% else %}
     <!--理事会メンバー以外に表示-->
       <div class="navbar-start">
+        <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' %}"%>年間収入</a>
+        <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
         <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
+        <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
       </div>
       <div class="navbar-end">
         <div class="navbar-item">
