@@ -61,8 +61,10 @@
           <th class="has-text-centered">No</th>
           <th class="has-text-centered">日付</th>
           <th class="has-text-centered">項目名</th>
-          <th class="has-text-centered">部屋番号</th>
-          <th class="has-text-centered">氏名</th>
+          {% if perms.record.add_transaction %}
+            <th class="has-text-centered">部屋番号</th>
+            <th class="has-text-centered">氏名</th>
+          {% endif %}
           <th class="has-text-centered">金額</th>
           <th class="has-text-centered">備考</th>
         </tr>
@@ -75,8 +77,10 @@
           </td>
           <td class="has-text-left">{{record.claim_date|date:'m-d'}}</td>
           <td class="has-text-centered">{{record.claim_type}}</td>
-          <td class="has-text-centered">{{record.room_no}}</td>
-          <td class="has-text-left">{{record.name}}</td>
+          {% if perms.record.add_transaction %}
+            <td class="has-text-left">{{record.room_no}}</td>
+            <td class="has-text-left">{{record.name}}</td>
+          {% endif %}  
           <td class="has-text-right">{{record.ammount|intcomma}}</td>
           <td class="has-text-left">{{record.comment}}</td>
         </tr>
@@ -85,8 +89,10 @@
           <td></td>
           <td></td>
           <td></td>
-          <td></td>
-          <td></td>
+          {% if perms.record.add_transaction %}
+            <td></td>
+            <td></td>
+          {% endif %}
           <td class="has-text-right">{{claim_total|intcomma}}</td>
           <td></td>
         </tr>

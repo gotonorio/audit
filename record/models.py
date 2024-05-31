@@ -561,7 +561,11 @@ class ClaimData(models.Model):
     def get_claim_list(cls, tstart, tend, claim_type):
         """管理費等の請求時「未収金」「前受金」「請求不備」のリストを返す"""
 
-        claim_qs = cls.objects.filter(claim_date__range=[tstart, tend]).filter(claim_type=claim_type)
+        claim_qs = (
+            cls.objects.filter(claim_date__range=[tstart, tend])
+            .filter(claim_type=claim_type)
+            .order_by("claim_date")
+        )
         total = 0
         for i in claim_qs:
             total += i.ammount

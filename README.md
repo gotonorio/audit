@@ -18,16 +18,19 @@
 ##### (1) groupとパーミッションの作成
 管理者画面で以下のgroupとpermissionを作成する。
 
-- chairman
+- chairman（ユーザ管理・データ管理）
     - register|ユーザー|Can add user
     - record|transaction|Can add transaction
     - record|transaction|Can view transaction
-- data_manager
+    - budget|expense budget|Can view expensebudget
+- data_manager（データ管理・個人情報閲覧可能）
     - record|transaction|Can add transaction
     - record|transaction|Can view transaction
-- director
+    - budget|expense budget|Can view expensebudget
+- director（個人情報以外閲覧可能）
     - record|transaction|Can view transaction
-- login
+    - budget|expense budget|Can view expensebudget
+- login（公開情報のみ閲覧可能）
     - budget|expense budget|Can view expensebudget
 
 ##### (2) コントロールの初期設定

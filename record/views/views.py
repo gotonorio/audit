@@ -174,7 +174,7 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
     """管理費等請求データ一覧表示"""
 
     template_name = "record/claim_list.html"
-    permission_required = "record.add_transaction"
+    permission_required = "record.view_transaction"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
