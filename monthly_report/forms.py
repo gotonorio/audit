@@ -7,6 +7,25 @@ from .models import BalanceSheet, BalanceSheetItem, ReportTransaction
 
 
 # -----------------------------------------------------------------------------
+# データ表示用Form
+# -----------------------------------------------------------------------------
+class MonthlyReportViewForm(YearMonthForm):
+    """
+    月次報告の収入リスト表示用Form
+    月次報告の年間一覧表示用Form
+    貸借対照表の表示用Form
+    """
+
+    accounting_class = forms.ModelChoiceField(
+        label="会計区分",
+        required=False,
+        queryset=AccountingClass.objects.order_by("code"),
+        empty_label="会計区分ALL",
+        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
+    )
+
+
+# -----------------------------------------------------------------------------
 # データ登録用Form
 # -----------------------------------------------------------------------------
 class MonthlyReportIncomeForm(forms.ModelForm):
@@ -220,22 +239,3 @@ class BalanceSheetItemForm(forms.ModelForm):
                 }
             ),
         }
-
-
-# -----------------------------------------------------------------------------
-# データ表示用Form
-# -----------------------------------------------------------------------------
-class MonthlyReportViewForm(YearMonthForm):
-    """
-    月次報告の収入リスト表示用Form
-    月次報告の年間一覧表示用Form
-    貸借対照表の表示用Form
-    """
-
-    accounting_class = forms.ModelChoiceField(
-        label="会計区分",
-        required=False,
-        queryset=AccountingClass.objects.order_by("code"),
-        empty_label="会計区分ALL",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
-    )

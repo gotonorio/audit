@@ -6,30 +6,12 @@ from record.models import Himoku
 from payment.models import Payment, PaymentMethod
 
 
-# class ApprovalPaymentListForm(forms.Form):
+# -----------------------------------------------------------------------------
+# データ表示用Form
+# -----------------------------------------------------------------------------
 class ApprovalPaymentListForm(YearMonthForm):
     """支払い承認データ表示用Form"""
 
-    # year = forms.IntegerField(
-    #     label="西暦",
-    #     widget=forms.NumberInput(
-    #         attrs={
-    #             "class": "input is-size-7",
-    #             "style": "width:9ch",
-    #         }
-    #     ),
-    # )
-    month = forms.ChoiceField(
-        label="月",
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
-        choices=settings.MONTH_ALL,
-        required=True,
-    )
     day = forms.ChoiceField(
         label="日",
         widget=forms.Select(
@@ -47,6 +29,9 @@ class ApprovalPaymentListForm(YearMonthForm):
     )
 
 
+# -----------------------------------------------------------------------------
+# データ登録用Form
+# -----------------------------------------------------------------------------
 class ApprovalPaymentCreateForm(forms.ModelForm):
     """支払い承認データ登録・編集用フォーム"""
 
