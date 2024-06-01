@@ -56,7 +56,6 @@
         <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
       </div>
       <div class="navbar-end">
-        <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
         {% if perms.record.add_transaction %}
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link is-size-6">管理者用</a>

@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.utils import timezone
 from django.utils.timezone import localtime  # view.pyでローカルタイムのため追加
-
+from passbook.forms import YearMonthForm
 from record.models import AccountingClass
 
 KIND = (
