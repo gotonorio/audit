@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment, PaymentMethod
@@ -42,6 +44,18 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
     # フォームの設定
     form_class = MonthlyBalanceForm
     permission_required = "record.add_transaction"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 年月既定値
+        form = MonthlyBalanceForm(
+            initial={
+                "year": localtime(timezone.now()).year,
+                "month": localtime(timezone.now()).month,
+            }
+        )
+        context["form"] = form
+        return context
 
     def form_valid(self, form):
         year = form.cleaned_data["year"]
@@ -167,6 +181,18 @@ class DepositWithdrawalView(MonthlyBalanceView):
 
     template_name = "kurasel_translator/depositwithdrawal_form.html"
     form_class = DepositWithdrawalForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 年月既定値
+        form = DepositWithdrawalForm(
+            initial={
+                "year": localtime(timezone.now()).year,
+                "month": localtime(timezone.now()).month,
+            }
+        )
+        context["form"] = form
+        return context
 
     def form_valid(self, form):
         mode = form.cleaned_data["mode"]
@@ -306,6 +332,18 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
     form_class = PaymentAuditForm
     permission_required = "record.add_transaction"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 年月既定値
+        form = PaymentAuditForm(
+            initial={
+                "year": localtime(timezone.now()).year,
+                "month": localtime(timezone.now()).month,
+            }
+        )
+        context["form"] = form
+        return context
+
     def form_valid(self, form):
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
@@ -422,6 +460,18 @@ class BalanceSheetTranslateView(FormView):
     # フォームの設定（月次収支データ用のFormを利用する）
     form_class = BalanceSheetTranslateForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 年月既定値
+        form = BalanceSheetTranslateForm(
+            initial={
+                "year": localtime(timezone.now()).year,
+                "month": localtime(timezone.now()).month,
+            }
+        )
+        context["form"] = form
+        return context
+
     def form_valid(self, form):
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
@@ -536,6 +586,18 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
     # フォームの設定
     form_class = ClaimTranslateForm
     permission_required = "record.add_transaction"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 年月既定値
+        form = ClaimTranslateForm(
+            initial={
+                "year": localtime(timezone.now()).year,
+                "month": localtime(timezone.now()).month,
+            }
+        )
+        context["form"] = form
+        return context
 
     def form_valid(self, form):
         year = form.cleaned_data["year"]
