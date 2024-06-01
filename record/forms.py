@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.conf import settings
 from django.utils import timezone
+from passbook.forms import YearMonthForm
 
 from record.models import (
     Account,
@@ -17,7 +18,8 @@ from record.models import (
 logger = logging.getLogger(__name__)
 
 
-class TransactionDisplayForm(forms.Form):
+# class TransactionDisplayForm(forms.Form):
+class TransactionDisplayForm(YearMonthForm):
     """通帳取引明細表示用Form"""
 
     year = forms.IntegerField(

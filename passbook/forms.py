@@ -1,19 +1,5 @@
 from django import forms
-
-MONTH = (
-    ("1", "1月"),
-    ("2", "2月"),
-    ("3", "3月"),
-    ("4", "4月"),
-    ("5", "5月"),
-    ("6", "6月"),
-    ("7", "7月"),
-    ("8", "8月"),
-    ("9", "9月"),
-    ("10", "10月"),
-    ("11", "11月"),
-    ("12", "12月"),
-)
+from django.conf import settings
 
 
 class YearMonthForm(forms.Form):
@@ -23,7 +9,7 @@ class YearMonthForm(forms.Form):
         label="西暦",
         widget=forms.NumberInput(
             attrs={
-                "style": "width:9ch",
+                "style": "width:10ch",
             }
         ),
     )
@@ -34,6 +20,11 @@ class YearMonthForm(forms.Form):
                 "style": "width:10ch",
             }
         ),
-        choices=MONTH,
+        choices=settings.MONTH,
         required=True,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["year"].widget.attrs["class"] = "input is-size-7"
+        self.fields["month"].widget.attrs["class"] = "select-css is-size-7"

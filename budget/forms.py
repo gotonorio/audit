@@ -1,32 +1,33 @@
 from django import forms
-from django.conf import settings
+from passbook.forms import YearMonthForm
+from record.models import AccountingClass, Himoku
 
 from budget.models import ExpenseBudget
-from record.models import Himoku, AccountingClass
 
 
-class Budget_listForm(forms.Form):
+# class Budget_listForm(forms.Form):
+class Budget_listForm(YearMonthForm):
     """予算実績一覧表示用Form"""
 
-    year = forms.IntegerField(
-        label="西暦",
-        widget=forms.NumberInput(
-            attrs={
-                "class": "input is-size-7",
-                "style": "width:9ch",
-            }
-        ),
-    )
-    month = forms.ChoiceField(
-        choices=settings.MONTH,
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
-        required=True,
-    )
+    # year = forms.IntegerField(
+    #     label="西暦",
+    #     widget=forms.NumberInput(
+    #         attrs={
+    #             "class": "input is-size-7",
+    #             "style": "width:9ch",
+    #         }
+    #     ),
+    # )
+    # month = forms.ChoiceField(
+    #     choices=settings.MONTH,
+    #     widget=forms.Select(
+    #         attrs={
+    #             "class": "select-css is-size-7",
+    #             "style": "width:10ch",
+    #         }
+    #     ),
+    #     required=True,
+    # )
     ac_class = forms.ModelChoiceField(
         label="会計区分",
         required=False,

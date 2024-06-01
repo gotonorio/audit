@@ -1,16 +1,14 @@
 from django import forms
-from django.conf import settings
 from django.utils import timezone
-
-from record.forms import TransactionDisplayForm
+from passbook.forms import YearMonthForm
 from record.models import AccountingClass, Himoku
 
 from .models import BalanceSheet, BalanceSheetItem, ReportTransaction
 
 
-#
+# -----------------------------------------------------------------------------
 # データ登録用Form
-#
+# -----------------------------------------------------------------------------
 class MonthlyReportIncomeForm(forms.ModelForm):
     """月次報告収入データ編集用フォーム"""
 
@@ -23,9 +21,7 @@ class MonthlyReportIncomeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
 
     class Meta:
         model = ReportTransaction
@@ -226,72 +222,20 @@ class BalanceSheetItemForm(forms.ModelForm):
         }
 
 
-#
+# -----------------------------------------------------------------------------
 # データ表示用Form
-#
-class MonthlyReportViewForm(TransactionDisplayForm):
-    """月次報告の収入リスト表示用Form"""
+# -----------------------------------------------------------------------------
+class MonthlyReportViewForm(YearMonthForm):
+    """
+    月次報告の収入リスト表示用Form
+    月次報告の年間一覧表示用Form
+    貸借対照表の表示用Form
+    """
 
     accounting_class = forms.ModelChoiceField(
         label="会計区分",
         required=False,
         queryset=AccountingClass.objects.order_by("code"),
         empty_label="会計区分ALL",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
-    )
-
-
-class YearReportChoiceForm(forms.Form):
-    """月次報告の年間一覧表示用Form"""
-
-    year = forms.IntegerField(
-        label="西暦",
-        widget=forms.NumberInput(
-            attrs={
-                "class": "input is-size-7",
-                "style": "width:9ch",
-            }
-        ),
-    )
-    accounting_class = forms.ModelChoiceField(
-        queryset=AccountingClass.objects.all().order_by("code"),
-        label="会計区分",
-        empty_label="会計区分ALL",
-        required=False,
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
-    )
-
-
-class BalanceSheetTableForm(forms.Form):
-    """貸借対照表の表示用Form"""
-
-    year = forms.IntegerField(
-        label="西暦",
-        initial=2023,
-        widget=forms.NumberInput(
-            attrs={
-                "class": "input is-size-7",
-                "style": "width:10ch",
-            }
-        ),
-    )
-    # settings.MONTHから最初の要素を除去する。
-    month = forms.ChoiceField(
-        label="月",
-        choices=settings.MONTH,
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
-        required=True,
-    )
-
-    accounting_class = forms.ModelChoiceField(
-        label="会計区分",
-        required=False,
-        queryset=AccountingClass.objects.order_by("code"),
-        empty_label="合算会計",
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )

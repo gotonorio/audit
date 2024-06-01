@@ -2,7 +2,6 @@ import datetime
 import logging
 
 import jpholiday
-from check_record.forms import KuraselCheckForm
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
@@ -12,6 +11,7 @@ from django.views import generic
 from kurasel_translator.my_lib.append_list import select_period
 from kurasel_translator.my_lib.check_lib import check_period
 from monthly_report.models import BalanceSheet, ReportTransaction
+from passbook.forms import YearMonthForm
 from payment.models import Payment
 from record.models import ClaimData, Transaction
 
@@ -53,7 +53,7 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         year, month = check_period(year, month)
 
         # formの初期値を設定する。
-        form = KuraselCheckForm(
+        form = YearMonthForm(
             initial={
                 "year": year,
                 "month": month,
@@ -137,7 +137,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         year, month = check_period(year, month)
 
         # formの初期値を設定する。
-        form = KuraselCheckForm(
+        form = YearMonthForm(
             initial={
                 "year": year,
                 "month": month,
@@ -252,7 +252,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         year, month = check_period(year, month)
 
         # formの初期値を設定する。
-        form = KuraselCheckForm(
+        form = YearMonthForm(
             initial={
                 "year": year,
                 "month": month,

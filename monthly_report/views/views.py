@@ -11,11 +11,9 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
 from kurasel_translator.my_lib.append_list import append_list, select_period
-from monthly_report.forms import (
-    BalanceSheetTableForm,
-    MonthlyReportViewForm,
-    YearReportChoiceForm,
-)
+from monthly_report.forms import MonthlyReportViewForm
+
+# YearReportChoiceForm,
 from monthly_report.models import BalanceSheet, ReportTransaction
 from record.models import AccountingClass, Transaction
 
@@ -386,7 +384,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         # 通帳データの月別支出合計を計算。
         passbook_total = aggregate_passbook(year, "expense")
         # form 初期値を設定
-        form = YearReportChoiceForm(
+        form = MonthlyReportViewForm(
             initial={
                 "year": year,
                 "accounting_class": ac_class,
@@ -522,7 +520,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         asset_list, debt_list, total_bs = self.make_balancesheet(asset_list, debt_list)
 
         # forms.pyに初期値を設定する
-        form = BalanceSheetTableForm(
+        form = MonthlyReportViewForm(
             initial={
                 "year": year,
                 "month": month,

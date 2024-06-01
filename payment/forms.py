@@ -1,22 +1,24 @@
 from django import forms
 from django.conf import settings
-
-from payment.models import Payment, PaymentMethod
+from passbook.forms import YearMonthForm
 from record.models import Himoku
 
+from payment.models import Payment, PaymentMethod
 
-class ApprovalPaymentListForm(forms.Form):
+
+# class ApprovalPaymentListForm(forms.Form):
+class ApprovalPaymentListForm(YearMonthForm):
     """支払い承認データ表示用Form"""
 
-    year = forms.IntegerField(
-        label="西暦",
-        widget=forms.NumberInput(
-            attrs={
-                "class": "input is-size-7",
-                "style": "width:9ch",
-            }
-        ),
-    )
+    # year = forms.IntegerField(
+    #     label="西暦",
+    #     widget=forms.NumberInput(
+    #         attrs={
+    #             "class": "input is-size-7",
+    #             "style": "width:9ch",
+    #         }
+    #     ),
+    # )
     month = forms.ChoiceField(
         label="月",
         widget=forms.Select(
