@@ -101,9 +101,9 @@ class ReportTransaction(models.Model):
         # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
         qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
         # 資金移動は除く ToDo 2024-02-15 資金移動は表示して合計計算から除外する。
-        # qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
-        # 計算対象データだけを抽出。
-        qs_mr = qs_mr.filter(calc_flg=True)
+        qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
+        # # 計算対象データだけを抽出。
+        # qs_mr = qs_mr.filter(calc_flg=True)
         return qs_mr
 
     # @classmethod

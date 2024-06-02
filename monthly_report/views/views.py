@@ -261,8 +261,8 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             "calc_flg",
             "transaction_date",
         )
-        # 合計金額（月次支出一覧の場合、aggregate_flagがFalseでも修正する。
-        total_withdrawals = ReportTransaction.calc_total_withflg(qs, False)
+        # 合計金額（資金移動は除外する）
+        total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
