@@ -12,8 +12,6 @@ from django.utils.timezone import localtime
 from django.views import generic
 from kurasel_translator.my_lib.append_list import append_list, select_period
 from monthly_report.forms import MonthlyReportViewForm
-
-# YearReportChoiceForm,
 from monthly_report.models import BalanceSheet, ReportTransaction
 from record.models import AccountingClass, Transaction
 
@@ -437,7 +435,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         passbook_total = aggregate_passbook(year, "income")
 
         # form 初期値を設定
-        form = YearReportChoiceForm(
+        form = MonthlyReportViewForm(
             initial={
                 "year": year,
                 "accounting_class": ac_class,
