@@ -18,7 +18,9 @@ from record.models import (
 logger = logging.getLogger(__name__)
 
 
-# class TransactionDisplayForm(forms.Form):
+# -----------------------------------------------------------------------------
+# データ表示用Form
+# -----------------------------------------------------------------------------
 class TransactionDisplayForm(YearMonthForm):
     """通帳取引明細表示用Form"""
 
@@ -62,6 +64,9 @@ class TransactionDisplayForm(YearMonthForm):
     )
 
 
+# -----------------------------------------------------------------------------
+# データ登録用Form
+# -----------------------------------------------------------------------------
 class TransactionCreateForm(forms.ModelForm):
     """入出金明細データ登録・編集用フォーム"""
 

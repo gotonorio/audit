@@ -29,7 +29,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
+      {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'payment:payment_list' year_with month_with %}">支払い承認の一覧</a>
+      {% endwith %}
       {% comment %} {% if perms.record.add_transaction %}
         <a class="navbar-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
       {% endif %} {% endcomment %}
@@ -56,7 +58,7 @@
 
 <div class="container is-fluid">
   <div class="content">
-    <h4>{{yyyymm}} 入出金明細リスト</h4>
+    <h4>{{year}}年{{month}}月 入出金明細リスト</h4>
     <ul>
       <li class="has-text-danger">赤文字は前受金等の集計計算外項目。</li>
       <li class="has-text-success">緑文字は「ソウゴウフリコミBiz」を分解した出金項目。</li>

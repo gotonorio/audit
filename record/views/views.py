@@ -72,7 +72,8 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         context["total_deposit"] = total_deposit
         context["total_withdrawals"] = total_withdrawals
         context["total_balance"] = total_deposit - total_withdrawals
-        context["yyyymm"] = str(year) + "年" + str(month) + "月"
+        context["year"] = year
+        context["month"] = month
         return context
 
 

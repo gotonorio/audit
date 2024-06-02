@@ -6,8 +6,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
 from kurasel_translator.my_lib.append_list import select_period
+
 from payment.forms import (
     ApprovalPaymentCreateForm,
     ApprovalPaymentListForm,
@@ -68,7 +68,8 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
         context["approval_list"] = qs
         context["form"] = form
         context["total"] = total
-        context["yyyymm"] = str(year) + "年" + str(month) + "月"
+        context["year"] = year
+        context["month"] = month
         return context
 
 

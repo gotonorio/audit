@@ -29,7 +29,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'record:transaction_list' %}">入出金明細の一覧</a>
+      {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'record:transaction_list' year_with month_with 0 %}">入出金明細の一覧</a>
+      {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
@@ -53,7 +55,7 @@
 
 <div class="container is-fluid">
   <div class="content">
-    <h4>{{yyyymm}} 支払い承認リスト</h4>
+    <h4>{{year}}年{{month}}月 支払い承認リスト</h4>
   </div>
   <div class="table-container">
     <table class="table table_nowrap is-narrow is-striped">
