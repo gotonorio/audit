@@ -123,7 +123,7 @@
               </td>
               <td class="has-text-ledt">{{record.item_name}}</td>
               <td class="has-text-right">{{record.amounts|intcomma}}</td>
-              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''}}</td>
+              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''|markdown_to_html}}</td>
             </tr>
             {% endfor %}
             <tr>
