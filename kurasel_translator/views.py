@@ -343,6 +343,17 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         context["form"] = form
         return context
 
+    def form_invalid(self, form):
+        year = form.cleaned_data["year"]
+        month = form.cleaned_data["month"]
+        mode = form.cleaned_data["mode"]
+        logger.debug("test")
+        return render(
+            self.request,
+            self.template_name,
+            {"form": form, "year": year, "month": month, "mode": mode},
+        )
+
     def form_valid(self, form):
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
