@@ -32,6 +32,14 @@ class MonthlyBalanceForm(YearMonthForm):
         initial=0,
         widget=forms.Select(attrs={"class": "select-css"}),
     )
+    mode = forms.ChoiceField(
+        widget=forms.Select(attrs={"class": "select-css"}),
+        label="モード",
+        choices=(
+            ("確認", "確認"),
+            ("登録", "登録"),
+        ),
+    )
     note = forms.CharField(
         widget=forms.Textarea(
             attrs={
@@ -95,9 +103,17 @@ class ClaimTranslateForm(MonthlyBalanceForm):
     )
 
 
-class DepositWithdrawalForm(YearMonthForm):
+class DepositWithdrawalForm(forms.Form):
     """入出金明細入力フォーム"""
 
+    year = forms.IntegerField(
+        label="西暦",
+        widget=forms.NumberInput(
+            attrs={
+                "style": "width:10ch",
+            }
+        ),
+    )
     mode = forms.ChoiceField(
         widget=forms.Select(attrs={"class": "select-css"}),
         label="モード",

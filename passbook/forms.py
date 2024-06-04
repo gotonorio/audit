@@ -21,7 +21,6 @@ class YearMonthForm(forms.Form):
             }
         ),
         choices=settings.MONTH,
-        required=True,
     )
 
     def __init__(self, *args, **kwargs):

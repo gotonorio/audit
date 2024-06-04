@@ -103,7 +103,6 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         # 管理組合会計の場合、無効な町内会関係の費目を除外する
         # -------------------------------------------------------------
         if str(accounting_class) != settings.COMMUNITY_ACCOUNTING:
-            logger.debug("管理組合会計")
             himoku_qs = Himoku.get_without_community()
             test_list = []
             for data in data_list:
