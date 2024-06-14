@@ -245,6 +245,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_last_mishuu"] = 0
         context["total_mr"] = 0
         context["total_pb"] = 0
+        # 口座振替不備分
+        context["transfer_error"] = 0
 
         # Kuraselによる会計処理は2023年4月以降。
         year, month = check_period(year, month)
@@ -263,7 +265,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             context["form"] = form
             return context
 
-        # 冬月の抽出期間
+        # 当月の抽出期間
         tstart, tend = select_period(year, month)
         # 前月の抽出期間
         last_tstart, last_tend = select_period(lastyear, lastmonth)
@@ -334,6 +336,13 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             pb_last_maeuke = settings.MAEUKE_INITIAL
 
+        #
+        # (8) 当月の口座振替不備分を求める
+        #
+        _, transfer_error = ClaimData.get_claim_list(tstart, tend, "振替不備")
+        if settings.DEBUG:
+            logger.debug(transfer_error)
+
         # 月次収入データ
         context["mr_list"] = qs_mr
         # 入出金明細データ
@@ -365,5 +374,6 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
         context["month"] = month
-
+        # 口座振替不備分
+        context["transfer_error"] = transfer_error
         return context
