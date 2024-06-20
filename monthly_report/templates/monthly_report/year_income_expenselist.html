@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+月次報告年間収支リスト
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'monthly_report:year_income_expenselist'%}" method="get">
+        {{form.year}}{{form.accounting_class}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      {% with year_with=year ac_with=ac %}
+        <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' year_with ac_with %}">年間支出</a>
+        <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' year_with ac_with %}">年間収入</a>
+      {% endwith %}
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container is-fluid">
+  <div class="content">
+    <h4>{{year}}年 月次報告収支リスト</h4>
+  </div>
+  <div class="table-container">
+    <table class="table table_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered"></th>
+          <th class="has-text-centered">1月</th>
+          <th class="has-text-centered">2月</th>
+          <th class="has-text-centered">3月</th>
+          <th class="has-text-centered">4月</th>
+          <th class="has-text-centered">5月</th>
+          <th class="has-text-centered">6月</th>
+          <th class="has-text-centered">7月</th>
+          <th class="has-text-centered">8月</th>
+          <th class="has-text-centered">9月</th>
+          <th class="has-text-centered">10月</th>
+          <th class="has-text-centered">11月</th>
+          <th class="has-text-centered">12月</th>
+          <th class="has-text-centered">合計</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="has-text-weight-semibold">収入合計</td>
+          <td class="has-text-right">{{mr_income_total.total1|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total2|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total3|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total4|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total5|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total6|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total7|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total8|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total9|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total10|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total11|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total12|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.income_year_total|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-weight-semibold">支出合計</td>
+          <td class="has-text-right">{{mr_expense_total.total1|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total2|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total3|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total4|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total5|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total6|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total7|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total8|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total9|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total10|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total11|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.total12|intcomma}}</td>
+          <td class="has-text-right">{{mr_expense_total.expense_year_total|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-right has-text-weight-semibold">収支</td>
+          <td class="has-text-right">{{mr_income_total.total1|subtract:mr_expense_total.total1|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total2|subtract:mr_expense_total.total2|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total3|subtract:mr_expense_total.total3|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total4|subtract:mr_expense_total.total4|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total5|subtract:mr_expense_total.total5|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total6|subtract:mr_expense_total.total6|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total7|subtract:mr_expense_total.total7|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total8|subtract:mr_expense_total.total8|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total9|subtract:mr_expense_total.total9|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total10|subtract:mr_expense_total.total10|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total11|subtract:mr_expense_total.total11|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.total12|subtract:mr_expense_total.total12|intcomma}}</td>
+          <td class="has-text-right">{{mr_income_total.income_year_total|subtract:mr_expense_total.expense_year_total|intcomma}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br>
+</div>
+{% endblock %}

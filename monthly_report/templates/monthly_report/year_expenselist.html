@@ -31,6 +31,7 @@
     <div class="navbar-end">
       {% with year_with=year ac_with=ac %}
         <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' year_with ac_with %}"%>年間収入</a>
+        <a class="navbar-item" href="{% url 'monthly_report:year_income_expenselist' year_with ac_with %}">年間収支</a>
       {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>

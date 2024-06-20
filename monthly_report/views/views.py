@@ -13,7 +13,7 @@ from django.views import generic
 from kurasel_translator.my_lib.append_list import append_list, select_period
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import BalanceSheet, ReportTransaction
-from record.models import AccountingClass, Transaction
+from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
 
@@ -34,22 +34,22 @@ def monthly_total(qs, year, item_name):
     return rtn
 
 
-def aggregate_passbook(year, flg):
-    """通帳データの年間月別集計関数
-    - aggregate_flagが設定されている費目の通帳データ集計をDictで返す。
-    - 資金移動と手動入力データは除く。
-    """
-    qs = Transaction.objects.filter(is_manualinput=False).select_related("account")
-    if flg == "expense":
-        # 出金だけ抽出
-        qs = qs.filter(himoku__is_income=False)
-    elif flg == "income":
-        # 収入だけ抽出
-        qs = qs.filter(himoku__is_income=True)
-    # 資金移動は除く。（aggregate_flag=True）
-    qs = qs.filter(himoku__aggregate_flag=True)
-    # 月毎の支出合計を計算して返す。
-    return monthly_total(qs, int(year), "ammount")
+# def aggregate_passbook(year, flg):
+#     """通帳データの年間月別集計関数
+#     - aggregate_flagが設定されている費目の通帳データ集計をDictで返す。
+#     - 資金移動と手動入力データは除く。
+#     """
+#     qs = Transaction.objects.filter(is_manualinput=False).select_related("account")
+#     if flg == "expense":
+#         # 出金だけ抽出
+#         qs = qs.filter(himoku__is_income=False)
+#     elif flg == "income":
+#         # 収入だけ抽出
+#         qs = qs.filter(himoku__is_income=True)
+#     # 資金移動は除く。（aggregate_flag=True）
+#     qs = qs.filter(himoku__aggregate_flag=True)
+#     # 月毎の支出合計を計算して返す。
+#     return monthly_total(qs, int(year), "ammount")
 
 
 def adjust_month(year, month):
@@ -379,8 +379,6 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["mr_total"] = mr_total
         # 各月毎の支出額を抽出。行集約は最後に行う必要がある。
         qs = get_allmonths_data(qs, year)
-        # 通帳データの月別支出合計を計算。
-        passbook_total = aggregate_passbook(year, "expense")
         # form 初期値を設定
         form = MonthlyReportViewForm(
             initial={
@@ -391,7 +389,6 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["transaction_list"] = qs
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
-        context["passbook"] = passbook_total
         context["year"] = year
         # 会計区分が''だった場合の処理
         if ac_class == "":
@@ -431,8 +428,6 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         context["mr_total"] = mr_total
         # 各月毎の収入額を抽出。
         qs = get_allmonths_data(qs, year)
-        # 通帳データの月別支出合計を計算。
-        passbook_total = aggregate_passbook(year, "income")
 
         # form 初期値を設定
         form = MonthlyReportViewForm(
@@ -444,7 +439,62 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         context["transaction_list"] = qs
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
-        context["passbook"] = passbook_total
+        context["year"] = year
+        # 会計区分が''だった場合の処理
+        if ac_class == "":
+            ac_class = "0"
+        context["ac"] = ac_class
+        return context
+
+
+class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
+    """収支リスト 年間表示"""
+
+    model = ReportTransaction
+    template_name = "monthly_report/year_income_expenselist.html"
+    permission_required = ("budget.view_expensebudget",)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if kwargs:
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
+            year = str(kwargs.get("year"))
+            ac_class = str(kwargs.get("ac_class"))
+        else:
+            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+            ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
+
+        # 抽出期間（monthが"all"なら1年分）
+        tstart, tend = select_period(year, 0)
+
+        # 収入
+        qs_income = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+        # 月次報告収入の月別合計を計算。
+        mr_income_total = monthly_total(qs_income, int(year), "ammount")
+        # 年間合計を計算してmr_income_totalに追加する。
+        mr_income_total["income_year_total"] = sum(mr_income_total.values())
+        context["mr_income_total"] = mr_income_total
+
+        # 支出
+        qs_expense = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
+        mr_expense_total = monthly_total(qs_expense, int(year), "ammount")
+        # 年間合計を計算してmr_totalに追加する。
+        mr_expense_total["expense_year_total"] = sum(mr_expense_total.values())
+        context["mr_expense_total"] = mr_expense_total
+
+        # form 初期値を設定
+        form = MonthlyReportViewForm(
+            initial={
+                "year": year,
+                "accounting_class": ac_class,
+            }
+        )
+        context["form"] = form
         context["year"] = year
         # 会計区分が''だった場合の処理
         if ac_class == "":
@@ -575,7 +625,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
 
 class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
-    """貸借対照表の修正（摘要を追加入力）"""
+    """貸借対照表の修正用リスト表示View"""
 
     model = BalanceSheet
     template_name = "monthly_report/bs_list.html"
@@ -592,8 +642,7 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
             ac_class = self.request.GET.get("accounting_class", 0)
-        # context変数をリンクのパラメータにする方法はなさそう。
-        # そのため、bs_table.htmlのリンクから飛んできた場合、 ac_class==''となる。
+        # bs_table.htmlのリンクから飛んできた場合、 ac_class==""となる。
         if ac_class == "":
             ac_class = 0
 

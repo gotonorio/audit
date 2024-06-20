@@ -9,16 +9,40 @@ urlpatterns = [
     # ------------------------------------------------------------------------
     path("expenslist/", views.MonthlyReportExpenseListView.as_view(), name="expenselist"),
     path("incomelist/", views.MonthlyReportIncomeListView.as_view(), name="incomelist"),
+    # 年間月別支出リスト
     path(
         "year_expenselist/",
         views.YearExpenseListView.as_view(),
         name="year_expenselist",
     ),
     path(
+        "year_expenselist/<int:year>/<int:ac_class>/",
+        views.YearExpenseListView.as_view(),
+        name="year_expenselist",
+    ),
+    # 年間月別収入リスト
+    path(
         "year_incomelist/",
         views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
+    path(
+        "year_incomelist/<int:year>/<int:ac_class>/",
+        views.YearIncomeListView.as_view(),
+        name="year_incomelist",
+    ),
+    # 月別収支リスト
+    path(
+        "year_income_expenselist/",
+        views.YearIncomeExpenseListView.as_view(),
+        name="year_income_expenselist",
+    ),
+    path(
+        "year_income_expenselist/<int:year>/<int:ac_class>/",
+        views.YearIncomeExpenseListView.as_view(),
+        name="year_income_expenselist",
+    ),
+    # 貸借対照表
     path("bs_table/", views.BalanceSheetTableView.as_view(), name="bs_table"),
     path(
         "bs_table/<int:year>/<int:month>/<int:ac_class>/",
@@ -42,11 +66,11 @@ urlpatterns = [
         views.MonthlyReportIncomeListView.as_view(),
         name="incomelist",
     ),
-    path(
-        "year_expenselist/<int:year>/<int:ac_class>/",
-        views.YearExpenseListView.as_view(),
-        name="year_expenselist",
-    ),
+    # path(
+    #     "year_expenselist/<int:year>/<int:ac_class>/",
+    #     views.YearExpenseListView.as_view(),
+    #     name="year_expenselist",
+    # ),
     path(
         "year_incomelist/<int:year>/<int:ac_class>/",
         views.YearIncomeListView.as_view(),
