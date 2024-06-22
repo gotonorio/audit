@@ -222,7 +222,6 @@ def aggregate_himoku(qs):
 class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView):
     """月次報告 支出リスト"""
 
-    model = ReportTransaction
     template_name = "monthly_report/monthly_report_expense.html"
     permission_required = ("record.view_transaction",)
 
@@ -289,7 +288,6 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
 class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView):
     """月次報告 収入リスト"""
 
-    model = ReportTransaction
     template_name = "monthly_report/monthly_report_income.html"
     permission_required = ("record.view_transaction",)
 
@@ -350,7 +348,6 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
 class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
     """月次報告支出リスト 年間表示"""
 
-    model = ReportTransaction
     template_name = "monthly_report/year_expenselist.html"
     permission_required = ("budget.view_expensebudget",)
 
@@ -400,7 +397,6 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
     """月次報告収入リスト 年間表示"""
 
-    model = ReportTransaction
     template_name = "monthly_report/year_incomelist.html"
     permission_required = ("budget.view_expensebudget",)
 
@@ -450,7 +446,6 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
     """収支リスト 年間表示"""
 
-    model = ReportTransaction
     template_name = "monthly_report/year_income_expenselist.html"
     permission_required = ("budget.view_expensebudget",)
 
@@ -506,7 +501,6 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
     """貸借対照表の表示"""
 
-    model = BalanceSheet
     template_name = "monthly_report/bs_table.html"
     permission_required = ("budget.view_expensebudget",)
 
@@ -627,7 +621,6 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
     """貸借対照表の修正用リスト表示View"""
 
-    model = BalanceSheet
     template_name = "monthly_report/bs_list.html"
     permission_required = ("record.view_transaction",)
 
@@ -678,7 +671,6 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
 class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
     """「口座振替手数料」の相殺処理のフラグをチェック"""
 
-    model = ReportTransaction
     template_name = "monthly_report/chk_offset.html"
     permission_required = "record.add_transaction"
     raise_exception = True

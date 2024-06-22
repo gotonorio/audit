@@ -21,8 +21,6 @@ urlpatterns = [
         views.TransactionListView.as_view(),
         name="transaction_list",
     ),
-    # # 資金移動のチェック
-    # path('chk_transfer/', views.CheckTransferFoundView.as_view(), name='chk_transfer'),
     # 前受金データチェック
     path("chk_maeuke/", views.CheckMaeukeDataView.as_view(), name="chk_maeuke"),
     # データ編集
@@ -68,8 +66,6 @@ urlpatterns = [
         data_operate.TransactionDivideCreateView.as_view(),
         name="transaction_divide",
     ),
-    #     path('transaction_divide/(?P<pk>[0-9]+)/$',
-    #          data_operate.TransactionDivideCreateView.as_view(), name='transaction_divide'),
     path(
         "read_himoku_csv/",
         data_operate.HimokuCsvReadView.as_view(),
@@ -85,8 +81,7 @@ urlpatterns = [
         data_operate.ApprovalTextUpdateView.as_view(),
         name="approval_text_update",
     ),
-    # 残高チェック
-    path("recalc_balance/", views.RecalcBalance.as_view(), name="recalc_balance"),
+    # 管理費等請求一覧リスト表示
     path("claim_list/", views.ClaimDataListView.as_view(), name="claim_list"),
     path(
         "claim_list/<int:year>/<int:month>/<str:claim_type>",

@@ -119,58 +119,6 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         return context
 
 
-class RecalcBalance(PermissionRequiredMixin, generic.TemplateView):
-    """残高を計算する"""
-
-    model = Transaction
-    template_name = "record/recalc_balance_form.html"
-    permission_required = "record.add_transaction"
-
-    def recalc(self, qs, balance):
-        rebalance = {}
-        for obj in qs:
-            # 入金のコードは99以下とする。
-            if obj.is_income:
-                balance += obj.ammount
-            else:
-                balance -= obj.ammount
-            rebalance[obj.transaction_date] = balance
-        return rebalance
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        year = localtime(timezone.now()).year
-        start_date = str(year) + "-" + "01-01"
-
-        # 開始日
-        sdate = self.request.GET.get("sdate", start_date)
-        # 残高
-        balance = self.request.GET.get("balance", 0)
-        # 基準日が入力されていれば、チェック開始
-        if sdate != "":
-            start_date = sdate.split("-")
-            year = start_date[0]
-            month = start_date[1]
-            day = start_date[2]
-            sdate = timezone.datetime(int(year), int(month), int(day), 0, 0, 0)
-            # 計算は指定日の翌日分から
-            tdate = sdate + timezone.timedelta(days=1)
-            qs = Transaction.objects.filter(transaction_date__gte=tdate).order_by("transaction_date")
-            # 残高の再計算処理
-            rebalance = self.recalc(qs, int(balance))
-            context["rebalance_list"] = rebalance
-
-        # forms.pyのKeikakuListFormに初期値を設定する
-        form = RecalcBalanceForm(
-            initial={
-                "sdate": sdate,
-                "balance": balance,
-            }
-        )
-        context["form"] = form
-        return context
-
-
 class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
     """管理費等請求データ一覧表示"""
 
