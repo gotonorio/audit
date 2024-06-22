@@ -45,10 +45,7 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  {% comment %} <div class="content has-text-centered"> {% endcomment %}
-  <div class="content">
-    <h4>{{yyyymm}} 管理費等 収入監査（町内会費含む）</h4>
-  </div>
+  <div class="is-size-5">{{yyyymm}} 管理費等 収入監査（町内会費含む）</div>
   <div class="content">
     <ul>
       {% if warning_kurasel %}
@@ -64,7 +61,7 @@
 {% comment %} left side--------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
-        <h4>月次報告 収入データ</h4>
+        <div class="is-size-5">月次報告 収入データ</div>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
@@ -117,7 +114,7 @@
       </div>
       <br>
       <div class="content has-text-centered">
-        <h5>貸借対照表による当月の未収金</h5>
+        <div class="is-size-5">貸借対照表による当月の未収金</div>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
@@ -157,7 +154,7 @@
 {% comment %} right side --------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
-        <h4>通帳 収入データ</h4>
+        <div class="is-size-5">通帳 収入データ</div>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
@@ -222,7 +219,7 @@
       </div>
       <br>
       <div class="content has-text-centered">
-        <h5>前月の貸借対照表の未収金（内訳）</h5>
+        <div class="is-size-5">前月の貸借対照表の未収金（内訳）</div>
       </div>
       <div class="table-container">
         <table class="table table_center_nowrap is-narrow is-striped">
