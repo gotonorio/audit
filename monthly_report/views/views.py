@@ -219,6 +219,23 @@ def aggregate_himoku(qs):
     return pb_dict
 
 
+def qs_year_income(tstart, tend, ac_class, others_flg):
+    """月次報告の年間収入データを返す"""
+    # 月次報告収入リスト
+    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+    # 修繕積立会計の「修繕積立金」以外の収入を抽出する。
+    if others_flg:
+        qs = qs.exclude(himoku__himoku_name="修繕積立金")
+    # 月次報告収入の月別合計を計算。
+    year = tstart.year
+    mr_total = monthly_total(qs, int(year), "ammount")
+    # 年間合計を計算してmr_totalに追加する。
+    mr_total["year_total"] = sum(mr_total.values())
+    # 各月毎の収入額を抽出。
+    qs = get_allmonths_data(qs, year)
+    return qs, mr_total
+
+
 class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView):
     """月次報告 支出リスト"""
 
@@ -361,12 +378,13 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 抽出期間
         tstart, tend = select_period(year, 0)
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
 
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_total = monthly_total(qs, int(year), "ammount")
         # 年間合計を計算してmr_totalに追加する。
         mr_total["year_total"] = sum(mr_total.values())
+
         context["mr_total"] = mr_total
         # 各月毎の支出額を抽出。行集約は最後に行う必要がある。
         qs = get_allmonths_data(qs, year)
@@ -410,14 +428,8 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 抽出期間（monthが"all"なら1年分）
         tstart, tend = select_period(year, 0)
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
-        # 月次報告収入の月別合計を計算。
-        mr_total = monthly_total(qs, int(year), "ammount")
-        # 年間合計を計算してmr_totalに追加する。
-        mr_total["year_total"] = sum(mr_total.values())
+        qs, mr_total = qs_year_income(tstart, tend, ac_class, False)
         context["mr_total"] = mr_total
-        # 各月毎の収入額を抽出。
-        qs = get_allmonths_data(qs, year)
 
         # form 初期値を設定
         form = MonthlyReportViewForm(
@@ -569,43 +581,33 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
         if kwargs:
             # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
             year = str(kwargs.get("year"))
-            ac_class = str(kwargs.get("ac_class"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
-            ac_class = self.request.GET.get("accounting_class", "0")
-            # ac_classが「空」の場合の処理
-            if ac_class == "":
-                ac_class = "0"
 
-        # 抽出期間（monthが"all"なら1年分）
+        # 抽出期間（年間）
         tstart, tend = select_period(year, 0)
         # 修繕積立金会計クラスID
         ac_shuuzen = AccountingClass.objects.get(accounting_name="修繕積立金会計")
-        # 修繕積立金会計リスト
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_shuuzen, "income", False)
-        qs = qs.exclude(himoku__himoku_name="修繕積立金")
-        # 月次報告収入の月別合計を計算。
-        mr_total = monthly_total(qs, int(year), "ammount")
-        # 年間合計を計算してmr_totalに追加する。
-        mr_total["year_total"] = sum(mr_total.values())
-        context["mr_total"] = mr_total
-        # 各月毎の収入額を抽出。
-        qs = get_allmonths_data(qs, year)
+        ac_parking = AccountingClass.objects.get(accounting_name="駐車場会計")
+
+        # 修繕積立金会計「その他収入」リスト
+        qs_others_income, others_income_total = qs_year_income(tstart, tend, ac_shuuzen, True)
+        context["others_income_total"] = others_income_total
+
+        # 駐車場会計
+        qs_parking, parking_total = qs_year_income(tstart, tend, ac_parking, False)
+        context["parking_total"] = parking_total
 
         # form 初期値を設定
         form = MonthlyReportViewForm(
             initial={
                 "year": year,
-                "accounting_class": ac_class,
             }
         )
-        context["others_income_list"] = qs
+        context["others_income_list"] = qs_others_income
+        context["parking_income_list"] = qs_parking
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
         context["year"] = year
-        # 会計区分が''だった場合の処理
-        if ac_class == "":
-            ac_class = "0"
-        context["ac"] = ac_class
         return context

@@ -40,7 +40,7 @@
 {% block content %}
 <div class="container is-fluid">
   <br>
-  <div class="is-size-5">{{yyyymm}} 修繕積立金会計 その他入金リスト</div>
+  <div class="is-size-5">{{yyyymm}} 修繕積立金会計「その他」収入リスト</div>
   <br>
   <div class="table-container">
     <table class="table table_nowrap is-narrow is-striped">
@@ -82,24 +82,83 @@
         </tr>
         {% endfor %}
         <tr>
-          <td class="has-text-centered">合計</td>
-          <td class="has-text-right">{{mr_total.total1|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total2|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total3|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total4|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total5|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total6|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total7|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total8|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total9|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total10|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total11|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.total12|intcomma}}</td>
-          <td class="has-text-right">{{mr_total.year_total|intcomma}}</td>
+          <td class="has-text-centered">収入合計</td>
+          <td class="has-text-right">{{others_income_total.total1|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total2|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total3|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total4|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total5|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total6|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total7|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total8|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total9|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total10|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total11|intcomma}}</td>
+          <td class="has-text-right">{{others_income_total.total12|intcomma}}</td>
+          <td class="has-text-right has-text-weight-bold">{{others_income_total.year_total|intcomma}}</td>
         </tr>
       </tbody>
     </table>
   </div>
   <br>
+  <div class="is-size-5">{{yyyymm}} 駐車場会計「駐車場使用料」収入リスト</div>
+  <div class="table-container">
+    <table class="table table_nowrap is-narrow is-striped">
+      <thead>
+        <tr>
+          <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">1月</th>
+          <th class="has-text-centered">2月</th>
+          <th class="has-text-centered">3月</th>
+          <th class="has-text-centered">4月</th>
+          <th class="has-text-centered">5月</th>
+          <th class="has-text-centered">6月</th>
+          <th class="has-text-centered">7月</th>
+          <th class="has-text-centered">8月</th>
+          <th class="has-text-centered">9月</th>
+          <th class="has-text-centered">10月</th>
+          <th class="has-text-centered">11月</th>
+          <th class="has-text-centered">12月</th>
+          <th class="has-text-centered">合計</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in parking_income_list %}
+        <tr>
+          <td class="has-text-left">{{record.himoku__himoku_name|truncatechars:15}}</td>
+          <td class="has-text-right">{{record.month1|intcomma}}</td>
+          <td class="has-text-right">{{record.month2|intcomma}}</td>
+          <td class="has-text-right">{{record.month3|intcomma}}</td>
+          <td class="has-text-right">{{record.month4|intcomma}}</td>
+          <td class="has-text-right">{{record.month5|intcomma}}</td>
+          <td class="has-text-right">{{record.month6|intcomma}}</td>
+          <td class="has-text-right">{{record.month7|intcomma}}</td>
+          <td class="has-text-right">{{record.month8|intcomma}}</td>
+          <td class="has-text-right">{{record.month9|intcomma}}</td>
+          <td class="has-text-right">{{record.month10|intcomma}}</td>
+          <td class="has-text-right">{{record.month11|intcomma}}</td>
+          <td class="has-text-right">{{record.month12|intcomma}}</td>
+          <td class="has-text-right">{{record.total|intcomma}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td class="has-text-centered">合計</td>
+          <td class="has-text-right">{{parking_total.total1|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total2|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total3|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total4|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total5|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total6|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total7|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total8|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total9|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total10|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total11|intcomma}}</td>
+          <td class="has-text-right">{{parking_total.total12|intcomma}}</td>
+          <td class="has-text-right has-text-weight-bold">{{parking_total.year_total|intcomma}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
