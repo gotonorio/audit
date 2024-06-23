@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import data_views, views
+from .views import balance_sheet_views, data_views, views
 
 app_name = "monthly_report"
 urlpatterns = [
@@ -42,19 +42,6 @@ urlpatterns = [
         views.YearIncomeExpenseListView.as_view(),
         name="year_income_expenselist",
     ),
-    # 貸借対照表
-    path("bs_table/", views.BalanceSheetTableView.as_view(), name="bs_table"),
-    path(
-        "bs_table/<int:year>/<int:month>/<int:ac_class>/",
-        views.BalanceSheetTableView.as_view(),
-        name="bs_table",
-    ),
-    path("bs_list/", views.BalanceSheetListView.as_view(), name="bs_list"),
-    path(
-        "bs_list/<int:year>/<int:month>/<int:ac_class>/",
-        views.BalanceSheetListView.as_view(),
-        name="bs_list",
-    ),
     # update後に元の画面に戻る処理
     path(
         "expenslist/<int:year>/<int:month>/<int:ac_class>/",
@@ -66,17 +53,36 @@ urlpatterns = [
         views.MonthlyReportIncomeListView.as_view(),
         name="incomelist",
     ),
-    # path(
-    #     "year_expenselist/<int:year>/<int:ac_class>/",
-    #     views.YearExpenseListView.as_view(),
-    #     name="year_expenselist",
-    # ),
     path(
         "year_incomelist/<int:year>/<int:ac_class>/",
         views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
     path("unpaid_list/", views.UnpaidBalanceListView.as_view(), name="unpaid_list"),
+    # 長期修繕計画シミュレーション用データ
+    path(
+        "simulation_data_list/",
+        views.SimulatonDataListView.as_view(),
+        name="simulation_data_list",
+    ),
+    path(
+        "simulation_data_list/<int:year>/<int:month>/",
+        views.SimulatonDataListView.as_view(),
+        name="simulation_data_list",
+    ),
+    # 貸借対照表
+    path("bs_table/", balance_sheet_views.BalanceSheetTableView.as_view(), name="bs_table"),
+    path(
+        "bs_table/<int:year>/<int:month>/<int:ac_class>/",
+        balance_sheet_views.BalanceSheetTableView.as_view(),
+        name="bs_table",
+    ),
+    path("bs_list/", balance_sheet_views.BalanceSheetListView.as_view(), name="bs_list"),
+    path(
+        "bs_list/<int:year>/<int:month>/<int:ac_class>/",
+        balance_sheet_views.BalanceSheetListView.as_view(),
+        name="bs_list",
+    ),
     # ------------------------------------------------------------------------
     # データ編集
     # ------------------------------------------------------------------------
