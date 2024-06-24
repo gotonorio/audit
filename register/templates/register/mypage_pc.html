@@ -68,14 +68,13 @@
               <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金チェック</a>
               <a class="navbar-item" href="{% url 'monthly_report:unpaid_list' %}">未払い一覧</a>
               <hr class="navbar-divider">
+              <a class="navbar-item" href="{% url 'monthly_report:simulation_data_list' %}">修繕計画用データ</a>
               {% if perms.register.add_user %}
                 <hr class="navbar-divider">
                 <a class="navbar-item" href="{% url 'register:user_list' %}">登録者一覧</a>
                 <a class="navbar-item" href="{% url 'control:control_list' %}">コントロールデータ修正</a>
                 <a class="navbar-item" href="{% url 'explanation:description_create' %}">ヘルプ作成・修正</a>
               {% endif %}
-              <hr class="navbar-divider">
-              <a class="navbar-item" href="{% url 'monthly_report:simulation_data_list' %}">修繕計画用データ</a>
             </div>
           </div>
         {% endif %}

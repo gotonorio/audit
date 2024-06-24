@@ -1,11 +1,11 @@
 # import logging
 
+from control.models import ControlRecord
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views import generic
 
-from control.models import ControlRecord
 from register.forms import LoginForm
 
 User = get_user_model()
@@ -38,7 +38,7 @@ class MypageView(LoginRequiredMixin, generic.TemplateView):
     def get_template_names(self):
         """templateファイルを切り替える"""
         if self.request.user_agent_flag == "mobile":
-            template_name = "register/mypage_pc.html"
+            template_name = "register/mypage_mobile.html"
         else:
             template_name = "register/mypage_pc.html"
         return [template_name]

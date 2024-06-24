@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{# http://cccabinet.jpn.org/bootstrap4/components/navbar #}
+{% block title %}
+会計監査
+{% endblock %}
+
+{% block navbar %}
+{# https://bulma.io/documentation/components/navbar/ #}
+<nav class="navbar is-fixed-top is-black is-size-6" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    {# ハンバーガアイコンのため以下の5行とbase.htmlでのjsスクリプトが必要 #}
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <!--理事会メンバー以外に表示-->
+    <div class="navbar-start">
+      <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' %}"%>年間収入</a>
+      <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
+      <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
+      <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <form method="post" action="{% url 'register:logout' %}">
+          {% csrf_token %}
+          <button type="submit">ログアウト</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+{% block content %}
+<div class="content has-text-centered">
+  <br>
+  {% if debug %}
+    <h2 class="subtitle"> クラセル監査 開発版</h2>
+  {% else %}
+    <h2 class="subtitle"> クラセル監査 運用版</h2>
+  {% endif %}
+  {% comment %} {% load static%}
+  <img src="{% static 'ramune.png' %}" style="max-height:500px" class="img-fluid" /> {% endcomment %}
+</div>
+{% endblock %}
