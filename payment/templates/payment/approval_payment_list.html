@@ -66,9 +66,11 @@
           <th class="has-text-centered">金額</th>
           <th class="has-text-centered">支払先</th>
           <th class="has-text-centered">摘要</th>
+          {% comment %} Kuraselデータを勝手に削除しないようにコメントアウトする。
           {% if perms.record.add_transaction %}
             <th class="has-text-centered">#</th>
           {% endif %}
+          {% endcomment %}
         </tr>
       </thead>
       <tbody>
@@ -83,9 +85,11 @@
           <td class="has-text-right">{{apl.payment|intcomma}}</td>
           <td class="has-text-left is-size-7">{{apl.payment_destination}}</td>
           <td class="has-text-left is-size-7">{{apl.summary}}</td>
+          {% comment %}
           {% if perms.record.add_transaction %}
             <td class="has-text-centered"><a href="{% url 'payment:delete_payment' apl.pk %}">削除</a></td>
           {% endif %}
+          {% endcomment %}
         </tr>
         {% endfor %}
         <td></td>
