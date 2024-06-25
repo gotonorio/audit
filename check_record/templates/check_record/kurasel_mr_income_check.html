@@ -27,7 +27,6 @@
         {{form.year}}{{form.month}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
-      {% comment %} <a href="{% url 'check_record:chk_yearincome' %}" class="navbar-item">年間合計</a> {% endcomment %}
     </div>
     <div class="navbar-end">
       {% with year_with=year month_with=month %}
@@ -58,7 +57,6 @@
   </div>
 
   <div class='columns'>
-{% comment %} left side--------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
         <div class="is-size-5">月次報告 収入データ</div>
@@ -142,16 +140,10 @@
               <td class="has-text-right">合計</td>
               <td class="has-text-right">{{total_mishuu_bs|intcomma}}</td>
             </tr>
-            {% comment %} <tr>
-              <td></td>
-              <td class="has-text-right">計算上の未収金</td>
-              <td class="has-text-right">{{total_last_mishuu|subtract:total_diff|intcomma}}</td>
-            </tr> {% endcomment %}
           </tbody>
         </table>
       </div>
     </div>
-{% comment %} right side --------------------------------------- {% endcomment %}
     <div class='column is-half'>
       <div class="content has-text-centered">
         <div class="is-size-5">通帳 収入データ</div>
@@ -252,7 +244,6 @@
         {% endif %}
       </div>
     </div>
-{% comment %} --------------------------------------- {% endcomment %}
   </div>
   <br>
 </div>

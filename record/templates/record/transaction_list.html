@@ -32,9 +32,6 @@
       {% with year_with=year month_with=month %}
         <a class="navbar-item" href="{% url 'payment:payment_list' year_with month_with %}">支払い承認の一覧</a>
       {% endwith %}
-      {% comment %} {% if perms.record.add_transaction %}
-        <a class="navbar-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
-      {% endif %} {% endcomment %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
@@ -101,16 +98,6 @@
           {% else %}
             <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
-{% comment %}           
-          {% if record.is_manualinput %}
-            <td class="has-text-left has-text-success">{{record.himoku|truncatechars:14}}</td>
-          {% elif record.calc_flg %}
-            <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
-          {% else %}
-            <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
-          {% endif %}
-{% endcomment %}
-
           {% if record.is_income %}
             <td class="has-text-right">{{record.ammount|intcomma}}</td>
             <td class="has-text-right has-text-danger">0</td>

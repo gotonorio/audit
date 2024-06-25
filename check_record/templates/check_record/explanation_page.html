@@ -40,10 +40,5 @@
       {{comment.description|markdown_to_html}}
     </div>
   </div>
-  {% comment %}
-  {% if perms.register.add_user %}
-    <p><a href="{% url 'register:master_page_update' comment.pk %}">修正</a></p>
-  {% endif %}
-  {% endcomment %}
 </div>
 {% endblock %}

@@ -72,12 +72,6 @@
           <th class="has-text-centered">費目</th>
           <th class="has-text-centered">支出</th>
           <th class="has-text-centered">摘要</th>
-          {% comment %}
-          {% if perms.record.add_transaction %}
-            <th class="has-text-centered">計算対象</th>
-            <th class="has-text-centered">#</th>
-          {% endif %}
-          {% endcomment %}
         </tr>
       </thead>
       <tbody>
@@ -105,16 +99,6 @@
             <td class="has-text-right">{{record.ammount|intcomma}}</td>
             <td class="has-text-left is-size-7">{{record.description|truncatechars:40}}</td>
           {% endif %}
-          {% comment %} 
-          {% if perms.record.add_transaction %}
-            <td class="has-text-centered">{{record.calc_flg}}</td>
-            {% if record.is_manualinput %}
-              <td class="has-text-centered">
-                <a href="{% url 'monthly_report:delete_expense' record.pk %}">削除</a>
-              </td>
-            {% endif %}
-          {% endif %}
-          {% endcomment %}
         </tr>
         {% endfor %}
         <tr>

@@ -1,8 +1,6 @@
 from django.urls import path
 
-from register.views import views
-from register.views import user_views
-
+from register.views import user_views, views
 
 app_name = "register"
 urlpatterns = [
@@ -26,7 +24,5 @@ urlpatterns = [
         name="pwd_update",
     ),
     # ユーザー削除
-    path(
-        "delete_user/<int:pk>", user_views.DeleteUserView.as_view(), name="delete_user"
-    ),
+    path("delete_user/<int:pk>", user_views.DeleteUserView.as_view(), name="delete_user"),
 ]

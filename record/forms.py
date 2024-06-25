@@ -107,13 +107,12 @@ class TransactionCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
+        self.fields["is_manualinput"].initial = True
 
     class Meta:
         model = Transaction
         fields = [
             "account",
-            "is_income",
-            "is_manualinput",
             "transaction_date",
             "ammount",
             "himoku",
@@ -121,6 +120,8 @@ class TransactionCreateForm(forms.ModelForm):
             "description",
             "calc_flg",
             "is_approval",
+            "is_income",
+            "is_manualinput",
         ]
         labels = {"calc_flg": "計算対象", "is_manualinput": "手動入力Flg"}
         widgets = {
@@ -156,8 +157,9 @@ class TransactionCreateForm(forms.ModelForm):
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
+            "is_income": "※ 入金の場合はチェックする。",
             "calc_flg": "※ 前受金の場合はチェックしない。",
-            "is_approval": "収入項目、支払い承認が不要の場合はチェックを外す。",
+            "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
         }
 
     def clean_transaction_date(self):

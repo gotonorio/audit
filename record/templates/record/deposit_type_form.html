@@ -29,7 +29,6 @@
 <div class="container is-fluid">
   <div class="content">
     <div class="is-size-5">入出金マスタの登録/修正</div>
-
     <form method='POST' enctype='multipart/form-data' id='form_style'>
       {{ form.non_field_errors }}
       {% for field in form %}
@@ -51,18 +50,6 @@
         <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
       </div>
     </form>
-
-    {% comment %} <form action="" method='POST' enctype="multipart/form-data"> {% endcomment %}
-      {% comment %} {% csrf_token %} {% endcomment %}
-      {% comment %} <table class="table_center_nowrap"> {% endcomment %}
-        {% comment %} {{form}} {% endcomment %}
-      {% comment %} </table> {% endcomment %}
-      {% comment %} <div class="has-text-centered"> {% endcomment %}
-        {% comment %} <button type="submit" class="button is-primary has-text-black" value="rgst">登録</button> {% endcomment %}
-        {% comment %} <a class='button is-danger' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a> {% endcomment %}
-      {% comment %} </div> {% endcomment %}
-    {% comment %} </form> {% endcomment %}
-
   </div>
   <br>
   <div class="table-container">
