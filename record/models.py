@@ -156,7 +156,6 @@ class Himoku(models.Model):
         try:
             qs = cls.objects.get(
                 alive=True,
-                # himoku_name__contains=himoku,
                 himoku_name=himoku,
                 accounting_class__accounting_name__contains=ac_class,
             )
@@ -272,13 +271,6 @@ class Transaction(models.Model):
     def __str__(self):
         return self.himoku.himoku_name
 
-    # def delete(self):
-    #     """ delete関数を論理削除にするためにオーバーライド
-    #     - DeleteViewで削除処理すると、レコードは削除せずdelete_flgをTrueにする。
-    #     """
-    #     self.delete_flg = True
-    #     self.save()
-
     @staticmethod
     def get_maeuke(year, month):
         """通帳データの前受金合計を返す
@@ -352,22 +344,6 @@ class Transaction(models.Model):
         if ac_class != "0":
             qs_pb = qs_pb.filter(himoku__accounting_class=ac_class)
         return qs_pb
-
-    # @staticmethod
-    # def kurasel_pb_total(sql, approval):
-    #     """ 通帳データの合計計算
-    #     - approval=True : 承認申請が必要な費目のみの合計を返す。
-    #     """
-    #     total_pb = 0
-    #     if approval:
-    #         for d in sql:
-    #             if d.himoku.is_approval:
-    #                 total_pb += d.ammount
-    #     else:
-    #         for d in sql:
-    #             total_pb += d.ammount
-
-    #     return total_pb
 
     @classmethod
     def dwd_from_kurasel(cls, data, paymentmethod_list, requester_list, default_himoku) -> int:

@@ -55,11 +55,19 @@
       <tbody>
         {% for record in himoku_list %}
         <tr>
-          <td class="has-text-left">{{record.accounting_class}}</td>
-          <td class="has-text-right">{{record.code}}</td>
-          <td class="has-text-left">
-            <a href="{% url 'record:himoku_update' record.pk %}">{{record.himoku_name}}</a>
-          </td>
+          {% if record.alive %}
+            <td class="has-text-left">{{record.accounting_class}}</td>
+            <td class="has-text-right">{{record.code}}</td>
+            <td class="has-text-left">
+              <a href="{% url 'record:himoku_update' record.pk %}">{{record.himoku_name}}</a>
+            </td>
+          {% else %}
+            <td class="has-text-left has-text-danger">{{record.accounting_class}}</td>
+            <td class="has-text-right has-text-danger">{{record.code}}</td>
+            <td class="has-text-left has-text-danger">
+              <a href="{% url 'record:himoku_update' record.pk %}">{{record.himoku_name}}</a>
+            </td>
+          {% endif %}
           {% if record.alive %}
             <td class="has-text-centered">
           {% else %}
