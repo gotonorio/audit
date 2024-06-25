@@ -56,8 +56,9 @@ def check_budget(budget, expense):
             data[0] = ex["himoku__accounting_class__accounting_name"]
             data[1] = ex["himoku__himoku_name"]
             data[2] = ex["ruiseki"]
-
-        comp_list.append(data)
+        # 累積金額がある場合だけcomp_listに登録する
+        if data[2] > 0:
+            comp_list.append(data)
     return comp_list
 
 

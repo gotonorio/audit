@@ -31,7 +31,7 @@ urlpatterns = [
         views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
-    # 月別収支リスト
+    # 年間月別収支リスト
     path(
         "year_income_expenselist/",
         views.YearIncomeExpenseListView.as_view(),

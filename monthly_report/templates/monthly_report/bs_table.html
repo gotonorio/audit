@@ -81,11 +81,19 @@
         <tr>
           <td class="has-text-left">{{data.0}}</td>
           <td class="has-text-right">{{data.1|intcomma}}</td>
-          <td class="has-text-left is-size-7">{{data.2|default_if_none:''|markdown_to_html}}</td>
+          {% if perms.record.view_transaction %}
+            <td class="has-text-left is-size-7">{{data.2|default_if_none:''|markdown_to_html}}</td>
+          {% else %}
+            <td></td>
+          {% endif %}
           <td></td>
           <td class="has-text-left">{{data.3}}</td>
           <td class="has-text-right">{{data.4|intcomma}}</td>
-          <td class="has-text-left is-size-7">{{data.5|default_if_none:''|markdown_to_html}}</td>
+          {% if perms.record.view_transaction %}
+            <td class="has-text-left is-size-7">{{data.5|default_if_none:''|markdown_to_html}}</td>
+          {% else %}
+            <td></td>
+          {% endif %}
         </tr>
         {% endfor %}
         <tr>
