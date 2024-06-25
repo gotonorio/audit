@@ -1,10 +1,6 @@
 from django.contrib import admin
-from budget.models import IncomeBudget, ExpenseBudget
 
-
-class IncomeBudgetAdmin(admin.ModelAdmin):
-    list_display = ["year", "account", "budget_income", "comment"]
-    ordering = ("year",)
+from budget.models import ExpenseBudget
 
 
 class ExpenseBudgetAdmin(admin.ModelAdmin):
@@ -12,5 +8,4 @@ class ExpenseBudgetAdmin(admin.ModelAdmin):
     ordering = ("year",)
 
 
-admin.site.register(IncomeBudget, IncomeBudgetAdmin)
 admin.site.register(ExpenseBudget, ExpenseBudgetAdmin)
