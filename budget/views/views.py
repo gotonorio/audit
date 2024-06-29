@@ -85,9 +85,17 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
     """管理会計支出の予算・実績対比表"""
 
     model = ExpenseBudget
-    template_name = "budget/budget_list.html"
     # 予算実績対比表はログインユーザが閲覧可能とするため下記をコメントアウト。
     # permission_required = ("record.view_transaction",)
+
+    # templateファイルの切り替え
+    def get_template_names(self):
+        """templateファイルを切り替える"""
+        if self.request.user_agent_flag == "mobile":
+            template_name = "budget/budget_list_mobile.html"
+        else:
+            template_name = "budget/budget_list.html"
+        return [template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

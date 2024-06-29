@@ -40,16 +40,6 @@ main {
     color: var(--main-text);
     background-color: var(--main-bg);
 }
-/*
- tableの列を改行禁止にする。
- スマホでは役に立たないのでコメントアウト。
- */
-/* td.nowrap {
-  white-space: nowrap;
-  }
-th {
-  white-space: nowrap;
-} */
 
 a.vmenu {
     text-decoration: none; 
@@ -173,4 +163,33 @@ div.my_field > textarea {
   /* 表の最小幅で表示させる。倍率は適当。 */
   width: 30%;
   white-space: nowrap;
+}
+/* mobile用container */
+.container_mobile {
+  margin: 8px;
+}
+
+/* メディアクエリ：スマホ対応 */
+@media (max-width: 768px) {
+  /* リンク */
+  .menu_links li {
+    list-style: none;
+    display: flex;
+    /* gap: 40px; */
+    flex-direction: column;
+  }
+  .menu_links a {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #444;
+    border-radius: 10px;
+  }
+  /* ホバー時 */
+  .menu_links a:hover {
+    background-color: #575757;
+    border-radius: 50px;
+  }
 }

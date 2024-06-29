@@ -16,8 +16,16 @@ logger = logging.getLogger(__name__)
 class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
     """貸借対照表の表示"""
 
-    template_name = "monthly_report/bs_table.html"
     permission_required = ("budget.view_expensebudget",)
+
+    # templateファイルの切り替え
+    def get_template_names(self):
+        """templateファイルを切り替える"""
+        if self.request.user_agent_flag == "mobile":
+            template_name = "monthly_report/bs_table_mobile.html"
+        else:
+            template_name = "monthly_report/bs_table.html"
+        return [template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
