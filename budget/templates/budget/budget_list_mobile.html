@@ -43,7 +43,7 @@
   <div class="content">
     <div class="is-size-6">{{month}}月までの{{title}} 予算実績対比表</div>
   </div>
-  <div class="table-container is-size-7">
+  <div class="table-container is-size-6">
     <table class="table table_nowrap is-narrow is-striped">
       <thead>
         <tr>
@@ -67,7 +67,7 @@
           <td class="has-text-right">{{record.4|intcomma}}</td>
           {% endif %}
           <td class="has-text-right">{{record.5|stringformat:'.1f'}}</td>
-          <td class="has-text-left is-size-7">{{record.6|default_if_none:''}}</td>
+          <td class="has-text-left">{{record.6|default_if_none:''}}</td>
         </tr>
         {% endfor %}
         <tr>

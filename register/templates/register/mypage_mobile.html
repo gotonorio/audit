@@ -35,7 +35,7 @@
 </nav>
 {% endblock navbar %}
 {% block content %}
-<div class="container_mobile">
+<div class="container is-fluid">
   <div class="content has-text-centered">
     <br>
     {% if debug %}
@@ -46,13 +46,11 @@
       <div class="subtitle">運用版</div>
     {% endif %}
 
-    <div class="is-size-5">
-      <ul class="menu_links">
-        <li><a href="{% url 'monthly_report:year_incomelist' %}">年間収入</a></li> 
-        <li><a href="{% url 'monthly_report:year_expenselist' %}">年間支出</a></li> 
-        <li><a href="{% url 'budget:budget_list' %}">予算実績対比表</a></li> 
-        <li><a href="{% url 'monthly_report:bs_table' %}">貸借対比表</a></li> 
-      </ul>
+    <div class="is-size-5 menu_links">
+      <a href="{% url 'monthly_report:year_incomelist' %}">年間収入</a>
+      <a href="{% url 'monthly_report:year_expenselist' %}">年間支出</a> 
+      <a href="{% url 'budget:budget_list' %}">予算実績対比表</a> 
+      <a href="{% url 'monthly_report:bs_table' %}">貸借対比表</a> 
     </div>
     <br>
     <div>

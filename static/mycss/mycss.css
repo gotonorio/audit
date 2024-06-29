@@ -169,13 +169,13 @@ div.my_field > textarea {
   margin: 8px;
 }
 
-/* メディアクエリ：スマホ対応 */
+/* メディアクエリ：スマホ対応 メニュー*/
 @media (max-width: 768px) {
   /* リンク */
-  .menu_links li {
+  .menu_links {
     list-style: none;
     display: flex;
-    /* gap: 40px; */
+    gap: 20px;
     flex-direction: column;
   }
   .menu_links a {
