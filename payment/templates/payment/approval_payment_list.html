@@ -79,7 +79,7 @@
           {% endif %}
           <td class="has-text-right">{{apl.payment|intcomma}}</td>
           <td class="has-text-left is-size-7">{{apl.payment_destination}}</td>
-          <td class="has-text-left is-size-7">{{apl.summary}}</td>
+          <td class="has-text-left is-size-7">{{apl.summary|markdown_to_html}}</td>
         </tr>
         {% endfor %}
         <td></td>
