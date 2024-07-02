@@ -46,12 +46,15 @@
 </div>
 {% endif %}
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  <div class="content">
     <div class="is-size-5">取引明細の分割データ登録</div>
+    <ul>
+      <li>分割データはKuraselの「支払い管理」で調べます。</li>
+    </ul>
   </div>
 
   <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
+    <table class="table table_nowrap is-narrow is-striped">
       <thead>
         <tr>
           <th class="has-text-centered">日付</th>
@@ -88,7 +91,7 @@
     {% endif %}
 
     <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
+    <table class="table table_nowrap is-narrow is-striped">
       <thead>
         <tr>
           <th class="has-text-centered">金額</th>
@@ -128,7 +131,7 @@
     {{ formset.management_form }}
     {% csrf_token %}
     <br>
-    <div class='my_button has-text-centered'>
+    <div class='my_button'>
       <button type='submit' class='button is-primary is-size-7'>登録</button>
       <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
     </div>

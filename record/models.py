@@ -346,7 +346,9 @@ class Transaction(models.Model):
         return qs_pb
 
     @classmethod
-    def dwd_from_kurasel(cls, data, paymentmethod_list, requester_list, default_himoku) -> int:
+    def dwd_from_kurasel(
+        cls, data, paymentmethod_list, requester_list, default_himoku, banking_fee_himoku
+    ) -> int:
         """kurasel_translatorからDeposits and withdrawals（入出金明細データ）を読み込む
         - 戻り値：取り込んだ「月」(int型)。エラーの場合は0を返す。
         - 種類、日付、金額、振り込み依頼人でget_or_createする。
@@ -379,12 +381,17 @@ class Transaction(models.Model):
                         himoku_obj = requester.himoku
                         himoku_chk = False
                         break
-                # (2)「振込依頼人」で推定できない場合「摘要」で費目を推定する。
+                # (2)「振込依頼人」で推定できない場合「支払い方法」で費目を推定する。
                 if himoku_chk:
                     for paymentmethod in paymentmethod_list:
                         if item[5] == paymentmethod.account_description:
                             himoku_obj = paymentmethod.himoku_name
                             break
+                # (3) 最後に「摘要欄」で費目を推定する。ToDo アドホック対応のため見直すこと。
+                if himoku_chk:
+                    if item[5] in ("892トリアツカイリヨウ", "893フリコミテスウリヨウ"):
+                        himoku_obj = banking_fee_himoku
+
             # 保存処理（日付、金額、振込依頼人名が一致する場合、上書き保存しない）
             try:
                 cls.objects.get_or_create(

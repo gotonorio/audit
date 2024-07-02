@@ -298,8 +298,8 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
                     "calc_flg": True,
                     "transaction_date": qs.transaction_date,
                     "ammount": (qs.ammount * -1),
-                    "requesters_name": f"{qs.requesters_name}(相殺)",
-                    "description": qs.description,
+                    "requesters_name": f"{qs.requesters_name}",
+                    "description": f"{qs.description}（相殺）",
                     "himoku": qs.himoku,
                     "balance": qs.balance,
                 }
@@ -355,7 +355,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         balance = qs.balance
         # 分割する金額
         base_ammount = -qs.ammount
-        # ToDo 確認すること
+        # 分割した場合、費目はデフォルト費目とする
         default_himoku = Himoku.get_default_himoku()
 
         # 分割したデータの合計金額をチェックする。

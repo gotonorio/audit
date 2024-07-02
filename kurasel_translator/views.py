@@ -239,6 +239,13 @@ class DepositWithdrawalView(MonthlyBalanceView):
                 "defaultの費目名が設定されていません。管理者に連絡してください",
             )
             return render(self.request, self.template_name, context)
+        # 銀行手数料の費目オブジェクト
+        banking_fee_himoku = (
+            Himoku.objects.filter(himoku_name="銀行手数料")
+            .exclude(accounting_class__accounting_name=settings.COMMUNITY_ACCOUNTING)
+            .get()
+        )
+
         # 確認・取り込み処理
         if "確認" in mode:
             return render(self.request, self.template_name, context)
@@ -254,6 +261,7 @@ class DepositWithdrawalView(MonthlyBalanceView):
                 payment_method_list,
                 requester_list,
                 default_himoku,
+                banking_fee_himoku,
             )
             if rtn > 0:
                 msg = "データの取り込みが完了しました。"
