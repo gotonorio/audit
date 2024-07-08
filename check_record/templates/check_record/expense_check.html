@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+支出項目チェック
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'check_record:expense_check'%}" method="get">
+        {{form.year}}{{form.month}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">チェック</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content">
+    <div class="is-size-5">{{yyyymm}} 支出項目チェック</div>
+  </div>
+  <div class='columns'>
+    <div class='column is-half'>
+      <div class="content has-text-right">
+        <div class="is-size-5">月次報告</div>
+      </div>
+      <div class="table-container" style="float:right;">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">会計区分</th>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">支出</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in mr_list %}
+            <tr>
+              <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
+              {% if record.is_netting or not record.himoku.aggregate_flag %}
+                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+              {% else %}
+                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-right">{{record.ammount|intcomma}}</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class='column is-half'>
+      <div class="content">
+        <div class="is-size-5">通帳支払い</div>
+      </div>
+      <div class="table-container">
+        <table class="table table_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">通帳支出</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in pb_list %}
+            {% if record.debt > 0 %}
+            <tr>
+              <td class="has-text-ledt">{{record.himoku__himoku_name|truncatechars:10}}</td>
+              <td class="has-text-right">{{record.debt|intcomma}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <br>
+    </div>
+  </div>
+</div>
+{% endblock %}
