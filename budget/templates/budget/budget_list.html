@@ -24,7 +24,11 @@
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <form class="navbar-item" action="{% url 'budget:budget_list'%}" method="get">
-        {{form.year}}{{form.month}}{{form.ac_class}}{{form.kind}}
+        {% if perms.record.add_transaction %}
+          {{form.year}}{{form.month}}{{form.ac_class}}{{form.kind}}
+        {% else %}
+          {{form.year}}{{form.month}}{{form.ac_class}}
+        {% endif %}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
     </div>
