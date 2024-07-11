@@ -25,9 +25,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
-      </div>
+      {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' year_with month_with %}">【戻る】</a>
+      {% endwith %}
     </div>
   </div>
 </nav>
