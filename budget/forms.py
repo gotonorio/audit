@@ -13,7 +13,7 @@ class Budget_listForm(YearMonthForm):
         label="会計区分",
         required=False,
         queryset=AccountingClass.objects.order_by("code"),
-        empty_label="会計区分",
+        empty_label="会計区分を選択",
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
     kind = forms.ChoiceField(

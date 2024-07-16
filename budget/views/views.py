@@ -102,6 +102,9 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
         month = int(self.request.GET.get("month", 12))
         ac_class = self.request.GET.get("ac_class", 1)
+        # 会計区分が指定されていなければ、管理会計を選択する。
+        if ac_class == "":
+            ac_class = 1
         # 月次報告データ(0)、入出金明細データ(1)の選択
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]
