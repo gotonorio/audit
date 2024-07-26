@@ -4,7 +4,6 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
-
 from record.models import AccountingClass, Himoku
 
 user = get_user_model()
@@ -30,7 +29,7 @@ class Payment(models.Model):
     @classmethod
     def payment_from_kurasel(cls, data):
         """kurasel_translatorから承認済み支払いデータを読み込む。
-        - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日」でget_or_createする。
+        - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日, 摘要」でget_or_createする。
         - 費目はdefault費目をセットする。
         """
         # 支払日
@@ -46,8 +45,10 @@ class Payment(models.Model):
                     payment_destination=item[2],
                     payment=item[3],
                     payment_date=payment_day,
+                    # 2024-07-27「祭礼寄付」「盆踊り寄付」のため「摘要」を追加。
+                    summary=item[1],
                     defaults={
-                        "summary": item[1],
+                        # "summary": item[1],
                         "himoku": default_himoku,
                     },
                 )

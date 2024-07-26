@@ -408,7 +408,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
                 msg = f"{year}-{month}-{day}の承認済み支払いデータの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 保存成功後に遷移する場合のパラメータ
-                param = dict(year=year, month=str(month).zfill(2))
+                param = dict(year=year, month=month)
                 # 取り込みに成功したら、一覧表表示する。
                 url = append_list.redirect_with_param("payment:payment_list", param)
                 return redirect(url)
