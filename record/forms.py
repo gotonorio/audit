@@ -80,7 +80,7 @@ class TransactionCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).order_by("code"),
+        queryset=Himoku.objects.filter(alive=True).order_by("accounting_class", "code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
     # requiredをFalseにするため上書きする。

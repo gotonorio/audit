@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
-    """月次収支の支出データと口座支出データの不足分チェック"""
+    """月次支出報告と通帳支払いデータの比較チェック"""
 
     template_name = "check_record/expense_check.html"
     permission_required = ("record.view_transaction",)
