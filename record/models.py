@@ -104,7 +104,7 @@ class Himoku(models.Model):
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
 
     def __str__(self):
-        return self.himoku_name
+        return self.himoku_name + " (" + self.accounting_class.accounting_name[:1] + ")"
 
     class Meta:
         """ユニーク制約
