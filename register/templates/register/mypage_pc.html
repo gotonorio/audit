@@ -30,7 +30,14 @@
             <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Original)</a>
           </div>
         </div>
-        <a class="navbar-item" href="{% url 'record:claim_list' %}">管理費等請求一覧</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link is-size-6">請求データ</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="{% url 'billing:billing_list' %}">請求合計金額内訳</a>
+            <a class="navbar-item" href="{% url 'record:claim_list' %}">管理費等請求一覧</a>
+          </div>
+        </div>
+        
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link is-size-6">月次報告</a>
           <div class="navbar-dropdown">

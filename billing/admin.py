@@ -7,13 +7,13 @@ class BillingItemAdmin(admin.ModelAdmin):
     list_display = [
         "code",
         "item_name",
+        "is_billing",
         "alive",
     ]
 
 
 class BillingAdmin(admin.ModelAdmin):
     list_display = [
-        "code",
         "transaction_date",
         "billing_item",
         "billing_ammount",
