@@ -1,0 +1,27 @@
+from django.contrib import admin
+
+from .models import Billing, BillingItem
+
+
+class BillingItemAdmin(admin.ModelAdmin):
+    list_display = [
+        "code",
+        "item_name",
+        "alive",
+    ]
+
+
+class BillingAdmin(admin.ModelAdmin):
+    list_display = [
+        "code",
+        "transaction_date",
+        "billing_item",
+        "billing_ammount",
+        "comment",
+        "author",
+    ]
+    ordering = ("transaction_date",)
+
+
+admin.site.register(Billing, BillingAdmin)
+admin.site.register(BillingItem, BillingItemAdmin)

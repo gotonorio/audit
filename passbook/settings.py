@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "control.apps.ControlConfig",
     "budget.apps.BudgetConfig",
     "payment.apps.PaymentConfig",
+    "billing.apps.BillingConfig",
     "kurasel_translator.apps.KuraselTranslatorConfig",
     "explanation.apps.ExplanationConfig",
 ]
