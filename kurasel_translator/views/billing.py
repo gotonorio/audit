@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class BillingIntakeView(PermissionRequiredMixin, FormView):
-    """請求総額データの取込み"""
+    """請求合計金額内訳データの取込み"""
 
     template_name = "kurasel_translator/billing_form.html"
     form_class = KuraselTranslatorForm
