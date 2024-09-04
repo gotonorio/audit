@@ -3,8 +3,8 @@ import logging
 from django import forms
 from django.conf import settings
 from django.utils import timezone
-from passbook.forms import YearMonthForm
 
+from passbook.forms import YearMonthForm
 from record.models import (
     Account,
     AccountingClass,
@@ -106,7 +106,9 @@ class TransactionCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
+            "%Y-%m-%d"
+        )
         self.fields["is_manualinput"].initial = True
 
     class Meta:
@@ -114,7 +116,7 @@ class TransactionCreateForm(forms.ModelForm):
         fields = [
             "account",
             "transaction_date",
-            "ammount",
+            "amount",
             "himoku",
             "requesters_name",
             "description",
@@ -145,7 +147,7 @@ class TransactionCreateForm(forms.ModelForm):
                     "class": "is-size-6",
                 }
             ),
-            "ammount": forms.NumberInput(
+            "amount": forms.NumberInput(
                 attrs={
                     "class": "input",
                 }
@@ -182,7 +184,9 @@ class TransactionCreateForm(forms.ModelForm):
             settings.MAEUKE,
         ]:
             if calc_flag:
-                raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
+                raise forms.ValidationError(
+                    "費目が「前受金」、の場合、計算フラグのチェックは外してください"
+                )
         return calc_flag
 
 
@@ -318,7 +322,7 @@ class TransactionOffsetForm(TransactionCreateForm):
             "is_income",
             "is_manualinput",
             "transaction_date",
-            "ammount",
+            "amount",
             "balance",
             "himoku",
             "requesters_name",
@@ -344,7 +348,7 @@ class TransactionOffsetForm(TransactionCreateForm):
                     "readonly": True,
                 }
             ),
-            "ammount": forms.NumberInput(
+            "amount": forms.NumberInput(
                 attrs={
                     "class": "input",
                 }
@@ -364,7 +368,7 @@ class TransactionDivideForm(forms.Form):
     """相殺処理されたデータの分割データ入力form"""
 
     # 金額
-    ammount = forms.IntegerField(
+    amount = forms.IntegerField(
         label="金額",
         required=False,
         widget=forms.NumberInput(
@@ -396,7 +400,9 @@ class TransactionDivideForm(forms.Form):
 
 
 # TransactionDivideFormを複数（settings.FORMSET_NUM）並べるためのFormSet。
-TransactionDivideFormSet = forms.formset_factory(TransactionDivideForm, extra=settings.FORMSET_NUM)
+TransactionDivideFormSet = forms.formset_factory(
+    TransactionDivideForm, extra=settings.FORMSET_NUM
+)
 
 
 class HimokuCsvFileSelectForm(forms.Form):
@@ -412,7 +418,9 @@ class HimokuCsvFileSelectForm(forms.Form):
         if file.name.endswith(".csv"):
             return file
         else:
-            raise forms.ValidationError("拡張子がcsvのファイルをアップロードしてください")
+            raise forms.ValidationError(
+                "拡張子がcsvのファイルをアップロードしてください"
+            )
 
     # fieldにcssを設定するためのclassを設定する。
     def __init__(self, *args, **kwargs):

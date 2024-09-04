@@ -2,13 +2,14 @@ import datetime
 import logging
 
 import jpholiday
-from billing.models import Billing
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
+
+from billing.models import Billing
 from kurasel_translator.my_lib.append_list import select_period
 from kurasel_translator.my_lib.check_lib import check_period
 from monthly_report.models import BalanceSheet, ReportTransaction
@@ -81,7 +82,7 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         total_pb = 0
         for d in qs_pb:
             if d.is_approval:
-                total_pb += d.ammount
+                total_pb += d.amount
 
         # ---------------------------------------------------------------------
         # 未払いデータ
@@ -89,9 +90,9 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         qs_this_miharai, total_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
 
         # 前月の未払金
-        qs_last_miharai = BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend]).filter(
-            item_name__item_name__contains="未払金"
-        )
+        qs_last_miharai = BalanceSheet.objects.filter(
+            monthly_date__range=[last_tstart, last_tend]
+        ).filter(item_name__item_name__contains="未払金")
         # 前月の未収金合計
         total_last_miharai = 0
         for d in qs_last_miharai:
@@ -152,7 +153,9 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
         # 月次収支の支出合計（ネッティング処理、集計フラグがFalseの費目を除外する）
-        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(himoku__aggregate_flag=False)
+        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(
+            himoku__aggregate_flag=False
+        )
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
 
         # ---------------------------------------------------------------------
@@ -165,7 +168,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         for d in qs_pb:
             # 費目名が「不明」の場合も考慮する
             if d.himoku and d.himoku.aggregate_flag:
-                total_pb += d.ammount
+                total_pb += d.amount
 
         # ---------------------------------------------------------------------
         # 当月の未払い
@@ -192,7 +195,10 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
             total_last_miharai += d.amounts
 
         # 2023年4月（Kurasel監査の開始月）前月の未払金
-        if int(year) == settings.START_KURASEL["year"] and int(month) == settings.START_KURASEL["month"]:
+        if (
+            int(year) == settings.START_KURASEL["year"]
+            and int(month) == settings.START_KURASEL["month"]
+        ):
             total_last_miharai = settings.MIHARAI_INITIAL
 
         context["mr_list"] = qs_mr
@@ -269,7 +275,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
-        qs_mr = qs_mr.exclude(ammount=0)
+        qs_mr = qs_mr.exclude(amount=0)
         # 月次収支の収入合計
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
@@ -281,14 +287,18 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         start_date = datetime.date(2023, 4, 1)
         qs_pb = qs_pb.filter(transaction_date__gte=start_date)
         # 資金移動は除く
-        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by("transaction_date", "himoku")
+        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by(
+            "transaction_date", "himoku"
+        )
         # 収入合計金額
         total_pb, _ = Transaction.calc_total(qs_pb)
 
         # ---------------------------------------------------------------------
         # (3) 請求時点前受金リスト（当月使用する前受金）
         # ---------------------------------------------------------------------
-        total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke_claim(year, month)
+        total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke_claim(
+            year, month
+        )
         if settings.DEBUG:
             logger.debug(f"{month}月度の請求時前受金＝{total_last_maeuke:,}")
 
@@ -299,7 +309,9 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         if settings.DEBUG:
             logger.debug(f"{month}月度の請求時未収金＝{total_mishuu_claim:,}")
         # 確認のため貸借対照表データから前月の未収金を計算する。
-        last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(last_tstart, last_tend)
+        last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(
+            last_tstart, last_tend
+        )
         if settings.DEBUG:
             logger.debug(f"{lastmonth}月度貸借対照表の未収金＝{total_last_mishuu:,}")
 
@@ -311,23 +323,35 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # ---------------------------------------------------------------------
         # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
         # ---------------------------------------------------------------------
-        qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
+        qs_is_netting = ReportTransaction.objects.filter(
+            transaction_date__range=[tstart, tend]
+        )
         qs_is_netting = qs_is_netting.filter(is_netting=True)
-        dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("ammount"))
+        dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("amount"))
         netting_total = dict_is_netting["netting_total"]
         # 相殺項目合計が存在しない場合をチェック
         if netting_total is None:
             netting_total = 0
         # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の未収金は規定値とする。
-        if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
-            total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
+        if (
+            year == settings.START_KURASEL["year"]
+            and month == settings.START_KURASEL["month"]
+        ):
+            total_last_mishuu = (
+                settings.MISHUU_KANRI
+                + settings.MISHUU_SHUUZEN
+                + settings.MISHUU_PARKING
+            )
 
         # ---------------------------------------------------------------------
         # (7) 前月の通帳データから前受金を計算する。
         # ---------------------------------------------------------------------
         pb_last_maeuke = Transaction.get_maeuke(lastyear, lastmonth)
         # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の前受金は規定値とする。
-        if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
+        if (
+            year == settings.START_KURASEL["year"]
+            and month == settings.START_KURASEL["month"]
+        ):
             pb_last_maeuke = settings.MAEUKE_INITIAL
 
         # ---------------------------------------------------------------------
@@ -363,7 +387,9 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_mr"] = total_mr
         # 入出金明細データの合計（前受金は月次報告で処理のため合計には加えない）
         context["total_pb"] = total_pb + netting_total
-        context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_mishuu_claim)
+        context["total_diff"] = context["total_pb"] - (
+            total_mr - total_last_maeuke + total_mishuu_claim
+        )
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
@@ -417,16 +443,20 @@ class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
         start_date = datetime.date(2023, 4, 1)
         qs_pb = qs_pb.filter(transaction_date__gte=start_date)
         # 資金移動は除く
-        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by("transaction_date", "himoku")
+        qs_pb = qs_pb.filter(himoku__aggregate_flag=True).order_by(
+            "transaction_date", "himoku"
+        )
         # 収入合計金額
         total_pb, _ = Transaction.calc_total(qs_pb.filter(is_billing=True))
 
         # ---------------------------------------------------------------------
         # (3) 自動控除された口座振替手数料。
         # ---------------------------------------------------------------------
-        qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
+        qs_is_netting = ReportTransaction.objects.filter(
+            transaction_date__range=[tstart, tend]
+        )
         qs_is_netting = qs_is_netting.filter(is_netting=True)
-        dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("ammount"))
+        dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("amount"))
         netting_total = dict_is_netting["netting_total"]
         # 相殺項目合計が存在しない場合をチェック
         if netting_total is None:

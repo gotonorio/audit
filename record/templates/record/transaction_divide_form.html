@@ -69,7 +69,7 @@
         <tr>
           <td class="has-text-centered">{{qs.transaction_date|date:'Y-m-d'}}</td>
           <td class="has-text-left">{{qs.himoku}}</td>
-          <td class="has-text-right">{{qs.ammount|intcomma}}</td>
+          <td class="has-text-right">{{qs.amount|intcomma}}</td>
           <td class="has-text-right">{{qs.balance|default_if_none:'0'|intcomma}}</td>
           <td class="has-text-left is-size-7">{{qs.requesters_name }}</td>
           <td class="has-text-left is-size-7">{{qs.description }}</td>
@@ -105,7 +105,7 @@
           <td>
             <div class='field'>
               <div class='control'>
-                <div class='my_field'>{{form.ammount}}</div>
+                <div class='my_field'>{{form.amount}}</div>
               </div>
             </div>
           </td>

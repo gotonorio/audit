@@ -8,7 +8,7 @@ class ReportTransactionAdmin(admin.ModelAdmin):
         "account",
         "accounting_class",
         "transaction_date",
-        "ammount",
+        "amount",
         "himoku",
         "description",
         "is_netting",

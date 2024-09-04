@@ -88,10 +88,10 @@
             <td class="has-text-ledt">{{record.himoku}}</td>
           {% endif %}
           {% if record.calc_flg %}
-            <td class="has-text-right">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right">{{record.amount|intcomma}}</td>
             <td class="has-text-left is-size-7">{{record.description|truncatechars:30}}</td>
           {% else %}
-            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
             <td class="has-text-left has-text-danger">(計算除外金) {{record.description}}</td>
           {% endif %}
           {% if perms.record.add_transaction %}

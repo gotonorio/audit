@@ -79,11 +79,11 @@
             <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
           {% if record.is_income %}
-            <td class="has-text-right">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right">{{record.amount|intcomma}}</td>
             <td class="has-text-right has-text-danger">0</td>
           {% else %}
             <td class="has-text-right">0</td>
-            <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
+            <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
           {% endif%}
           <td class="has-text-right">{{record.balance|default_if_none:'0'|intcomma}}</td>
           <td class="has-text-left is-size-7">{{record.requesters_name }}</td>

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.utils import timezone
+
 from record.models import Account, AccountingClass, Himoku
 
 user = get_user_model()
@@ -15,7 +16,9 @@ logger = logging.getLogger(__name__)
 class ReportTransaction(models.Model):
     """月次収支データモデル"""
 
-    account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
+    account = models.ForeignKey(
+        Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
+    )
     accounting_class = models.ForeignKey(
         AccountingClass,
         verbose_name="会計区分",
@@ -24,11 +27,15 @@ class ReportTransaction(models.Model):
         blank=True,
     )
     transaction_date = models.DateField("取引月")
-    ammount = models.IntegerField("金額", default=0)
-    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
+    amount = models.IntegerField("金額", default=0)
+    himoku = models.ForeignKey(
+        Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True
+    )
     calc_flg = models.BooleanField(verbose_name="計算対象", default=True)
     description = models.CharField("摘要", max_length=64, blank=True, default="")
-    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(
+        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
+    )
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
     delete_flg = models.BooleanField(default=False)
     is_netting = models.BooleanField(verbose_name="相殺処理", default=False)
@@ -65,13 +72,15 @@ class ReportTransaction(models.Model):
         elif inout_flg == "expense":
             qs_mr = qs_mr.filter(himoku__is_income=False)
         # (4) 有効な費目、支出のある費目でfilter
-        qs_mr = qs_mr.filter(himoku__alive=True).exclude(ammount=0)
+        qs_mr = qs_mr.filter(himoku__alive=True).exclude(amount=0)
         # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
         # (6) 町内会会計を除くかどうか
         if community is False:
-            obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
+            obj = AccountingClass.get_accountingclass_obj(
+                AccountingClass.get_class_name("町内会")
+            )
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
         return qs_mr
 
@@ -89,10 +98,10 @@ class ReportTransaction(models.Model):
         if flg:
             for data in sql:
                 if data.himoku.aggregate_flag:
-                    total_withdrawals += data.ammount
+                    total_withdrawals += data.amount
         else:
             for data in sql:
-                total_withdrawals += data.ammount
+                total_withdrawals += data.amount
         return total_withdrawals
 
     @classmethod
@@ -147,7 +156,7 @@ class ReportTransaction(models.Model):
                     defaults={
                         # 口座は1つだけなので、first()で取得できる。
                         "account": Account.objects.all().first(),
-                        "ammount": int(item[2]),
+                        "amount": int(item[2]),
                         "calc_flg": True,
                         "author": author_obj,
                     },
@@ -210,8 +219,12 @@ class BalanceSheet(models.Model):
 
     monthly_date = models.DateField(verbose_name="月度", null=True, blank=True)
     amounts = models.IntegerField(verbose_name="金額", default=0)
-    item_name = models.ForeignKey(BalanceSheetItem, on_delete=models.CASCADE, null=True, blank=True)
-    comment = models.CharField(verbose_name="備考", max_length=64, null=True, blank=True)
+    item_name = models.ForeignKey(
+        BalanceSheetItem, on_delete=models.CASCADE, null=True, blank=True
+    )
+    comment = models.CharField(
+        verbose_name="備考", max_length=64, null=True, blank=True
+    )
 
     def __int__(self):
         return self.ammounts
@@ -222,13 +235,19 @@ class BalanceSheet(models.Model):
     @classmethod
     def get_bs(cls, tstart, tend, ac_class, is_asset):
         """期間と資産・負債フラグで貸借対照表データ抽出する。"""
-        qs_bs = cls.objects.all().select_related("item_name").filter(item_name__is_asset=is_asset)
+        qs_bs = (
+            cls.objects.all()
+            .select_related("item_name")
+            .filter(item_name__is_asset=is_asset)
+        )
         # 期間でfiler
         qs_bs = qs_bs.filter(monthly_date__range=[tstart, tend])
         if ac_class:
             qs_bs = qs_bs.filter(item_name__ac_class=ac_class)
         else:
-            qs_bs = qs_bs.values("item_name__item_name").annotate(all_amounts=Sum("amounts"))
+            qs_bs = qs_bs.values("item_name__item_name").annotate(
+                all_amounts=Sum("amounts")
+            )
 
         return qs_bs
 
@@ -245,7 +264,9 @@ class BalanceSheet(models.Model):
         rtn = True
         for item_name, amounts in data["bs_dict"].items():
             try:
-                item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(item_name=item_name)
+                item_name_obj = BalanceSheetItem.objects.filter(ac_class=ac_class).get(
+                    item_name=item_name
+                )
                 cls.objects.update_or_create(
                     monthly_date=monthly_date,
                     item_name=item_name_obj,
@@ -277,9 +298,9 @@ class BalanceSheet(models.Model):
     @classmethod
     def get_miharai_bs(cls, tstart, tend):
         """期間の貸借対照表の未払金を返す"""
-        qs_miharai = BalanceSheet.objects.filter(monthly_date__range=[tstart, tend]).filter(
-            item_name__item_name__contains="未払金"
-        )
+        qs_miharai = BalanceSheet.objects.filter(
+            monthly_date__range=[tstart, tend]
+        ).filter(item_name__item_name__contains="未払金")
         # 未払金合計
         total_miharai = 0
         for d in qs_miharai:

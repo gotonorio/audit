@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import FormView
+
 from record.forms import (
     ApprovalCheckDataForm,
     ClaimUpdateForm,
@@ -57,7 +58,7 @@ class TransactionCreateView(PermissionRequiredMixin, generic.CreateView):
         msg = (
             f"日付「{self.object.created_date.date()}」"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"作成者「{self.request.user}」"
         )
         logger.info(msg)
@@ -77,7 +78,9 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
+            "transaction_date", flat=True
+        )
         year = qs[0].year
         month = qs[0].month
         # UPDATE後の会計区分は「全会計区分」を表示させる。
@@ -101,7 +104,7 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
         msg = (
             f"日付「{self.object.created_date.date()}」"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"作成者「{self.request.user}」"
         )
         logger.info(msg)
@@ -119,7 +122,9 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
 
     # 削除が成功した場合の遷移処理
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
+            "transaction_date", flat=True
+        )
         year = qs[0].year
         month = qs[0].month
         return reverse_lazy(
@@ -136,7 +141,7 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
         msg = (
             f"削除 日付「{self.object.transaction_date}」"
             f"費目「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"摘要「{self.object.description}」"
             f"削除者「{self.request.user}」"
         )
@@ -204,7 +209,11 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
         if ac_class == "":
             qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
         else:
-            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("-alive", "code")
+            qs = (
+                Himoku.objects.all()
+                .filter(accounting_class=ac_class)
+                .order_by("-alive", "code")
+            )
         context["himoku_list"] = qs
         context["form"] = form
         return context
@@ -252,7 +261,9 @@ class TransferRequesterCreateView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
+        context["requester_list"] = TransferRequester.objects.all().order_by(
+            "requester"
+        )
         return context
 
 
@@ -268,7 +279,9 @@ class TransferRequesterUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
+        context["requester_list"] = TransferRequester.objects.all().order_by(
+            "requester"
+        )
         return context
 
 
@@ -297,7 +310,7 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
                     "is_manualinput": True,
                     "calc_flg": True,
                     "transaction_date": qs.transaction_date,
-                    "ammount": (qs.ammount * -1),
+                    "amount": (qs.amount * -1),
                     "requesters_name": f"{qs.requesters_name}",
                     "description": f"{qs.description}（相殺）",
                     "himoku": qs.himoku,
@@ -354,15 +367,15 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         transaction_date = qs.transaction_date
         balance = qs.balance
         # 分割する金額
-        base_ammount = -qs.ammount
+        base_ammount = -qs.amount
         # 分割した場合、費目はデフォルト費目とする
         default_himoku = Himoku.get_default_himoku()
 
         # 分割したデータの合計金額をチェックする。
         total_divide_ammount = 0
         for subform in form:
-            if subform.cleaned_data.get("ammount") is not None:
-                total_divide_ammount += subform.cleaned_data.get("ammount")
+            if subform.cleaned_data.get("amount") is not None:
+                total_divide_ammount += subform.cleaned_data.get("amount")
         if total_divide_ammount != base_ammount:
             messages.add_message(
                 self.request,
@@ -373,8 +386,8 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
 
         # formにはformsetがセットされているので、繰り返し処理する。
         for subform in form:
-            ammount = subform.cleaned_data.get("ammount")
-            if ammount is not None and int(ammount) > 0:
+            amount = subform.cleaned_data.get("amount")
+            if amount is not None and int(amount) > 0:
                 # 振込依頼人はFormから受け取る
                 requesters_name = subform.cleaned_data.get("requesters_name")
                 # 摘要はFormから受け取る
@@ -394,7 +407,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     # 費目名は「不明」に決め打ち
                     divide.himoku = default_himoku
                     # 金額、、振込依頼人、摘要はFormから受け取る
-                    divide.ammount = ammount
+                    divide.amount = amount
                     divide.requesters_name = requesters_name
                     divide.description = description
                     # divide.author = user.objects.get(id=user_id)
@@ -402,12 +415,12 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     divide.is_manualinput = True
                     divide.calc_flg = True
                     # ログを記録
-                    msg = f"{transaction_date} : 金額:{ammount:,}を作成。by {self.request.user}"
+                    msg = f"{transaction_date} : 金額:{amount:,}を作成。by {self.request.user}"
                     logger.info(msg)
                     divide.save()
                 except Exception as e:
                     logger.error(e)
-                    error_list.append(ammount)
+                    error_list.append(amount)
                     return self.render_to_response(self.get_context_data(form=form))
 
         # 保存が成功したら入出金明細にredirectする。
@@ -513,7 +526,9 @@ class ClaimdataUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = ClaimData.objects.filter(pk=self.object.pk).values("claim_date", "claim_type")
+        qs = ClaimData.objects.filter(pk=self.object.pk).values(
+            "claim_date", "claim_type"
+        )
         year = qs[0]["claim_date"].year
         month = qs[0]["claim_date"].month
         claim_type = qs[0]["claim_type"]

@@ -52,7 +52,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "is_income",
         "is_manualinput",
         "transaction_date",
-        "ammount",
+        "amount",
         "himoku",
         "balance",
         "description",
@@ -67,7 +67,7 @@ class ApprovalCheckDataAdmin(admin.ModelAdmin):
 
 
 class ClaimDataAdmin(admin.ModelAdmin):
-    list_display = ["claim_date", "claim_type", "room_no", "name", "ammount", "comment"]
+    list_display = ["claim_date", "claim_type", "room_no", "name", "amount", "comment"]
     ordering = ("claim_type", "claim_date")
 
 

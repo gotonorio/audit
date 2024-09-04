@@ -1,7 +1,6 @@
 import calendar
 import logging
 
-from control.models import ControlRecord
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -10,6 +9,8 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
+
+from control.models import ControlRecord
 from kurasel_translator.my_lib.append_list import select_period
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import ReportTransaction
@@ -28,9 +29,9 @@ def monthly_total(qs, year, item_name):
         day = calendar.monthrange(year, month)[1]
         sdate = timezone.datetime(year, month, 1, 0, 0, 0)
         edate = timezone.datetime(year, month, day, 0, 0, 0)
-        rtn["total" + str(month)] = qs.filter(transaction_date__range=[sdate, edate]).aggregate(
-            tmp=Coalesce(Sum(item_name), 0)
-        )["tmp"]
+        rtn["total" + str(month)] = qs.filter(
+            transaction_date__range=[sdate, edate]
+        ).aggregate(tmp=Coalesce(Sum(item_name), 0))["tmp"]
     return rtn
 
 
@@ -49,7 +50,7 @@ def monthly_total(qs, year, item_name):
 #     # 資金移動は除く。（aggregate_flag=True）
 #     qs = qs.filter(himoku__aggregate_flag=True)
 #     # 月毎の支出合計を計算して返す。
-#     return monthly_total(qs, int(year), "ammount")
+#     return monthly_total(qs, int(year), "amount")
 
 
 def adjust_month(year, month):
@@ -84,12 +85,14 @@ def get_allmonths_data(qs, year):
     # 日付の期間を作成
     period = get_year_period(int(year))
 
-    rtn = qs.values("himoku__himoku_name", "himoku__accounting_class__accounting_name").annotate(
+    rtn = qs.values(
+        "himoku__himoku_name", "himoku__accounting_class__accounting_name"
+    ).annotate(
         month1=Sum(
             Case(
                 When(
                     transaction_date__range=[period[0][0], period[0][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -98,7 +101,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[1][0], period[1][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -107,7 +110,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[2][0], period[2][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -116,7 +119,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[3][0], period[3][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -125,7 +128,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[4][0], period[4][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -134,7 +137,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[5][0], period[5][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -143,7 +146,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[6][0], period[6][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -152,7 +155,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[7][0], period[7][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -161,7 +164,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[8][0], period[8][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -170,7 +173,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[9][0], period[9][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -179,7 +182,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[10][0], period[10][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -188,7 +191,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[11][0], period[11][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -198,7 +201,7 @@ def get_allmonths_data(qs, year):
             Case(
                 When(
                     transaction_date__range=[period[0][0], period[11][1]],
-                    then="ammount",
+                    then="amount",
                 ),
                 default=0,
             )
@@ -213,9 +216,9 @@ def aggregate_himoku(qs):
     for item in qs:
         key = item.himoku.himoku_name
         if key in pb_dict:
-            pb_dict[key] = pb_dict[key] + item.ammount
+            pb_dict[key] = pb_dict[key] + item.amount
         else:
-            pb_dict[key] = item.ammount
+            pb_dict[key] = item.amount
     return pb_dict
 
 
@@ -228,7 +231,7 @@ def qs_year_income(tstart, tend, ac_class, others_flg):
         qs = qs.exclude(himoku__himoku_name="修繕積立金")
     # 月次報告収入の月別合計を計算。
     year = tstart.year
-    mr_total = monthly_total(qs, int(year), "ammount")
+    mr_total = monthly_total(qs, int(year), "amount")
     # 年間合計を計算してmr_totalに追加する。
     mr_total["year_total"] = sum(mr_total.values())
     # 各月毎の収入額を抽出。
@@ -261,7 +264,9 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         tstart, tend = select_period(year, month)
 
         # 町内会会計が選択された場合の処理
-        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
+        ac_name = AccountingClass.get_accountingclass_obj(
+            AccountingClass.get_class_name("町内")
+        )
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
@@ -323,7 +328,9 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         # 抽出期間
         tstart, tend = select_period(year, month)
         # 町内会会計が選択された場合の処理
-        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
+        ac_name = AccountingClass.get_accountingclass_obj(
+            AccountingClass.get_class_name("町内")
+        )
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
@@ -381,7 +388,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
 
         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
-        mr_total = monthly_total(qs, int(year), "ammount")
+        mr_total = monthly_total(qs, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。
         mr_total["year_total"] = sum(mr_total.values())
 
@@ -475,15 +482,17 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         # 収入
         qs_income = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 月次報告収入の月別合計を計算。
-        mr_income_total = monthly_total(qs_income, int(year), "ammount")
+        mr_income_total = monthly_total(qs_income, int(year), "amount")
         # 年間合計を計算してmr_income_totalに追加する。
         mr_income_total["income_year_total"] = sum(mr_income_total.values())
         context["mr_income_total"] = mr_income_total
 
         # 支出
-        qs_expense = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        qs_expense = ReportTransaction.get_qs_mr(
+            tstart, tend, ac_class, "expense", False
+        )
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
-        mr_expense_total = monthly_total(qs_expense, int(year), "ammount")
+        mr_expense_total = monthly_total(qs_expense, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。
         mr_expense_total["expense_year_total"] = sum(mr_expense_total.values())
         context["mr_expense_total"] = mr_expense_total
@@ -554,7 +563,7 @@ class UnpaidBalanceListView(PermissionRequiredMixin, generic.TemplateView):
         # 未払金の合計
         total = 0
         for i in qs:
-            total += i.ammount
+            total += i.amount
         # formに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
@@ -592,7 +601,9 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
         ac_parking = AccountingClass.objects.get(accounting_name="駐車場会計")
 
         # 修繕積立金会計「その他収入」リスト
-        qs_others_income, others_income_total = qs_year_income(tstart, tend, ac_shuuzen, True)
+        qs_others_income, others_income_total = qs_year_income(
+            tstart, tend, ac_shuuzen, True
+        )
         context["others_income_total"] = others_income_total
 
         # 駐車場会計

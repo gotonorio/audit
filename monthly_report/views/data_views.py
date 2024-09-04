@@ -49,7 +49,7 @@ class MonthlyReportIncomeCreateView(PermissionRequiredMixin, generic.CreateView)
         msg = (
             f"日付「{self.object.created_date.date()}」"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"作成者「{self.request.user}」"
         )
         logger.info(msg)
@@ -87,7 +87,7 @@ class MonthlyReportExpenseCreateView(MonthlyReportIncomeCreateView):
         msg = (
             f"{self.object.created_date.date()}"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"作成者「{self.request.user}」"
         )
         logger.info(msg)
@@ -134,7 +134,7 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, generic.UpdateView)
         msg = (
             f"{self.object.created_date.date()}"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"修正者「{self.request.user}」"
         )
         logger.info(msg)
@@ -174,7 +174,7 @@ class MonthlyReportExpenseUpdateView(MonthlyReportIncomeUpdateView):
         msg = (
             f"{self.object.created_date.date()}"
             f"費目名「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"修正者「{self.request.user}」"
         )
         logger.info(msg)
@@ -212,7 +212,7 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
         # ログに削除の情報を記録する
         logger.info(
             f"費目「{self.object.himoku}」"
-            f"金額「{self.object.ammount:,}」"
+            f"金額「{self.object.amount:,}」"
             f"摘要「{self.object.description}」"
             f"削除者「{self.request.user}」"
         )

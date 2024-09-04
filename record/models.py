@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+
 from kurasel_translator.my_lib.append_list import select_period
 
 user = get_user_model()
@@ -28,7 +29,9 @@ class Account(models.Model):
 
     account_name = models.CharField(verbose_name="口座名", max_length=32)
     branch_number = models.CharField(verbose_name="支店番号", max_length=10)
-    account_number = models.CharField(verbose_name="口座番号", max_length=16, unique=True)
+    account_number = models.CharField(
+        verbose_name="口座番号", max_length=16, unique=True
+    )
     account_type = models.CharField(verbose_name="口座種類", max_length=16)
     bank = models.ForeignKey(Bank, verbose_name="銀行名", on_delete=models.CASCADE)
     alive = models.BooleanField(verbose_name="有効", default=True)
@@ -52,7 +55,9 @@ class AccountingClass(models.Model):
     """会計区分マスタ（Kurasel導入で追加）"""
 
     code = models.IntegerField(verbose_name="コード", unique=True)
-    accounting_name = models.CharField(verbose_name="会計区分名", max_length=32, unique=True)
+    accounting_name = models.CharField(
+        verbose_name="会計区分名", max_length=32, unique=True
+    )
 
     def __str__(self):
         return self.accounting_name
@@ -99,7 +104,9 @@ class Himoku(models.Model):
     alive = models.BooleanField(verbose_name="有効", default=True)
     aggregate_flag = models.BooleanField(verbose_name="集計", default=True)
     # Kurasel導入で追加
-    accounting_class = models.ForeignKey(AccountingClass, on_delete=models.CASCADE, blank=True, null=True)
+    accounting_class = models.ForeignKey(
+        AccountingClass, on_delete=models.CASCADE, blank=True, null=True
+    )
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
 
@@ -113,7 +120,9 @@ class Himoku(models.Model):
         """
 
         constraints = [
-            models.UniqueConstraint(fields=["himoku_name", "accounting_class"], name="himoku_unique"),
+            models.UniqueConstraint(
+                fields=["himoku_name", "accounting_class"], name="himoku_unique"
+            ),
             models.UniqueConstraint(
                 fields=["is_default"],
                 condition=models.Q(is_default=True),
@@ -185,14 +194,18 @@ class Himoku(models.Model):
     def get_himoku_list(cls):
         """有効な費目名をリストで返す"""
         himoku_list = []
-        himoku_list = cls.objects.filter(alive=True).values_list("himoku_name", flat=True)
+        himoku_list = cls.objects.filter(alive=True).values_list(
+            "himoku_name", flat=True
+        )
         return himoku_list
 
     @classmethod
     def get_without_community(cls):
         """町内会費会計を除外した有効な費目を返す"""
         qs = (
-            Himoku.objects.exclude(accounting_class__accounting_name=settings.COMMUNITY_ACCOUNTING)
+            Himoku.objects.exclude(
+                accounting_class__accounting_name=settings.COMMUNITY_ACCOUNTING
+            )
             .filter(alive=True)
             .distinct()
         )
@@ -230,9 +243,15 @@ class Himoku(models.Model):
 class TransferRequester(models.Model):
     """Kuraselの振込依頼人データと費目名を関連付けるためのモデル"""
 
-    requester = models.CharField(verbose_name="振込依頼人名", max_length=64, blank=True, null=True)
-    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True)
-    comment = models.CharField(verbose_name="備考", max_length=64, blank=True, null=True)
+    requester = models.CharField(
+        verbose_name="振込依頼人名", max_length=64, blank=True, null=True
+    )
+    himoku = models.ForeignKey(
+        Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True
+    )
+    comment = models.CharField(
+        verbose_name="備考", max_length=64, blank=True, null=True
+    )
 
     def __str__(self):
         return self.requester
@@ -250,15 +269,23 @@ class Transaction(models.Model):
     入出金種別を「入金/出金」だけにするため、is_incomeフィールドを追加。2023-03-04
     """
 
-    account = models.ForeignKey(Account, verbose_name="口座名", on_delete=models.CASCADE, null=True)
+    account = models.ForeignKey(
+        Account, verbose_name="口座名", on_delete=models.CASCADE, null=True
+    )
     is_income = models.BooleanField(verbose_name="入金flg", default=False)
     transaction_date = models.DateField(verbose_name="取引日")
-    ammount = models.IntegerField(verbose_name="金額", default=0)
-    himoku = models.ForeignKey(Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True)
-    requesters_name = models.CharField(verbose_name="振込依頼人名", max_length=64, default="")
+    amount = models.IntegerField(verbose_name="金額", default=0)
+    himoku = models.ForeignKey(
+        Himoku, verbose_name="費目名", on_delete=models.CASCADE, null=True
+    )
+    requesters_name = models.CharField(
+        verbose_name="振込依頼人名", max_length=64, default=""
+    )
     description = models.CharField(verbose_name="摘要", max_length=64, default="")
     balance = models.IntegerField(verbose_name="残高", null=True, blank=True)
-    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(
+        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
+    )
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
     delete_flg = models.BooleanField(default=False)
     calc_flg = models.BooleanField(default=True)
@@ -282,9 +309,11 @@ class Transaction(models.Model):
         # 前受金の費目id
         id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
         total = 0
-        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
+        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(
+            himoku=id
+        )
         for i in qs:
-            total += i.ammount
+            total += i.amount
         return total
 
     @staticmethod
@@ -295,9 +324,9 @@ class Transaction(models.Model):
         for data in sql:
             # 「資金移動」費目では収入と支出の両パターンがあるため、is_incomeを使う。
             if data.is_income:
-                total_deposit += data.ammount
+                total_deposit += data.amount
             else:
-                total_withdrawals += data.ammount
+                total_withdrawals += data.amount
         return total_deposit, total_withdrawals
 
     #
@@ -312,9 +341,9 @@ class Transaction(models.Model):
             if data.calc_flg:
                 # 「資金移動」費目では収入と支出の両パターンがあるため、is_incomeを使う。
                 if data.is_income:
-                    total_deposit += data.ammount
+                    total_deposit += data.amount
                 else:
-                    total_withdrawals += data.ammount
+                    total_withdrawals += data.amount
         return total_deposit, total_withdrawals
 
     @classmethod
@@ -333,7 +362,9 @@ class Transaction(models.Model):
         if manualinput:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
-            qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(is_manualinput=False)
+            qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(
+                is_manualinput=False
+            )
         # 入金・出金のfilter
         if deposit_flg == "income":
             qs_pb = qs_pb.filter(is_income=True)
@@ -349,7 +380,12 @@ class Transaction(models.Model):
 
     @classmethod
     def dwd_from_kurasel(
-        cls, data, paymentmethod_list, requester_list, default_himoku, banking_fee_himoku
+        cls,
+        data,
+        paymentmethod_list,
+        requester_list,
+        default_himoku,
+        banking_fee_himoku,
     ) -> int:
         """kurasel_translatorからDeposits and withdrawals（入出金明細データ）を読み込む
         - 戻り値：取り込んだ「月」(int型)。エラーの場合は0を返す。
@@ -398,14 +434,14 @@ class Transaction(models.Model):
             try:
                 cls.objects.get_or_create(
                     transaction_date=item[1],
-                    ammount=item[2],
+                    amount=item[2],
                     requesters_name=item[4],
                     defaults={
                         "account": Account.objects.all().first(),
                         "is_income": income,
                         "transaction_date": item[1],
                         "himoku": himoku_obj,
-                        "ammount": int(item[2]),
+                        "amount": int(item[2]),
                         "balance": item[3],
                         "requesters_name": item[4],
                         "description": item[5],
@@ -456,8 +492,12 @@ class Transaction(models.Model):
 class ApprovalCheckData(models.Model):
     """入出金明細データの「支払い承認」が必要か否かを判定するための文字列オブジェクト"""
 
-    atext = models.CharField(verbose_name="チェック文字列", max_length=16, blank=True, null=True, unique=True)
-    comment = models.CharField(verbose_name="備考", max_length=50, blank=True, null=True)
+    atext = models.CharField(
+        verbose_name="チェック文字列", max_length=16, blank=True, null=True, unique=True
+    )
+    comment = models.CharField(
+        verbose_name="備考", max_length=50, blank=True, null=True
+    )
     alive = models.BooleanField(verbose_name="有効", default=True)
 
     def __str__(self):
@@ -476,7 +516,7 @@ class ClaimData(models.Model):
     )
     room_no = models.CharField(verbose_name="部屋番号", max_length=16, default="")
     name = models.CharField(verbose_name="氏名", max_length=16, default="")
-    ammount = models.IntegerField(verbose_name="金額", default=0)
+    amount = models.IntegerField(verbose_name="金額", default=0)
     comment = models.CharField(verbose_name="摘要", max_length=64, default="")
 
     def __str__(self):
@@ -498,7 +538,7 @@ class ClaimData(models.Model):
                     claim_type=claim_type,
                     room_no=item[1],
                     name=item[2],
-                    ammount=item[3],
+                    amount=item[3],
                 )
             except Exception as e:
                 logger.error(e)
@@ -514,13 +554,13 @@ class ClaimData(models.Model):
         maeuke_dict = (
             cls.objects.filter(claim_date=claim_date)
             .filter(claim_type="前受金")
-            .values("claim_date", "room_no", "ammount", "comment")
+            .values("claim_date", "room_no", "amount", "comment")
         )
         # 前受金の合駅
         total = 0
         comment = ""
         for i in maeuke_dict:
-            total += i["ammount"]
+            total += i["amount"]
             comment += i["comment"]
 
         return total, maeuke_dict, comment
@@ -533,12 +573,12 @@ class ClaimData(models.Model):
         mishuu_dict = (
             cls.objects.filter(claim_date=claim_date)
             .filter(claim_type="未収金")
-            .values("claim_date", "room_no", "ammount")
+            .values("claim_date", "room_no", "amount")
         )
         # 未収金の合駅
         total = 0
         for i in mishuu_dict:
-            total += i["ammount"]
+            total += i["amount"]
 
         return total, mishuu_dict
 
@@ -553,6 +593,6 @@ class ClaimData(models.Model):
         )
         total = 0
         for i in claim_qs:
-            total += i.ammount
+            total += i.amount
 
         return claim_qs, total
