@@ -122,6 +122,7 @@ class TransactionCreateForm(forms.ModelForm):
             "is_approval",
             "is_income",
             "is_manualinput",
+            "is_billing",
         ]
         labels = {"calc_flg": "計算対象", "is_manualinput": "手動入力Flg"}
         widgets = {
@@ -160,6 +161,7 @@ class TransactionCreateForm(forms.ModelForm):
             "is_income": "※ 入金の場合はチェックする。",
             "calc_flg": "※ 前受金の場合はチェックしない。",
             "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
+            "is_billing": "※ 請求金額合計内訳の項目の場合はチェックする。",
         }
 
     def clean_transaction_date(self):

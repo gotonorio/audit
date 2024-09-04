@@ -47,4 +47,15 @@ urlpatterns = [
         kurasel_views.MonthlyReportIncomeCheckView.as_view(),
         name="kurasel_mr_income_check",
     ),
+    # 請求金額内訳データチェック
+    path(
+        "kurasel_ba_income_check/",
+        kurasel_views.BillingAmountCheckView.as_view(),
+        name="kurasel_billing_check",
+    ),
+    path(
+        "kurasel_ba_income_check/<int:year>/<str:month>/",
+        kurasel_views.BillingAmountCheckView.as_view(),
+        name="kurasel_billing_check",
+    ),
 ]

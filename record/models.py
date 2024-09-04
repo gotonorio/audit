@@ -267,6 +267,8 @@ class Transaction(models.Model):
     is_manualinput = models.BooleanField(default=False)
     # 2023-12-19支払い承認フラグを追加。
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
+    # 請求金額合計内訳データとの比較用に追加(2024-09-04)
+    is_billing = models.BooleanField(verbose_name="請求項目", default=True)
 
     def __str__(self):
         return self.himoku.himoku_name

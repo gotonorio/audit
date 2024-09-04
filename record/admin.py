@@ -57,6 +57,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "balance",
         "description",
         "is_approval",
+        "is_billing",
     ]
     ordering = ("transaction_date",)
 

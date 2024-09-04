@@ -23,7 +23,7 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'check_record:kurasel_mr_income_check'%}" method="get">
+      <form class="navbar-item" action="{% url 'check_record:kurasel_billing_check'%}" method="get">
         {{form.year}}{{form.month}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
@@ -40,7 +40,7 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  <div class="is-size-5">{{yyyymm}} 請求金額データ監査（町内会費含む）</div>
+  <div class="is-size-5">{{yyyymm}} 請求金額内訳データチェック</div>
   <div class="content">
     <ul>
       {% if warning_kurasel %}
@@ -61,81 +61,32 @@
         <table class="table table_center_nowrap is-narrow is-striped">
           <thead>
             <tr>
-              <th class="has-text-centered">年月</th>
-              <th class="has-text-centered">費目</th>
-              <th class="has-text-centered">金額</th>
-              <th class="has-text-centered">摘要</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for record in mr_list %}
-            <tr>
-              <td class="has-text-ledt">{{record.transaction_date|date:'m-d'}}</td>
-              <td class="has-text-ledt">{{record.himoku}}</td>
-              {% if record.calc_flg %}
-                <td class="has-text-right">{{record.amount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7">{{record.description}}</td>
-              {% else %}
-                <td class="has-text-right has-text-danger">{{record.ammount|intcomma}}</td>
-                <td class="has-text-ledt is-size-7 has-text-danger">{{record.description|markdown_to_html}}</td>
-              {% endif %}
-            </tr>
-            {% endfor %}
-            {% if total_last_maeuke %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">使用する前受金</td>
-              <td class="has-text-right">{{total_last_maeuke|intcomma}}</td>
-              <td class="has-text-left is-size-7">{{total_comment}}</td>
-            </tr>
-            {% endif %}
-            {% if last_mishuu_bs %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">請求時点の未収金</td>
-              <td class="has-text-right">{{total_mishuu_claim|intcomma}}</td>
-              <td></td>
-            </tr>
-            {% endif %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_mishuu_claim|intcomma}}</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <br>
-      <div class="content has-text-centered">
-        <div class="is-size-5">貸借対照表による当月の未収金</div>
-      </div>
-      <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
-          <thead>
-            <tr>
-              <th class="has-text-centered">年月</th>
-              <th class="has-text-centered">項目名</th>
+              <th class="has-text-centered">日付</th>
+              <th class="has-text-centered">請求合計内訳名</th>
               <th class="has-text-centered">金額</th>
               <th class="has-text-centered">備考</th>
             </tr>
           </thead>
           <tbody>
-            {% for record in mishuu_list %}
+            {% for record in billing_list %}
             <tr>
-              <td class="has-text-ledt">
-                <a href="{% url 'monthly_report:update_bs' record.pk %}">{{record.monthly_date|date:'m-d'}}</a>
-              </td>
-              <td class="has-text-ledt">{{record.item_name.ac_class}}</td>
-              <td class="has-text-right">{{record.amounts|intcomma}}</td>
-              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''}}</td>
+              <td class="has-text-left">{{record.transaction_date|date:"m-d"}}</td>
+              <td class="has-text-left">{{record.billing_item}}</td>
+              {% if record.billing_item.is_billing %}
+                <td class="has-text-right">{{record.billing_ammount|intcomma}}</td>
+              {% else %}
+                <td class="has-text-right has-text-danger">{{record.billing_ammount|intcomma}}</td>
+              {% endif %}
+              <td class="has-text-left is-size-7">{{record.comment|truncatechars:30}}</td>
             </tr>
             {% endfor %}
             <tr>
               <td></td>
-              <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mishuu_bs|intcomma}}</td>
+              <td></td>
+              <td class="has-text-right">{{billing_total|intcomma}}</td>
+              <td></td>
             </tr>
+            <tr>
           </tbody>
         </table>
       </div>
@@ -157,7 +108,7 @@
           <tbody>
             {% for record in pb_list %}
             <tr>
-              {% if record.calc_flg %}
+              {% if record.calc_flg and record.is_billing %}
                 <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt">{{record.himoku}}</td>
                 <td class="has-text-right">{{record.ammount|intcomma}}</td>
@@ -192,53 +143,14 @@
             </tr>
             <tr>
               <td></td>
-              <td class="has-text-right">月次報告との差額</td>
+              <td class="has-text-right">請求金額との差額</td>
               <td class="has-text-right">{{total_diff|intcomma}}</td>
               <td class="has-text-ledt is-size-7">通帳収入-月次収入</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td class="has-text-right">口座振替不備分</td>
-              <td class="has-text-right">{{transfer_error|intcomma}}</td>
-              <td class="has-text-ledt is-size-7"></td>
             </tr>
           </tbody>
         </table>
       </div>
       <br>
-      <div class="content has-text-centered">
-        <div class="is-size-5">前月の貸借対照表の未収金（内訳）</div>
-      </div>
-      <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
-          <thead>
-            <tr>
-              <th class="has-text-centered">年月</th>
-              <th class="has-text-centered">費目</th>
-              <th class="has-text-centered">収入</th>
-              <th class="has-text-centered">摘要</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for record in last_mishuu_bs %}
-            <tr>
-              <td class="has-text-ledt">{{record.monthly_date|date:'m-d'}}</td>
-              <td class="has-text-ledt">{{record.item_name.ac_class}}</td>
-              <td class="has-text-right">{{record.amounts|intcomma}}</td>
-              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''|markdown_to_html}}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_last_mishuu|intcomma}}</td>
-            </tr>
-          </tbody>
-        </table>
-        {% if total_last_mishuu != total_mishuu_claim %}
-          <div class="has-text-centered has-text-danger">※ 請求時点の未収金額と前月の貸借対照表の未収金額が不一致</div>
-        {% endif %}
-      </div>
     </div>
   </div>
   <br>
