@@ -20,13 +20,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
+# secret keyのセット。
+try:
+    from .private_settings import DB_NAME, MY_SECRET_KEY
+except ImportError:
+    pass
+# DEBUGモードのセット。
+try:
+    from .local_settings import DEBUG
+except ImportError:
+    pass
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = MY_SECRET_KEY
 
 # Application definition
 
@@ -95,7 +107,7 @@ WSGI_APPLICATION = "passbook.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "pb_audit.sqlite3",
+        "NAME": BASE_DIR / DB_NAME,
     }
 }
 
@@ -148,7 +160,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2024-09-04"
+VERSION_NO = "2024-09-13"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -238,16 +250,6 @@ MARKDOWN_EXTENSIONS = [
     "markdown.extensions.codehilite",
 ]
 
-# secret keyのセット。
-try:
-    from .private_settings import *
-except ImportError:
-    pass
-# DEBUGモードのセット。
-try:
-    from .local_settings import *
-except ImportError:
-    pass
 
 # ログ出力先のディレクトリを設定する
 # https://docs.djangoproject.com/ja/4.0/topics/logging/
