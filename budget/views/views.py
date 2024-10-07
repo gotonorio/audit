@@ -1,14 +1,13 @@
 import calendar
 import logging
 
+from budget.forms import Budget_listForm
+from budget.models import ExpenseBudget
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.aggregates import Max, Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView
-
-from budget.forms import Budget_listForm
-from budget.models import ExpenseBudget
 from monthly_report.models import ReportTransaction
 from record.models import AccountingClass, Transaction
 
@@ -83,7 +82,7 @@ def near_month(qs):
 
 
 class BudgetListView(LoginRequiredMixin, TemplateView):
-    """管理会計支出の予算・実績対比表"""
+    """会計支出の予算・実績対比表"""
 
     model = ExpenseBudget
     # 予算実績対比表はログインユーザが閲覧可能とするため下記をコメントアウト。
@@ -147,9 +146,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
     def kanri_budget(self, qs_budget, ac_class_name, period, kind):
         """管理会計予算"""
         # 予算を読み込む
-        qs_budget = qs_budget.filter(
-            himoku__accounting_class__accounting_name=ac_class_name
-        )
+        qs_budget = qs_budget.filter(himoku__accounting_class__accounting_name=ac_class_name)
         qs_budget = qs_budget.order_by("himoku__code")
 
         # 累計支出を算出する。デフォルトは月次報告のデータを使う。
@@ -162,13 +159,9 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         # 不要な費目を除外するため、費目のaggregate_flagでfilter
         qs_expense = qs_expense.filter(himoku__aggregate_flag=True)
         # 管理会計区分でfilter
-        qs_expense = qs_expense.filter(
-            himoku__accounting_class__accounting_name=ac_class_name
-        )
+        qs_expense = qs_expense.filter(himoku__accounting_class__accounting_name=ac_class_name)
         # 指定された「月度」までの期間でfilte
-        qs_expense = qs_expense.filter(transaction_date__range=period).order_by(
-            "himoku__code"
-        )
+        qs_expense = qs_expense.filter(transaction_date__range=period).order_by("himoku__code")
         # 行の集約を行う前に最新月次データの月を取得する
         current_date = near_month(qs_expense)
         # 費目での集約を行う
