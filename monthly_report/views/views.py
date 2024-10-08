@@ -220,9 +220,11 @@ def aggregate_himoku(qs):
 
 
 def qs_year_income(tstart, tend, ac_class, others_flg):
-    """月次報告の年間収入データを返す"""
-    # 月次報告収入リスト（銀行収入金額は町内会会計を区別せず含む）
-    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
+    """月次報告の年間収入データを返す
+    settings.COMMUNITY_FLAG:町内会会計を含むかどうかのフラグ
+    """
+    # 月次報告収入リスト
+    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", settings.COMMUNITY_FLAG)
     # 修繕積立会計の「修繕積立金」以外の収入を抽出する。
     if others_flg:
         qs = qs.exclude(himoku__himoku_name="修繕積立金")
@@ -379,7 +381,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         # 抽出期間
         tstart, tend = select_period(year, 0)
 
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", settings.COMMUNITY_FLAG)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_total = monthly_total(qs, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。
@@ -570,7 +572,7 @@ class UnpaidBalanceListView(PermissionRequiredMixin, generic.TemplateView):
 
 class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
     """長期修繕計画シミュレーション用データリスト
-    - 修繕積立金会計と駐車場会計の収支リストを長期修繕計画シミュレーション用データとする。
+    - 長期修繕計画シミュレーション用データとして、修繕積立金会計と駐車場会計の実績収入リストを表示する。
     """
 
     template_name = "monthly_report/simulation_data.html"
