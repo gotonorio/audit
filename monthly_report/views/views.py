@@ -1,6 +1,7 @@
 import calendar
 import logging
 
+from control.models import ControlRecord
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -9,8 +10,6 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
-from control.models import ControlRecord
 from kurasel_translator.my_lib.append_list import select_period
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import ReportTransaction
@@ -29,9 +28,9 @@ def monthly_total(qs, year, item_name):
         day = calendar.monthrange(year, month)[1]
         sdate = timezone.datetime(year, month, 1, 0, 0, 0)
         edate = timezone.datetime(year, month, day, 0, 0, 0)
-        rtn["total" + str(month)] = qs.filter(
-            transaction_date__range=[sdate, edate]
-        ).aggregate(tmp=Coalesce(Sum(item_name), 0))["tmp"]
+        rtn["total" + str(month)] = qs.filter(transaction_date__range=[sdate, edate]).aggregate(
+            tmp=Coalesce(Sum(item_name), 0)
+        )["tmp"]
     return rtn
 
 
@@ -85,9 +84,7 @@ def get_allmonths_data(qs, year):
     # 日付の期間を作成
     period = get_year_period(int(year))
 
-    rtn = qs.values(
-        "himoku__himoku_name", "himoku__accounting_class__accounting_name"
-    ).annotate(
+    rtn = qs.values("himoku__himoku_name", "himoku__accounting_class__accounting_name").annotate(
         month1=Sum(
             Case(
                 When(
@@ -224,8 +221,8 @@ def aggregate_himoku(qs):
 
 def qs_year_income(tstart, tend, ac_class, others_flg):
     """月次報告の年間収入データを返す"""
-    # 月次報告収入リスト
-    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+    # 月次報告収入リスト（銀行収入金額は町内会会計を区別せず含む）
+    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
     # 修繕積立会計の「修繕積立金」以外の収入を抽出する。
     if others_flg:
         qs = qs.exclude(himoku__himoku_name="修繕積立金")
@@ -264,9 +261,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         tstart, tend = select_period(year, month)
 
         # 町内会会計が選択された場合の処理
-        ac_name = AccountingClass.get_accountingclass_obj(
-            AccountingClass.get_class_name("町内")
-        )
+        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
@@ -328,9 +323,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         # 抽出期間
         tstart, tend = select_period(year, month)
         # 町内会会計が選択された場合の処理
-        ac_name = AccountingClass.get_accountingclass_obj(
-            AccountingClass.get_class_name("町内")
-        )
+        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
@@ -488,9 +481,7 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["mr_income_total"] = mr_income_total
 
         # 支出
-        qs_expense = ReportTransaction.get_qs_mr(
-            tstart, tend, ac_class, "expense", False
-        )
+        qs_expense = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_expense_total = monthly_total(qs_expense, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。
@@ -601,9 +592,7 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
         ac_parking = AccountingClass.objects.get(accounting_name="駐車場会計")
 
         # 修繕積立金会計「その他収入」リスト
-        qs_others_income, others_income_total = qs_year_income(
-            tstart, tend, ac_shuuzen, True
-        )
+        qs_others_income, others_income_total = qs_year_income(tstart, tend, ac_shuuzen, True)
         context["others_income_total"] = others_income_total
 
         # 駐車場会計
