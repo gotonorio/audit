@@ -1,4 +1,4 @@
-Django==5.1
+Django==5.1.2
 gunicorn==22.0.0
 user-agents==2.2.0
 markdown==3.7
