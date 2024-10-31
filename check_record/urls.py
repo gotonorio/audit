@@ -1,6 +1,6 @@
 from django.urls import path
 
-from check_record.views import check_views, kurasel_views
+from check_record.views import inconsistency_check_views, kurasel_views
 
 app_name = "check_record"
 urlpatterns = [
@@ -28,12 +28,12 @@ urlpatterns = [
     ),
     path(
         "expense_check/",
-        check_views.ExpenseCheckView.as_view(),
+        inconsistency_check_views.IncosistencyCheckView.as_view(),
         name="expense_check",
     ),
     path(
         "expense_check/<int:year>/<str:month>/",
-        check_views.ExpenseCheckView.as_view(),
+        inconsistency_check_views.IncosistencyCheckView.as_view(),
         name="expense_check",
     ),
     # 月次収入報告チェック

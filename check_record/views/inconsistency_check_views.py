@@ -1,12 +1,11 @@
 import logging
 
+from check_record.views.kurasel_views import get_lastmonth
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
-from check_record.views.kurasel_views import get_lastmonth
 from kurasel_translator.my_lib.append_list import select_period
 from kurasel_translator.my_lib.check_lib import check_period
 from monthly_report.models import ReportTransaction
@@ -16,7 +15,7 @@ from record.models import Transaction
 logger = logging.getLogger(__name__)
 
 
-class ExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
+class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
     """月次支出報告と通帳支払いデータの「不整合チェック」"""
 
     template_name = "check_record/expense_check.html"
@@ -55,21 +54,13 @@ class ExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
             .order_by("himoku__himoku_name")
         )
         # 月次収支の支出合計（ネッティング処理、集計フラグがFalseの費目を除外する）
-        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(
-            himoku__aggregate_flag=False
-        )
+        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(himoku__aggregate_flag=False)
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # ---------------------------------------------------------------------
         # 入出金明細データ
         # ---------------------------------------------------------------------
-        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(
-            is_income=False
-        )
-        qs = (
-            qs.values("himoku__himoku_name")
-            .annotate(debt=Sum("amount"))
-            .order_by("himoku")
-        )
+        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(is_income=False)
+        qs = qs.values("himoku__himoku_name").annotate(debt=Sum("amount")).order_by("himoku")
         # 入出金明細の「緑地維持管理費」を「全体利用施設管理料」に変更する。
         # qs_dict["全体利用施設管理料"] = qs_dict.pop["緑地維持管理費"]
         qs_list = list(qs)

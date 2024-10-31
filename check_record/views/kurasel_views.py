@@ -527,9 +527,10 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
             total_pb += i["price"]
 
         # ---------------------------------------------------------------------
-        # (5) 貸借対照表データから当月の未収金を計算する。
+        # (5) 貸借対照表データから当年12月の未収金を計算する。
         # ---------------------------------------------------------------------
-        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(tstart, tend)
+        start_date, end_date = select_period(year, 12)
+        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(start_date, end_date)
 
         # ---------------------------------------------------------------------
         # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
