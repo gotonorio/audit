@@ -457,3 +457,106 @@ class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 当月の口座振替不備
         context["transfer_error"] = transfer_error
         return context
+
+
+class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
+    """月次報告の年間収入データと口座収入データの比較リスト"""
+
+    template_name = "check_record/year_income_check.html"
+    permission_required = ("record.view_transaction",)
+
+    def check_debit_date(self, debit_date):
+        for i in range(0, 7):
+            next_day = debit_date + datetime.timedelta(days=i)
+            if not jpholiday.is_holiday(next_day) or next_day.weekday() < 5:
+                return next_day
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if kwargs:
+            year = kwargs.get("year")
+        else:
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+
+        # 追加contextデータの初期化
+        context["netting_total"] = 0
+        context["pb_last_maeuke"] = 0
+        context["total_last_maeuke"] = 0
+        context["total_mishuu_bs"] = 0
+        context["total_mishuu_claim"] = 0
+        context["total_last_mishuu"] = 0
+        context["total_mr"] = 0
+        context["total_pb"] = 0
+        # 口座振替不備分
+        context["transfer_error"] = 0
+
+        # formの初期値を設定する。
+        form = YearMonthForm(
+            initial={
+                "year": year,
+                # "month": month,
+            }
+        )
+
+        # 当月の抽出期間
+        tstart, tend = select_period(year, 0)
+
+        # ---------------------------------------------------------------------
+        # (1) 月次収入データを抽出
+        # ---------------------------------------------------------------------
+        mr_year_income = ReportTransaction.get_year_income(tstart, tend, "0", True)
+        # 収入のない費目は除く
+        mr_year_income = mr_year_income.exclude(amount=0)
+        # 年間収入の合計
+        total_year_income = 0
+        for i in mr_year_income:
+            total_year_income += i["price"]
+
+        # ---------------------------------------------------------------------
+        # (2) 入出金明細データ（通帳データ）の収入リスト
+        # ---------------------------------------------------------------------
+        pb_year_income = Transaction.get_year_income(tstart, tend, "0", "0", True)
+        # 2023年3月以前のデータを除外する。
+        start_date = datetime.date(2023, 4, 1)
+        pb_year_income = pb_year_income.filter(transaction_date__gte=start_date)
+        # 資金移動は除く
+        pb_year_income = pb_year_income.filter(himoku__aggregate_flag=True).order_by("himoku")
+        # 収入合計金額
+        total_pb = 0
+        for i in pb_year_income:
+            total_pb += i["price"]
+
+        # ---------------------------------------------------------------------
+        # (5) 貸借対照表データから当月の未収金を計算する。
+        # ---------------------------------------------------------------------
+        qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(tstart, tend)
+
+        # ---------------------------------------------------------------------
+        # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
+        # ---------------------------------------------------------------------
+        qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
+        qs_is_netting = qs_is_netting.filter(is_netting=True)
+        dict_is_netting = qs_is_netting.aggregate(netting_total=Sum("amount"))
+        netting_total = dict_is_netting["netting_total"]
+        # 相殺項目合計が存在しない場合をチェック
+        if netting_total is None:
+            netting_total = 0
+
+        # 月次収入データ
+        context["year_list"] = mr_year_income
+        # 入出金明細データ
+        context["pb_list"] = pb_year_income
+        # ネッティング額（相殺処理額）
+        context["netting_total"] = netting_total
+        # 貸借対照表上の未収金リストと未収金額
+        context["mishuu_list"] = qs_mishuu_bs
+        context["total_mishuu_bs"] = total_mishuu_bs
+        # 月次収入データの合計
+        context["total_mr"] = total_year_income
+        # 入出金明細データの合計
+        context["total_pb"] = total_pb + netting_total
+        context["total_diff"] = context["total_pb"] - total_year_income
+        context["form"] = form
+        context["yyyymm"] = str(year) + "年"
+        context["year"] = year
+        return context

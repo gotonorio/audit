@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+年次決算の収入チェック
+{% endblock title %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <form class="navbar-item" action="{% url 'check_record:year_income_check'%}" method="get">
+        {{form.year}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
+      </form>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<div class="container is-fluid">
+  <div class="content has-text-centered">
+    <div class="is-size-5">{{yyyymm}} 管理費等 収入監査（町内会費含む）</div>
+  </div>
+  <br>
+  <div class='columns'>
+    <div class='column is-half'>
+      <div class="content has-text-centered">
+        <div class="is-size-5">月次報告 収入データ</div>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">収入</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in year_list %}
+            <tr>
+              <td class="has-text-ledt">{{record.himoku__himoku_name}}</td>
+              <td class="has-text-right">{{record.price|intcomma}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_mishuu_claim|intcomma}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
+    </div>
+    <div class='column is-half'>
+      <div class="content has-text-centered">
+        <div class="is-size-5">通帳 収入データ</div>
+      </div>
+      <div class="table-container">
+        <table class="table table_center_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">費目</th>
+              <th class="has-text-centered">収入</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in pb_list %}
+            <tr>
+                <td class="has-text-ledt">{{record.himoku__himoku_name}}</td>
+                <td class="has-text-right">{{record.price|intcomma}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td class="has-text-left">口座振替手数料他</td>
+              <td class="has-text-right">{{netting_total|intcomma}}</td>
+              <td class="has-text-ledt is-size-7 has-text-danger">相殺処理分を考慮する</td>
+            </tr>
+            {% if pb_last_maeuke > 0 %}
+            <tr>
+              <td class="has-text-right">前月の前受金</td>
+              <td class="has-text-right has-text-danger">{{pb_last_maeuke|intcomma}}</td>
+              <td class="is-size-7 has-text-danger">使用する前受金</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_pb|intcomma}}</td>
+              <td class="has-text-ledt is-size-7">相殺処理分を考慮</td>
+            </tr>
+            <tr>
+              <td class="has-text-right">月次報告との差額</td>
+              <td class="has-text-right">{{total_diff|intcomma}}</td>
+              <td class="has-text-ledt is-size-7">通帳収入-月次収入</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
+    </div>
+  </div>
+  <br>
+</div>
+{% endblock %}
