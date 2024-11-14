@@ -58,8 +58,13 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # ---------------------------------------------------------------------
         # 入出金明細データ
+        # 町内会会計を除外する（2024-11-14）
         # ---------------------------------------------------------------------
-        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(is_income=False)
+        qs = (
+            Transaction.objects.filter(transaction_date__range=[tstart, tend])
+            .filter(is_income=False)
+            .filter(himoku__aggregate_flag=True)
+        )
         qs = qs.values("himoku__himoku_name").annotate(debt=Sum("amount")).order_by("himoku")
         # 入出金明細の「緑地維持管理費」を「全体利用施設管理料」に変更する。
         # qs_dict["全体利用施設管理料"] = qs_dict.pop["緑地維持管理費"]
