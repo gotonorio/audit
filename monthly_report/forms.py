@@ -1,6 +1,5 @@
 from django import forms
 from django.utils import timezone
-
 from passbook.forms import YearMonthForm
 from record.models import AccountingClass, Himoku
 
@@ -35,17 +34,13 @@ class MonthlyReportIncomeForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=True).order_by(
-            "accounting_class", "code"
-        ),
+        queryset=Himoku.objects.filter(alive=True, is_income=True).order_by("accounting_class", "code"),
         widget=forms.Select(attrs={"class": "select-css is-size-6"}),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["transaction_date"].initial = timezone.datetime.now().strftime(
-            "%Y-%m-%d"
-        )
+        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
 
     class Meta:
         model = ReportTransaction
@@ -93,7 +88,7 @@ class MonthlyReportIncomeForm(forms.ModelForm):
         }
         help_texts = {
             "transaction_date": "* 不明な日付は01日とする。",
-            "calc_flg": "* 前受金・資金移動はチェックを外す。",
+            "calc_flg": "* 資金移動はチェックを外す。",
         }
 
     def clean_transaction_date(self):
@@ -113,9 +108,7 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=False).order_by(
-            "accounting_class", "code"
-        ),
+        queryset=Himoku.objects.filter(alive=True, is_income=False).order_by("accounting_class", "code"),
         widget=forms.Select(attrs={"class": "select-css is-size-6"}),
     )
 

@@ -119,6 +119,7 @@ class TransactionCreateForm(forms.ModelForm):
             "requesters_name",
             "description",
             "calc_flg",
+            "is_maeukekin",
             "is_approval",
             "is_income",
             "is_manualinput",
@@ -155,13 +156,19 @@ class TransactionCreateForm(forms.ModelForm):
                     "class": "checkbox",
                 }
             ),
+            "is_maeukekin": forms.CheckboxInput(
+                attrs={
+                    "class": "checkbox",
+                }
+            ),
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
             "is_income": "※ 入金の場合はチェックする。",
-            "calc_flg": "※ 前受金・町内会会計の場合はチェックしない。",
+            "calc_flg": "※ 町内会会計の場合はチェックしない。",
             "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
             "is_billing": "※ 請求金額合計内訳の項目の場合はチェックする。",
+            "is_maeukekin": "※ 請求承認期日後に振込みされた入金は前受金となるのでチェックする。",
         }
 
     def clean_transaction_date(self):
@@ -174,16 +181,17 @@ class TransactionCreateForm(forms.ModelForm):
             raise forms.ValidationError("未来の日付です！")
         return td
 
-    def clean_calc_flg(self):
-        """費目が前受金の場合calc_flgはFalseでなければならない"""
-        himoku = self.cleaned_data.get("himoku")
-        calc_flag = self.cleaned_data.get("calc_flg")
-        if himoku.himoku_name in [
-            settings.MAEUKE,
-        ]:
-            if calc_flag:
-                raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
-        return calc_flag
+    # 前受金フラグを追加したため、コメントアウトする。2024-11-19
+    # def clean_calc_flg(self):
+    #     """費目が前受金の場合calc_flgはFalseでなければならない"""
+    #     himoku = self.cleaned_data.get("himoku")
+    #     calc_flag = self.cleaned_data.get("calc_flg")
+    #     if himoku.himoku_name in [
+    #         settings.MAEUKE,
+    #     ]:
+    #         if calc_flag:
+    #             raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
+    #     return calc_flag
 
 
 class HimokuForm(forms.ModelForm):

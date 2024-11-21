@@ -270,23 +270,38 @@ class Transaction(models.Model):
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     # 請求金額合計内訳データとの比較用に追加(2024-09-04)
     is_billing = models.BooleanField(verbose_name="請求項目", default=True)
+    # 前払い金フラグを追加（2024-11-19）
+    is_maeukekin = models.BooleanField(verbose_name="前受金", default=False)
 
     def __str__(self):
         return self.himoku.himoku_name
 
     @staticmethod
     def get_maeuke(year, month):
-        """通帳データの前受金合計を返す
+        """通帳データの前受金(is_maeukekinフラグがon)合計を返す
         他の関数（stattic method）に依存するため、インスタンス関数とする。
         """
         tstart, tend = select_period(year, month)
-        # 前受金の費目id
-        id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
         total = 0
-        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
+        qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(is_maeukekin=True)
         for i in qs:
             total += i.amount
         return total
+
+    # @staticmethod
+    # def get_maeuke(year, month):
+    #     """請求確定時点の前受金を返す
+    #     他の関数（stattic method）に依存するため、インスタンス関数とする。
+    #     """
+    #     tstart, tend = select_period(year, month)
+    #     total = 0
+    #     # 前受金の費目id
+    #     # id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
+    #     # qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
+    #     qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(is_maeukekin=True)
+    #     for i in qs:
+    #         total += i.amount
+    #     return total
 
     @staticmethod
     def all_total(sql):
@@ -312,7 +327,7 @@ class Transaction(models.Model):
         for data in sql:
             if data.calc_flg:
                 # 「資金移動」費目では収入と支出の両パターンがあるため、is_incomeを使う。
-                if data.is_income:
+                if data.is_income and not data.is_maeukekin:
                     total_deposit += data.amount
                 else:
                     total_withdrawals += data.amount
@@ -330,7 +345,7 @@ class Transaction(models.Model):
         manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
         """
         qs_pb = cls.objects.all().select_related("himoku")
-        # 補正データを含める場合はfilterをしない。
+        # 補正データを含める場合は手入力filterをしない。
         if manualinput:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
@@ -549,7 +564,7 @@ class ClaimData(models.Model):
             .filter(claim_type="前受金")
             .values("claim_date", "room_no", "amount", "comment")
         )
-        # 前受金の合駅
+        # 前受金の合計
         total = 0
         comment = ""
         for i in maeuke_dict:

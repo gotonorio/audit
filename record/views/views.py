@@ -8,7 +8,6 @@ from django.views import generic
 from kurasel_translator.my_lib.append_list import select_period
 from record.forms import (
     ClaimListForm,
-    RecalcBalanceForm,
     TransactionDisplayForm,
 )
 from record.models import AccountingClass, ClaimData, Himoku, Transaction

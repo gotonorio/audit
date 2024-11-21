@@ -97,7 +97,7 @@ class ReportTransaction(models.Model):
 
     @classmethod
     def get_monthly_report_expense(cls, tstart, tend):
-        """資金移動を除いて、計算対象データを抽出するsqlを返す"""
+        """資金移動を除いて、計算対象の支出データを抽出するsqlを返す"""
         # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
         qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
         # 資金移動は除く ToDo 2024-02-15 資金移動は表示して合計計算から除外する。

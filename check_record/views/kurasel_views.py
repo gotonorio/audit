@@ -269,7 +269,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
         # 収入のない費目は除く
-        qs_mr = qs_mr.exclude(amount=0)
+        qs_mr = qs_mr.exclude(amount=0).order_by("himoku")
         # 月次収支の収入合計
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
@@ -323,12 +323,18 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
             total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
         # ---------------------------------------------------------------------
-        # (7) 前月の通帳データから前受金を計算する。
+        # (7) 請求確定時点の前受金を求める
+        #     前受金の調整は月次報告で行うため、コメントアウトする
         # ---------------------------------------------------------------------
+        pb_last_maeuke = 0
         pb_last_maeuke = Transaction.get_maeuke(lastyear, lastmonth)
-        # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の前受金は規定値とする。
-        if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
-            pb_last_maeuke = settings.MAEUKE_INITIAL
+        # pb_last_maeuke, _, _ = ClaimData.get_maeuke_claim(year, month)
+        # total_last_maeuke = 0
+        # for i in dict_last_maeuke:
+        #     total_last_maeuke += i["amount"]
+        # # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の前受金は規定値とする。
+        # if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
+        #     pb_last_maeuke = settings.MAEUKE_INITIAL
 
         # ---------------------------------------------------------------------
         # (8) 当月の口座振替不備分を求める
@@ -362,7 +368,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 月次収入データの合計
         context["total_mr"] = total_mr
         # 入出金明細データの合計（前受金は月次報告で処理のため合計には加えない）
-        context["total_pb"] = total_pb + netting_total
+        context["total_pb"] = total_pb + netting_total + pb_last_maeuke
         context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_mishuu_claim)
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
