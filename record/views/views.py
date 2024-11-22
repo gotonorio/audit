@@ -136,6 +136,9 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
             month = self.request.GET.get("month", local_now.month)
             # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
             claim_type = self.request.GET.get("claim_type", "未収金")
+        # claim_list.htmlのタイトル
+        if claim_type in ("未収金", "前受金"):
+            title = "「請求時点」の" + claim_type
         # 抽出期間
         tstart, tend = select_period(year, month)
         # querysetの作成。
@@ -145,6 +148,6 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         context["claim_list"] = claim_qs
         context["claim_total"] = claim_total
         context["form"] = form
-        context["title"] = claim_type
+        context["title"] = title
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         return context

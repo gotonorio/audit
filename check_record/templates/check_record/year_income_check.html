@@ -63,7 +63,8 @@
             {% endfor %}
             <tr>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_mishuu_claim|intcomma}}</td>
+              {% comment %} <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_mishuu_claim|intcomma}}</td> {% endcomment %}
+              <td class="has-text-right">{{total_mr|add:total_mishuu_claim|intcomma}}</td>
             </tr>
           </tbody>
         </table>

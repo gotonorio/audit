@@ -272,6 +272,8 @@ class Transaction(models.Model):
     is_billing = models.BooleanField(verbose_name="請求項目", default=True)
     # 前払い金フラグを追加（2024-11-19）
     is_maeukekin = models.BooleanField(verbose_name="前受金", default=False)
+    # 未収金振込フラグを追加（2024-11-22）
+    is_mishuukin = models.BooleanField(verbose_name="未収金", default=False)
 
     def __str__(self):
         return self.himoku.himoku_name

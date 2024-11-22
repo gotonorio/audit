@@ -238,7 +238,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
 
         # 追加contextデータの初期化
         context["netting_total"] = 0
-        context["pb_last_maeuke"] = 0
+        # context["pb_last_maeuke"] = 0
         context["total_last_maeuke"] = 0
         context["total_mishuu_bs"] = 0
         context["total_mishuu_claim"] = 0
@@ -326,8 +326,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # (7) 請求確定時点の前受金を求める
         #     前受金の調整は月次報告で行うため、コメントアウトする
         # ---------------------------------------------------------------------
-        pb_last_maeuke = 0
-        pb_last_maeuke = Transaction.get_maeuke(lastyear, lastmonth)
+        # pb_last_maeuke = 0
+        # pb_last_maeuke = Transaction.get_maeuke(lastyear, lastmonth)
         # pb_last_maeuke, _, _ = ClaimData.get_maeuke_claim(year, month)
         # total_last_maeuke = 0
         # for i in dict_last_maeuke:
@@ -358,17 +358,18 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_mishuu_claim"] = total_mishuu_claim
         # 前月の貸借対照表データの未収金
         context["total_last_mishuu"] = total_last_mishuu
-        # 通帳（入出金明細データ）上の前月前受金
-        context["pb_last_maeuke"] = pb_last_maeuke
-        # # 使用する前受金
-        # context["qs_last_maeuke"] = qs_last_maeuke
+        # # 通帳（入出金明細データ）上の前月前受金
+        # context["pb_last_maeuke"] = pb_last_maeuke
+        # 使用する前受金
+        context["qs_last_maeuke"] = qs_last_maeuke
         # 使用する前受金の合計
         context["total_last_maeuke"] = -total_last_maeuke
         context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
         # 入出金明細データの合計（前受金は月次報告で処理のため合計には加えない）
-        context["total_pb"] = total_pb + netting_total + pb_last_maeuke
+        # context["total_pb"] = total_pb + netting_total + pb_last_maeuke
+        context["total_pb"] = total_pb + netting_total
         context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_mishuu_claim)
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
@@ -486,8 +487,6 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
 
         # 追加contextデータの初期化
         context["netting_total"] = 0
-        context["pb_last_maeuke"] = 0
-        context["total_last_maeuke"] = 0
         context["total_mishuu_bs"] = 0
         context["total_mishuu_claim"] = 0
         context["total_last_mishuu"] = 0
@@ -533,13 +532,13 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
             total_pb += i["price"]
 
         # ---------------------------------------------------------------------
-        # (5) 貸借対照表データから当年12月の未収金を計算する。
+        # (3) 貸借対照表データから当年12月の未収金を計算する。
         # ---------------------------------------------------------------------
         start_date, end_date = select_period(year, 12)
         qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(start_date, end_date)
 
         # ---------------------------------------------------------------------
-        # (6) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
+        # (4) 自動控除された口座振替手数料。 自動控除費目の当月分金額を求める。
         # ---------------------------------------------------------------------
         qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
         qs_is_netting = qs_is_netting.filter(is_netting=True)
