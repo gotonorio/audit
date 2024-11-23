@@ -270,9 +270,9 @@ class Transaction(models.Model):
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     # 請求金額合計内訳データとの比較用に追加(2024-09-04)
     is_billing = models.BooleanField(verbose_name="請求項目", default=True)
-    # 前払い金フラグを追加（2024-11-19）
+    # 前払い金フラグを追加。当月の月次収入チェックでは合計に含めない（2024-11-19）
     is_maeukekin = models.BooleanField(verbose_name="前受金", default=False)
-    # 未収金振込フラグを追加（2024-11-22）
+    # 未収金振込フラグを追加。月次収入チェックでは合計に含めない（2024-11-22）
     is_mishuukin = models.BooleanField(verbose_name="未収金", default=False)
 
     def __str__(self):
@@ -323,7 +323,7 @@ class Transaction(models.Model):
     #
     @staticmethod
     def calc_total(sql):
-        """通帳データの合計計算は計算対象項目のみ"""
+        """通帳データの合計計算は計算対象項目で前受金以外のみ"""
         total_deposit = 0
         total_withdrawals = 0
         for data in sql:

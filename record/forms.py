@@ -120,6 +120,7 @@ class TransactionCreateForm(forms.ModelForm):
             "description",
             "calc_flg",
             "is_maeukekin",
+            "is_mishuukin",
             "is_approval",
             "is_income",
             "is_manualinput",
@@ -161,6 +162,11 @@ class TransactionCreateForm(forms.ModelForm):
                     "class": "checkbox",
                 }
             ),
+            "is_mishuukin": forms.CheckboxInput(
+                attrs={
+                    "class": "checkbox",
+                }
+            ),
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
@@ -169,6 +175,7 @@ class TransactionCreateForm(forms.ModelForm):
             "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
             "is_billing": "※ 請求金額合計内訳の項目の場合はチェックする。",
             "is_maeukekin": "※ 請求承認期日後に振込みされた入金は前受金となるのでチェックする。",
+            "is_mishuukin": "※ 未収金の振込の場合はチェックする。",
         }
 
     def clean_transaction_date(self):
