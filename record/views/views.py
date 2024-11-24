@@ -139,6 +139,8 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         # claim_list.htmlのタイトル
         if claim_type in ("未収金", "前受金"):
             title = "「請求時点」の" + claim_type
+        else:
+            title = claim_type
         # 抽出期間
         tstart, tend = select_period(year, month)
         # querysetの作成。
