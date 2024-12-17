@@ -23,7 +23,7 @@ class ExpenseBudget(models.Model):
     #     ]
 
     @classmethod
-    def get_expense_budget(cls, year, ac_class):
+    def get_expense_budget(cls, year):
         """支出予算0円を除く支出予算の一覧querysetを返す"""
         # 年間の支出予算
         qs = (
