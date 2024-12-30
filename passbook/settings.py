@@ -160,7 +160,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2024-12-17"
+VERSION_NO = "2024-12-30"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -186,7 +186,7 @@ MAEUKE_INITIAL = 17000
 KANRI_INCOME = ["収入", "管理費会計", "管理費", "緑地維持管理費"]
 KANRI_PAYMENT = ["支出", "管理費会計", "管理委託業務費", "管理手数料"]
 SHUUZEN_INCOME = ["収入", "修繕積立金会計", "修繕積立金", "専用庭使用料"]
-SHUUZEN_PAYMENT = ["支出", "修繕積立金会計", "計画修繕工事費", "消防設備更新費用"]
+SHUUZEN_PAYMENT = ["支出", "修繕積立金会計", "消防設備更新費用"]
 PARKING_INCOME = ["収入", "駐車場会計", "駐車料"]
 PARKING_PAYMENT = ["支出", "駐車場会計", "機械式駐車機保守料", "機械式駐車機工事費"]
 COMMUNITY_INCOME = ["収入", "町内会会計", "町内会費", "町内会費会計"]
