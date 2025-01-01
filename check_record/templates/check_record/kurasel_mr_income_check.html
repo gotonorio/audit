@@ -142,8 +142,9 @@
             </tr>
           </tbody>
         </table>
-        {% if total_last_mishuu != total_mishuu_claim %}
-          <div class="has-text-centered has-text-danger">※ 請求時点の未収金額と前月の貸借対照表の未収金額が不一致</div>
+        {% if total_last_mishuu != check_last_mishuu %}
+          <div class="has-text-centered has-text-danger">※ 請求時点の未収金額と前月の貸借対照表の未収金額が不一致（
+            {{total_last_mishuu|subtract:check_last_mishuu|intcomma}}円）</div>
         {% endif %}
       </div>
 
@@ -187,16 +188,6 @@
               <td class="has-text-right">{{netting_total|intcomma}}</td>
               <td class="has-text-ledt is-size-7 has-text-danger">相殺処理分を考慮する</td>
             </tr>
-            {% comment %}
-            {% if pb_last_maeuke > 0 %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">前月の前受金</td>
-              <td class="has-text-right">{{pb_last_maeuke|intcomma}}</td>
-              <td class="is-size-7 has-text-danger">使用する前受金（前月入金分）</td>
-            </tr>
-            {% endif %}
-            {% endcomment %}
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
@@ -209,24 +200,6 @@
               <td class="has-text-right">{{total_diff|intcomma}}</td>
               <td class="has-text-ledt is-size-7">通帳収入-月次収入</td>
             </tr>
-            {% comment %}
-            {% if pb_last_maeuke > 0 %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">前月の前受金</td>
-              <td class="has-text-right">{{pb_last_maeuke|intcomma}}</td>
-              <td class="is-size-7 has-text-danger">使用する前受金（前月入金分）</td>
-            </tr>
-            {% endif %}
-            {% endcomment %}
-            {% comment %}
-            <tr>
-              <td></td>
-              <td class="has-text-right">口座振替不備分</td>
-              <td class="has-text-right">{{transfer_error|intcomma}}</td>
-              <td class="has-text-ledt is-size-7"></td>
-            </tr>
-            {% endcomment %}
           </tbody>
         </table>
       </div>
