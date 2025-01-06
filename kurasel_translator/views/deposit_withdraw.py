@@ -38,7 +38,6 @@ class DepositWithdrawalView(PermissionRequiredMixin, FormView):
         form = DepositWithdrawalForm(
             initial={
                 "year": localtime(timezone.now()).year,
-                "month": localtime(timezone.now()).month,
             }
         )
         context["form"] = form
