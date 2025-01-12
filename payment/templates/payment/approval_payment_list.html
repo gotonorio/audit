@@ -24,12 +24,12 @@
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <form class="navbar-item" action="{% url 'payment:payment_list'%}" method="get">
-        {{form.year}}{{form.month}}{{form.day}}
+        {{form.year}}{{form.month}}{{form.day}}{{form.list_order}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
       </form>
     </div>
     <div class="navbar-end">
-      {% with year_with=year month_with=month %}
+      {% with year_with=year month_with=month list_order_with=list_order %}
         <a class="navbar-item" href="{% url 'record:transaction_list' year_with month_with 0 %}">入出金明細の一覧</a>
       {% endwith %}
       <div class="navbar-item">

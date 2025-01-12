@@ -12,6 +12,17 @@ from payment.models import Payment, PaymentMethod
 class ApprovalPaymentListForm(YearMonthForm):
     """支払い承認データ表示用Form"""
 
+    # 全月表示のためYearMonthFormを上書きする
+    month = forms.ChoiceField(
+        label="月",
+        widget=forms.Select(
+            attrs={
+                "style": "width:10ch",
+            }
+        ),
+        choices=settings.MONTH_ALL,
+    )
+    # YearMonthFormに日付項目を追加
     day = forms.ChoiceField(
         label="日",
         widget=forms.Select(
@@ -24,6 +35,16 @@ class ApprovalPaymentListForm(YearMonthForm):
             ("00", "ALL"),
             ("10", "10日支払い"),
             ("25", "25日支払い"),
+        ),
+        required=True,
+    )
+    # 費目順表示フラグ
+    list_order = forms.ChoiceField(
+        label="費目順",
+        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
+        choices=(
+            (0, "日付順"),
+            (1, "費目順"),
         ),
         required=True,
     )

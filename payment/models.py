@@ -46,6 +46,7 @@ class Payment(models.Model):
                     payment=item[3],
                     payment_date=payment_day,
                     # 2024-07-27「祭礼寄付」「盆踊り寄付」のため「摘要」を追加。
+                    # したがって摘要を手入力すると、再読み込みすると同じデータを重複して取り込んでしまう。
                     summary=item[1],
                     defaults={
                         # "summary": item[1],

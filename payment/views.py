@@ -32,12 +32,15 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
             year = str(kwargs.get("year"))
             month = str(kwargs.get("month"))
             day = self.request.GET.get("day", "00")
+            # 表示順は入力されないので、日付順をデフォルトとして設定する。
+            list_order = "0"
         else:
             # 画面が表示された時、年月を指定して表示した時。
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", str(local_now.year))
             month = self.request.GET.get("month", str(local_now.month))
             day = self.request.GET.get("day", "00")
+            list_order = self.request.GET.get("list_order", "0")
         # querysetの作成。
         tstart, tend = select_period(year, month)
         if day == "00":
@@ -52,7 +55,11 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
             date_str = str(year) + str(month) + day
             payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")
             qs = Payment.objects.all().select_related("himoku").filter(payment_date=payment_day)
-        qs = qs.order_by("payment_date", "himoku__code")
+        # 表示順序
+        if list_order == "0":
+            qs = qs.order_by("payment_date", "himoku__code")
+        else:
+            qs = qs.order_by("himoku__code", "payment_date")
         # 支払い金額の合計
         total = 0
         for data in qs:
@@ -63,6 +70,7 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
                 "year": year,
                 "month": month,
                 "day": day,
+                "list_order": list_order,
             }
         )
         context["approval_list"] = qs
