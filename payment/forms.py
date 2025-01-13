@@ -94,6 +94,9 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
                 }
             ),
         }
+        help_texts = {
+            "summary": "* 町内会会計では摘要の修正をしないでください。",
+        }
 
 
 class PaymentMethodCreateForm(forms.ModelForm):
