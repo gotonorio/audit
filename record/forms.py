@@ -52,7 +52,7 @@ class TransactionDisplayForm(YearMonthForm):
         empty_label="会計区分ALL",
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
-    # 費目順表示フラグ
+    # 費目順表示順序
     list_order = forms.ChoiceField(
         label="費目順",
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
@@ -61,6 +61,15 @@ class TransactionDisplayForm(YearMonthForm):
             (1, "費目順"),
         ),
         required=True,
+    )
+    # 費目
+    himoku_id = forms.ModelChoiceField(
+        label="入金費目",
+        required=False,
+        queryset=Himoku.objects.filter(alive=True, is_income=True, code__lt=9000).order_by(
+            "accounting_class", "code"
+        ),
+        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
 
 
@@ -80,7 +89,7 @@ class TransactionCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by("accounting_class", "code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
     # requiredをFalseにするため上書きする。
@@ -118,15 +127,16 @@ class TransactionCreateForm(forms.ModelForm):
             "himoku",
             "requesters_name",
             "description",
+            "is_income",
             "calc_flg",
             "is_maeukekin",
             "is_mishuukin",
             "is_approval",
-            "is_income",
             "is_manualinput",
             "is_billing",
+            "is_miharai",
         ]
-        labels = {"calc_flg": "計算対象", "is_manualinput": "手動入力Flg"}
+        labels = {"calc_flg": "チェック計算対象(calc_flg)", "is_manualinput": "手動入力Flg"}
         widgets = {
             # 'account': forms.Select(attrs={
             #     'class': 'select-css',
@@ -171,11 +181,12 @@ class TransactionCreateForm(forms.ModelForm):
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
             "is_income": "※ 入金の場合はチェックする。",
-            "calc_flg": "※ 町内会会計の場合はチェックしない。",
+            "calc_flg": "※ 資金移動の場合はチェックしない。",
             "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
             "is_billing": "※ 請求金額合計内訳の項目の場合はチェックする。",
             "is_maeukekin": "※ 請求承認期日後に振込みされた入金は前受金となるのでチェックする。",
             "is_mishuukin": "※ 未収金の振込の場合はチェックする。",
+            "is_miharai": "※ 前期の未払い分の支出ではチェックする",
         }
 
     def clean_transaction_date(self):
@@ -221,6 +232,7 @@ class HimokuForm(forms.ModelForm):
             "aggregate_flag",
             "is_approval",
             "is_default",
+            "is_community",
         ]
         labels = {"aggregate_flag": "集計:(aggregate_flag)"}
         widgets = {
@@ -268,6 +280,7 @@ class HimokuForm(forms.ModelForm):
             "aggregate_flag": "* クラセル監査の集計計算に含めるかのフラグ。基本的にチェックする<br>（同一口座内の会計区分間の資金移動、共用保険料の支出、町会費の支出はチェックを外す）",
             "is_approval": "* 入出金明細データで承認が必要な費目。<br>（電気・水道料金の口座振替、管理業務委託費などはチェックを外す）",
             "is_default": "* 入出金明細データの取込みで、デフォルトで設定される費目名にチェックする。<br>（「不明」という費目をデフォルトとする）",
+            "is_community": "* 町内会支出の場合にチェックする。",
         }
 
 
@@ -295,7 +308,7 @@ class RequesterForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).order_by("code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by("code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
 

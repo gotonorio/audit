@@ -64,11 +64,11 @@
 
   <div class='columns'>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">承認済み支払いデータ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
@@ -81,7 +81,7 @@
             {% for record in mr_list %}
             <tr>
               <td class="has-text-left">{{record.payment_date|date:'m-d'}}</td>
-              <td class="has-text-ledt">{{record.himoku}}</td>
+              <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
               <td class="has-text-right">{{record.payment|intcomma}}</td>
               <td class="has-text-left is-size-7">{{record.summary|markdown_to_html}}</td>
             </tr>
@@ -98,11 +98,11 @@
     </div>
 
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">通帳支払データ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
@@ -115,7 +115,7 @@
             {% for record in pb_list %}
             <tr>
               <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
-              <td class="has-text-ledt">{{record.himoku}}</td>
+              <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
               {% if record.is_approval %}
                 <td class="has-text-right">{{record.amount|intcomma}}</td>
               {% else %}

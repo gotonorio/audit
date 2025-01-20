@@ -10,7 +10,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import FormView
-
 from record.forms import (
     ApprovalCheckDataForm,
     ClaimUpdateForm,
@@ -78,20 +77,13 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
-            "transaction_date", flat=True
-        )
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
         year = qs[0].year
         month = qs[0].month
-        # UPDATE後の会計区分は「全会計区分」を表示させる。
-        list_order = 0
+        # UPDATE後に表示する時の「year」「month」「list_order」「himoku_id」をkwargsに設定。
         return reverse_lazy(
             "record:transaction_list",
-            kwargs={
-                "year": year,
-                "month": month,
-                "list_order": list_order,
-            },
+            kwargs={"year": year, "month": month, "list_order": 0, "himoku_id": 0},
         )
 
     def form_valid(self, form):
@@ -122,9 +114,7 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
 
     # 削除が成功した場合の遷移処理
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list(
-            "transaction_date", flat=True
-        )
+        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
         year = qs[0].year
         month = qs[0].month
         return reverse_lazy(
@@ -209,11 +199,7 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
         if ac_class == "":
             qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
         else:
-            qs = (
-                Himoku.objects.all()
-                .filter(accounting_class=ac_class)
-                .order_by("-alive", "code")
-            )
+            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("-alive", "code")
         context["himoku_list"] = qs
         context["form"] = form
         return context
@@ -261,9 +247,7 @@ class TransferRequesterCreateView(PermissionRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by(
-            "requester"
-        )
+        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
         return context
 
 
@@ -279,9 +263,7 @@ class TransferRequesterUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["requester_list"] = TransferRequester.objects.all().order_by(
-            "requester"
-        )
+        context["requester_list"] = TransferRequester.objects.all().order_by("requester")
         return context
 
 
@@ -526,9 +508,7 @@ class ClaimdataUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = ClaimData.objects.filter(pk=self.object.pk).values(
-            "claim_date", "claim_type"
-        )
+        qs = ClaimData.objects.filter(pk=self.object.pk).values("claim_date", "claim_type")
         year = qs[0]["claim_date"].year
         month = qs[0]["claim_date"].month
         claim_type = qs[0]["claim_type"]

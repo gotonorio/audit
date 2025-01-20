@@ -64,8 +64,18 @@ urlpatterns = [
         name="year_income_check",
     ),
     path(
-        "year_income_check/<int:year>/<str:month>/",
+        "year_income_check/<int:year>/",
         kurasel_views.YearReportIncomeCheckView.as_view(),
         name="year_income_check",
+    ),
+    path(
+        "year_expense_check/",
+        kurasel_views.YearReportExpenseCheckView.as_view(),
+        name="year_expense_check",
+    ),
+    path(
+        "year_expense_check/<int:year>/",
+        kurasel_views.YearReportExpenseCheckView.as_view(),
+        name="year_expense_check",
     ),
 ]

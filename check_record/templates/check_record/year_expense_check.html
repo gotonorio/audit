@@ -4,7 +4,7 @@
 {% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
-支出項目チェック
+年次決算の支出チェック
 {% endblock title %}
 
 {% block navbar %}
@@ -19,15 +19,15 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'check_record:expense_check'%}" method="get">
-        {{form.year}}{{form.month}}
-        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">チェック</button>
+      <form class="navbar-item" action="{% url 'check_record:year_expense_check'%}" method="get">
+        {{form.year}}
+        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
       </form>
     </div>
     <div class="navbar-end">
-      {% with year_with=year month_with=month %}
-        <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' year_with month_with %}">【戻る】</a>
-      {% endwith %}
+      <div class="navbar-item">
+        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
+      </div>
     </div>
   </div>
 </nav>
@@ -37,71 +37,70 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">{{yyyymm}} 支出項目チェック</div>
+    <div class="is-size-5">{{yyyymm}} 管理費等 年間支出監査（町内会費含む）</div>
     <ul>
-      <li class="">町内会会計費目は除外</li>
+      <li>月次報告の「マンション共用保険」の計上は前払金の償却であり、実支出は発生しない。</li>
+      <li>月次報告の「口座振替手数料」は天引きされているため、実支出としては発生しない。</li>
     </ul>
   </div>
+  <br>
   <div class='columns'>
     <div class='column is-half'>
       <div class="content">
-        <div class="is-size-5">月次報告</div>
+        <div class="is-size-5">月次報告 年間支出データ</div>
       </div>
       <div class="table-container">
         <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
-              <th class="has-text-centered">会計区分</th>
               <th class="has-text-centered">費目</th>
               <th class="has-text-centered">支出</th>
             </tr>
           </thead>
           <tbody>
-            {% for record in mr_list %}
+            {% for record in year_list %}
             <tr>
-              <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
-              {% if not record.himoku.aggregate_flag %}
-                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
-                <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
+              {% if record.himoku__aggregate_flag %}
+                <td class="has-text-ledt">{{record.himoku__himoku_name}}</td>
+                <td class="has-text-right">{{record.price|intcomma}}</td>
               {% else %}
-                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
-                <td class="has-text-right">{{record.amount|intcomma}}</td>
+                <td class="has-text-ledt has-text-danger">{{record.himoku__himoku_name}}</td>
+                <td class="has-text-right has-text-danger">{{record.price|intcomma}}</td>
               {% endif %}
             </tr>
             {% endfor %}
             <tr>
-              <td></td>
-              <td></td>
-              <td class="has-text-right">{{total_mr|intcomma}}</td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_mr|add:total_mishuu_claim|intcomma}}</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <br>
     </div>
     <div class='column is-half'>
       <div class="content">
-        <div class="is-size-5">通帳支払い</div>
+        <div class="is-size-5">通帳 年間支出データ</div>
       </div>
       <div class="table-container">
         <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">費目</th>
-              <th class="has-text-centered">通帳支出</th>
+              <th class="has-text-centered">支出</th>
             </tr>
           </thead>
           <tbody>
             {% for record in pb_list %}
-            {% if record.debt > 0 %}
             <tr>
-              <td class="has-text-ledt">{{record.himoku__himoku_name|truncatechars:10}}</td>
-              <td class="has-text-right">{{record.debt|intcomma}}</td>
+                <td class="has-text-ledt">{{record.himoku__himoku_name}}</td>
+                <td class="has-text-right">{{record.price|intcomma}}</td>
             </tr>
-            {% endif %}
             {% endfor %}
             <tr>
-              <td></td>
+              <td class="has-text-right">当期支出合計</td>
               <td class="has-text-right">{{total_pb|intcomma}}</td>
+              <td></td>
             </tr>
           </tbody>
         </table>
@@ -109,5 +108,6 @@
       <br>
     </div>
   </div>
+  <br>
 </div>
 {% endblock %}

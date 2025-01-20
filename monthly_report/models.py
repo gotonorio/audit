@@ -75,20 +75,18 @@ class ReportTransaction(models.Model):
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
         return qs_mr
 
-    #
-    # for Kurasel
-    #
     @staticmethod
     def calc_total_withflg(sql, flg):
         """合計計算
-        flg = Trueの場合、計算対象の費目データだけ合計する。
+        flg = Trueの場合、計算対象(calc_flg=True)の費目データだけ合計する。
         flg = Falseの場合、全てのデータを合計する。
         2024-02-15 上記に関わらず、費目のaggregate_flagがFalseの場合は集計しない。
         """
         total_withdrawals = 0
         if flg:
             for data in sql:
-                if data.himoku.aggregate_flag:
+                # if data.himoku.aggregate_flag:
+                if data.calc_flg and data.himoku.aggregate_flag:
                     total_withdrawals += data.amount
         else:
             for data in sql:
@@ -182,15 +180,12 @@ class ReportTransaction(models.Model):
         return qs
 
     @classmethod
-    def get_year_income(cls, tstart, tend, ac_class, community):
-        """指定された「年月」「会計区分」「入金・支出」「町内会会計」で抽出する月次報告querysetを返す。
+    def get_year_income(cls, tstart, tend, community):
+        """月次報告の年間収入リストを返す
         - 資金移動は含むので、必要なら呼び出し側で処理する。
-        - ac_class == "0"の場合、全会計区分を対象とする。
-        - flg==''の場合は入出金データを抽出する。
         - communityフラグがFalseの場合、町内会会計を除いて抽出する。 2024-1-25に追加
         - 費目コードが9000以上は使用しないため表示しないようにする。有効フラグをOFFにすると、（Kuraselからの取り込みチェックでアウト）
         """
-        # qs_year_income = cls.objects.all().select_related("himoku", "accounting_class")
         # 費目で集約する
         qs_year_income = (
             cls.objects.select_related("himoku").values("himoku__himoku_name").annotate(price=Sum("amount"))
@@ -203,15 +198,38 @@ class ReportTransaction(models.Model):
         qs_year_income = qs_year_income.filter(himoku__is_income=True)
         # (4) 有効な費目、支出のある費目でfilter
         qs_year_income = qs_year_income.filter(himoku__alive=True).exclude(amount=0)
-        # (5) 費目の会計区分でfilter 2023-11-23に追加
-        if ac_class != "0":
-            qs_year_income = qs_year_income.filter(himoku__accounting_class=ac_class)
         # (6) 町内会会計を除くかどうか
         if community is False:
             obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
             qs_year_income = qs_year_income.exclude(himoku__accounting_class=obj.pk)
 
         return qs_year_income.order_by("himoku")
+
+    @classmethod
+    def get_year_expense(cls, tstart, tend):
+        """指定された「年月」「会計区分」「入金・支出」「町内会会計」で抽出する月次報告querysetを返す。
+        - 資金移動は含むので、必要なら呼び出し側で処理する。
+        - ac_class == "0"の場合、全会計区分を対象とする。
+        - flg==''の場合は入出金データを抽出する。
+        - communityフラグがFalseの場合、町内会会計を除いて抽出する。 2024-1-25に追加
+        - 費目コードが9000以上は使用しないため表示しないようにする。有効フラグをOFFにすると、（Kuraselからの取り込みチェックでアウト）
+        """
+        # 費目で集約する
+        qs_year_expense = (
+            cls.objects.select_related("himoku")
+            .values("himoku__himoku_name", "himoku__aggregate_flag")
+            .annotate(price=Sum("amount"))
+        )
+        # (1) 期間でfiler
+        qs_year_expense = qs_year_expense.filter(transaction_date__range=[tstart, tend])
+        # (2) 削除フラグをチェック
+        qs_year_expense = qs_year_expense.filter(delete_flg=False)
+        # (3) 収入でfilter
+        qs_year_expense = qs_year_expense.filter(himoku__is_income=False)
+        # (4) 有効な費目、支出のある費目でfilter
+        qs_year_expense = qs_year_expense.filter(himoku__alive=True).exclude(amount=0)
+
+        return qs_year_expense.order_by("himoku")
 
 
 class BalanceSheetItem(models.Model):

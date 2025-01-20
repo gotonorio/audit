@@ -47,7 +47,6 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
         mode = form.cleaned_data["mode"]
-        logger.debug("test")
         return render(
             self.request,
             self.template_name,

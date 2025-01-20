@@ -27,7 +27,7 @@
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link is-size-6">通帳明細</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Original)</a>
+            <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Raw data)</a>
           </div>
         </div>
         {% if perms.record.add_transaction %}
@@ -64,6 +64,7 @@
             <a class="navbar-item" href="{% url 'check_record:kurasel_billing_check' %}">請求金額チェック</a>
             <hr class="navbar-divider">
             <a class="navbar-item" href="{% url 'check_record:year_income_check' %}">年間収入チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:year_expense_check' %}">年間支出チェック</a>
           </div>
         </div>
         <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>

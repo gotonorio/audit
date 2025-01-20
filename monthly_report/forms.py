@@ -29,12 +29,16 @@ class MonthlyReportViewForm(YearMonthForm):
 # データ登録用Form
 # -----------------------------------------------------------------------------
 class MonthlyReportIncomeForm(forms.ModelForm):
-    """月次報告収入データ編集用フォーム"""
+    """月次報告収入データ編集用フォーム
+    - himoku.codeが9000以上の費目は新規に使わない。
+    """
 
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=True).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=True, code__lt=9000).order_by(
+            "accounting_class", "code"
+        ),
         widget=forms.Select(attrs={"class": "select-css is-size-6"}),
     )
 
@@ -108,7 +112,9 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=False).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by(
+            "accounting_class", "code"
+        ),
         widget=forms.Select(attrs={"class": "select-css is-size-6"}),
     )
 

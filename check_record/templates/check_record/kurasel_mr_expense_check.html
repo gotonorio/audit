@@ -61,11 +61,11 @@
 
   <div class='columns'>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">月次支出報告</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">会計区分</th>
@@ -79,14 +79,16 @@
             {% for record in mr_list %}
             <tr>
               <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
-              {% if record.is_netting or not record.himoku.aggregate_flag %}
+              {# 講座振替手数料(is_netting)または集計フラグ(aggregate_flag)がオフの費目の場合、赤字表示する #}
+              {% comment %} {% if record.is_netting or not record.himoku.aggregate_flag %} {% endcomment %}
+              {% if not record.himoku.aggregate_flag %}
                 <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
-                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
                 <td class="has-text-left has-text-danger is-size-7">{{record.description}}</td>
               {% else %}
                 <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
-                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right">{{record.amount|intcomma}}</td>
                 <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
               {% endif %}
@@ -101,11 +103,11 @@
           </tbody>
         </table>
       </div>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">貸借対照表による当月の未払金</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">年月</th>
@@ -128,18 +130,18 @@
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_miharai|intcomma}}</td>
+              <td class="has-text-right">{{total_this_miharai|intcomma}}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">通帳支払い</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
@@ -151,16 +153,16 @@
           <tbody>
             {% for record in pb_list %}
             <tr>
-              {% if record.himoku.aggregate_flag %}
-                <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
-                <td class="has-text-ledt">{{record.himoku|truncatechars:10}}</td>
-                <td class="has-text-right">{{record.amount|intcomma}}</td>
-                <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
-              {% else %}
+              {% if record.himoku.is_community or not record.himoku.aggregate_flag %}
                 <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
-                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
                 <td class="has-text-left has-text-danger is-size-7">{{record.description|markdown_to_html}}</td>
+              {% else %}
+                <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
+                <td class="has-text-right">{{record.amount|intcomma}}</td>
+                <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
               {% endif %}
             </tr>
             {% endfor %}
@@ -173,7 +175,7 @@
             <tr>
               <td></td>
               <td class="has-text-right">前月未払金</td>
-              <td class="has-text-right">{{last_miharai_total|intcomma}}</td>
+              <td class="has-text-right">{{total_last_miharai|intcomma}}</td>
               <td></td>
             </tr>
             <tr>
