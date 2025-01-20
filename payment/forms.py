@@ -59,7 +59,7 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).filter(is_income=False, alive=True).order_by("code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by("code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
 

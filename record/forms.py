@@ -66,7 +66,9 @@ class TransactionDisplayForm(YearMonthForm):
     himoku_id = forms.ModelChoiceField(
         label="入金費目",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=True).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=True, code__lt=9000).order_by(
+            "accounting_class", "code"
+        ),
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
 
@@ -87,7 +89,7 @@ class TransactionCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by("accounting_class", "code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
     # requiredをFalseにするため上書きする。
@@ -306,7 +308,7 @@ class RequesterForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True).order_by("code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by("code"),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
 
