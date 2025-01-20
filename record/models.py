@@ -59,9 +59,13 @@ class AccountingClass(models.Model):
         return self.accounting_name
 
     @classmethod
-    def get_accountingclass_obj(cls, accounting_class):
-        """会計区分名からそのオブジェクトを返す"""
-        qs = cls.objects.get(accounting_name=accounting_class)
+    def get_accountingclass_obj(cls, accounting_class_name):
+        """会計区分名からそのオブジェクトを返す
+        例えば、町内会会計の項目を除く場合は下記のようにする。
+            obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
+            qs = qs.exclude(himoku__accounting_class=obj.pk)
+        """
+        qs = cls.objects.get(accounting_name=accounting_class_name)
         return qs
 
     @classmethod
@@ -103,6 +107,7 @@ class Himoku(models.Model):
     accounting_class = models.ForeignKey(AccountingClass, on_delete=models.CASCADE, blank=True, null=True)
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
+    is_community = models.BooleanField(verbose_name="町内会", default=False)
 
     def __str__(self):
         return self.himoku_name + " (" + self.accounting_class.accounting_name[:1] + ")"
@@ -274,6 +279,8 @@ class Transaction(models.Model):
     is_maeukekin = models.BooleanField(verbose_name="前受金", default=False)
     # 未収金振込フラグを追加。月次収入チェックでは合計に含めない（2024-11-22）
     is_mishuukin = models.BooleanField(verbose_name="未収金", default=False)
+    # 「前期の未払い分」フラグを追加。（2025-01-18）
+    is_miharai = models.BooleanField(verbose_name="未払金支払い", default=False)
 
     def __str__(self):
         return self.himoku.himoku_name
@@ -290,61 +297,64 @@ class Transaction(models.Model):
             total += i.amount
         return total
 
-    # @staticmethod
-    # def get_maeuke(year, month):
-    #     """請求確定時点の前受金を返す
-    #     他の関数（stattic method）に依存するため、インスタンス関数とする。
-    #     """
-    #     tstart, tend = select_period(year, month)
-    #     total = 0
-    #     # 前受金の費目id
-    #     # id = Himoku.get_himoku_obj(settings.MAEUKE, "管理")
-    #     # qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(himoku=id)
-    #     qs = Transaction.objects.filter(transaction_date__range=[tstart, tend]).filter(is_maeukekin=True)
-    #     for i in qs:
-    #         total += i.amount
-    #     return total
-
     @staticmethod
-    def all_total(sql):
-        """通帳データの合計"""
+    def total_all(sql):
+        """calc_flgがONの合計金額を返す"""
         total_deposit = 0
         total_withdrawals = 0
         for data in sql:
-            # 「資金移動」費目では収入と支出の両パターンがあるため、is_incomeを使う。
+            # 収入項目で前受金でない場合、収入合計計算する。月次収入チェック用。
             if data.is_income:
                 total_deposit += data.amount
+            # 収入項目で
             else:
                 total_withdrawals += data.amount
         return total_deposit, total_withdrawals
 
-    #
-    # for Kurasel
-    #
     @staticmethod
-    def calc_total(sql):
-        """通帳データの合計計算は計算対象項目で前受金以外のみ"""
+    def total_with_calc_flg(sql):
+        """calc_flgがONの合計金額を返す"""
         total_deposit = 0
         total_withdrawals = 0
         for data in sql:
             if data.calc_flg:
-                # 「資金移動」費目では収入と支出の両パターンがあるため、is_incomeを使う。
+                # 収入項目で前受金でない場合、収入合計計算する。月次収入チェック用。
+                if data.is_income:
+                    total_deposit += data.amount
+                # 収入項目で
+                else:
+                    total_withdrawals += data.amount
+        return total_deposit, total_withdrawals
+
+    @staticmethod
+    def total_without_calc_flg(sql):
+        """calc_flgがONの合計金額を返す
+        - 収入の場合は前受金を除外した通帳データの合計を返す
+        - 支出の場合はcalc_flgがONの支出合計を返す
+        """
+        total_deposit = 0
+        total_withdrawals = 0
+        for data in sql:
+            if data.calc_flg:
+                # 収入項目で前受金でない場合、収入合計計算する。月次収入チェック用。
                 if data.is_income and not data.is_maeukekin:
                     total_deposit += data.amount
+                # 収入項目で
                 else:
                     total_withdrawals += data.amount
         return total_deposit, total_withdrawals
 
     @classmethod
-    def get_qs_pb(cls, tstart, tend, account, ac_class, deposit_flg, manualinput):
-        """querysetを返す。
-        資金移動は含むので、必要なら呼び出し側で処理する。
-        tstart/tend : 抽出期間。
-        account:口座名（Kuraselの場合は1口座となる。
-        ac_class:会計区分。
-        deposit_flg:入金はincome、出金はexpense。""の場合は入出金の両方を抽出する。
-        manualinput:手入力データを含めて抽出の場合はTrue。
-        manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
+    def get_qs_pb(cls, tstart, tend, account, ac_class, deposit_flg, manualinput, calc_flg):
+        """資金移動を除外した入出金データquerysetを返す。
+        - tstart/tend : 抽出期間。
+        - account:口座名（Kuraselの場合は1口座となる。
+        - ac_class:会計区分。
+        - deposit_flg:入金はincome、出金はexpense。""の場合は入出金の両方を抽出する。
+        - manualinput:手入力データを含めて抽出の場合はTrue。
+        - manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを抽出。
+        - calc_flg:Falseの場合calc_flgを無視する。Trueの場合はcalc_flgがONのデータだけを抽出。
+            - すまい・る債、共用保険料の資産振替の場合にcalc_flgはOFFとしている。
         """
         qs_pb = cls.objects.all().select_related("himoku")
         # 補正データを含める場合は手入力filterをしない。
@@ -363,6 +373,9 @@ class Transaction(models.Model):
         # 費目の会計区分でfilter
         if ac_class != "0":
             qs_pb = qs_pb.filter(himoku__accounting_class=ac_class)
+        # calc_flgがFalseの場合、資金移動（すまい・る債、共用保険料等）を除外する
+        if calc_flg:
+            qs_pb = qs_pb.filter(calc_flg=calc_flg)
         return qs_pb
 
     @classmethod
@@ -476,15 +489,11 @@ class Transaction(models.Model):
         return None
 
     @classmethod
-    def get_year_income(cls, tstart, tend, account, ac_class, manualinput):
-        """入金額のquerysetを返す。
-        資金移動は含むので、必要なら呼び出し側で処理する。
-        tstart/tend : 抽出期間。
-        account:口座名（Kuraselの場合は1口座となる。
-        ac_class:会計区分。
-        deposit_flg:入金はincome、出金はexpense。""の場合は入出金の両方を抽出する。
-        manualinput:手入力データを含めて抽出の場合はTrue。
-        manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
+    def get_year_income(cls, tstart, tend, manualinput):
+        """入出金明細（通帳）の年間収入リストを返す。
+        - 町内会費は含む。
+        - tstart/tend : 抽出期間。
+        - manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
         """
         qs_pb = cls.objects.values("himoku__himoku_name").annotate(price=Sum("amount"))
         # 入金のfilter
@@ -494,12 +503,40 @@ class Transaction(models.Model):
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(is_manualinput=False)
-        # 口座種類でfilter（Kuraselでは1口座なので常にacoountは""とする。
-        if account != "0":
-            qs_pb = qs_pb.filter(account=account)
-        # 費目の会計区分でfilter
-        if ac_class != "0":
-            qs_pb = qs_pb.filter(himoku__accounting_class=ac_class)
+
+        # # デバッグ
+        # qs_debug = cls.objects.filter(is_income=True, calc_flg=False).filter(
+        #     transaction_date__range=[tstart, tend]
+        # )
+        # for i in qs_debug:
+        #     logger.debug(f"{i.transaction_date}:{i.himoku}:{i.amount}")
+
+        # 計算フラグでfilterする
+        qs_pb = qs_pb.filter(calc_flg=True)
+        qs_pb = qs_pb.filter(himoku__aggregate_flag=True)
+        return qs_pb
+
+    @classmethod
+    def get_year_expense(cls, tstart, tend):
+        """費目名で集計した出金リストのquerysetをDictで返す。
+        資金移動は除外する。
+        - tstart/tend : 抽出期間。
+        - account:口座名（Kuraselの場合は1口座となる。
+        - ac_class:会計区分。（0は全会計区分）
+        - manualinput:手入力データを含まない抽出の場合はFalse。
+
+        """
+        qs_pb = cls.objects.values("himoku__himoku_name").annotate(price=Sum("amount"))
+        # 出金だけを抽出
+        qs_pb = qs_pb.filter(is_income=False)
+        # 抽出期間。
+        qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
+        # 資金移動（計算フラグOFF）を除外
+        qs_pb = qs_pb.filter(calc_flg=True)
+        # 前期の未払い分は除外
+        qs_pb = qs_pb.filter(is_miharai=False)
+        # ToDo 金額0は除外。この方法ではマイナスの支出も除外してしまう
+        qs_pb = qs_pb.filter(price__gt=0)
         return qs_pb
 
 

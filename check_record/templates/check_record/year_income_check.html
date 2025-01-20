@@ -36,18 +36,24 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  {% comment %} <div class="content has-text-centered"> {% endcomment %}
+  <div class="content">
     <div class="is-size-5">{{yyyymm}} 管理費等 年間収入監査（町内会費含む）</div>
-    <p class="has-text-danger" >※ 通帳 年間収入データの「管理費」は修繕積立金会計・駐車場会計・町内会会計の合計金額。</p>
+    <ul>
+      <li class="has-text-danger" >通帳 年間収入データの資金移動（共用保険の解約戻り金等）は含まない。</li>
+      <li class="has-text-danger" >通帳 年間収入データの「管理費」は振替入金と振込入金の合計額。</li>
+    </ul>
   </div>
   <br>
   <div class='columns'>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      {% comment %} <div class="content has-text-centered"> {% endcomment %}
+      <div class="content">
         <div class="is-size-5">月次報告 年間収入データ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">費目</th>
@@ -72,11 +78,13 @@
       <br>
     </div>
     <div class='column is-half'>
-      <div class="content has-text-centered">
-        <div class="is-size-5">通帳 年間収入データ</div>
+      {% comment %} <div class="content has-text-centered"> {% endcomment %}
+      <div class="content">
+        <div class="is-size-5">入出金明細 年間収入データ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">費目</th>
@@ -116,11 +124,13 @@
         </table>
       </div>
       <br>
-      <div class="content has-text-centered">
+      {% comment %} <div class="content has-text-centered"> {% endcomment %}
+      <div class="content">
         <div class="is-size-5">{{year}}年12月の未収金</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">年月</th>

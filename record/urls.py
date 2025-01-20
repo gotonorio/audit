@@ -4,9 +4,14 @@ from record.views import data_operate, views
 
 app_name = "record"
 urlpatterns = [
-    # データ表示
+    # 入出金細目データ表示
     path(
         "transaction_list/",
+        views.TransactionListView.as_view(),
+        name="transaction_list",
+    ),
+    path(
+        "transaction_list/<int:year>/<int:month>/<int:list_order>/<int:himoku_id>/",
         views.TransactionListView.as_view(),
         name="transaction_list",
     ),
@@ -15,20 +20,15 @@ urlpatterns = [
         views.TransactionOriginalListView.as_view(),
         name="transaction_original_list",
     ),
-    # update後の遷移url
-    path(
-        "transaction_list/<int:year>/<int:month>/<int:list_order>/",
-        views.TransactionListView.as_view(),
-        name="transaction_list",
-    ),
     # 前受金データチェック
     path("chk_maeuke/", views.CheckMaeukeDataView.as_view(), name="chk_maeuke"),
-    # データ編集
+    # 入出金明細データの読込み
     path(
         "transaction_create/",
         data_operate.TransactionCreateView.as_view(),
         name="transaction_create",
     ),
+    # 入出金明細データの修正・削除（削除はしない？）
     path(
         "transaction_update/<int:pk>/",
         data_operate.TransactionUpdateView.as_view(),
@@ -39,6 +39,7 @@ urlpatterns = [
         data_operate.TransactionDeleteView.as_view(),
         name="transaction_delete",
     ),
+    # マスタデータ関係
     path("himoku_create/", data_operate.HimokuCreateView.as_view(), name="himoku_create"),
     path("himoku_list/", data_operate.HimokuListView.as_view(), name="himoku_list"),
     path(

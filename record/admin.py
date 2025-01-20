@@ -37,7 +37,7 @@ class AccountingClassAdmin(admin.ModelAdmin):
 
 
 class HimokuAdmin(admin.ModelAdmin):
-    list_display = ["code", "himoku_name", "alive", "aggregate_flag", "is_approval"]
+    list_display = ["code", "himoku_name", "alive", "aggregate_flag", "is_approval", "is_community"]
     ordering = ("code",)
 
 

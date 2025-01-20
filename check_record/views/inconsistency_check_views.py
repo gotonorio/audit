@@ -48,13 +48,9 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         # ---------------------------------------------------------------------
         # 月次報告データ
         # ---------------------------------------------------------------------
-        qs_mr = (
-            ReportTransaction.get_monthly_report_expense(tstart, tend)
-            .exclude(is_netting=True)
-            .order_by("himoku__himoku_name")
-        )
-        # 月次収支の支出合計（ネッティング処理、集計フラグがFalseの費目を除外する）
-        qs_mr_without_netting = qs_mr.exclude(is_netting=True).exclude(himoku__aggregate_flag=False)
+        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend).order_by("himoku__himoku_name")
+        # 月次収支の支出合計（集計フラグがFalseの費目を除外する）
+        qs_mr_without_netting = qs_mr.exclude(himoku__aggregate_flag=False)
         total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
         # ---------------------------------------------------------------------
         # 入出金明細データ
@@ -69,7 +65,10 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 入出金明細の「緑地維持管理費」を「全体利用施設管理料」に変更する。
         # qs_dict["全体利用施設管理料"] = qs_dict.pop["緑地維持管理費"]
         qs_list = list(qs)
+        total_pb = 0
         for i in qs_list:
+            logger.debug(i["debt"])
+            total_pb += i["debt"]
             if i["himoku__himoku_name"] == "緑地維持管理費":
                 i["himoku__himoku_name"] = "全体利用施設管理料"
 
@@ -77,6 +76,7 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["mr_list"] = qs_mr
         context["total_mr"] = total_mr
         context["pb_list"] = qs_list
+        context["total_pb"] = total_pb
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
