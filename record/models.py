@@ -108,6 +108,7 @@ class Himoku(models.Model):
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
     is_community = models.BooleanField(verbose_name="町内会", default=False)
+    comment = models.CharField(verbose_name="備考", max_length=64, default="")
 
     def __str__(self):
         return self.himoku_name + " (" + self.accounting_class.accounting_name[:1] + ")"
@@ -278,6 +279,7 @@ class Transaction(models.Model):
     # 前払い金フラグを追加。当月の月次収入チェックでは合計に含めない（2024-11-19）
     is_maeukekin = models.BooleanField(verbose_name="前受金", default=False)
     # 未収金振込フラグを追加。月次収入チェックでは合計に含めない（2024-11-22）
+    # 未収金振込フラグは使用禁止とした。（2025-01-22）
     is_mishuukin = models.BooleanField(verbose_name="未収金", default=False)
     # 「前期の未払い分」フラグを追加。（2025-01-18）
     is_miharai = models.BooleanField(verbose_name="未払金支払い", default=False)

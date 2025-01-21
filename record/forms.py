@@ -67,7 +67,7 @@ class TransactionDisplayForm(YearMonthForm):
         label="入金費目",
         required=False,
         queryset=Himoku.objects.filter(alive=True, is_income=True, code__lt=9000).order_by(
-            "accounting_class", "code"
+            "-is_income", "accounting_class", "code"
         ),
         widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
@@ -89,7 +89,9 @@ class TransactionCreateForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by("accounting_class", "code"),
+        queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by(
+            "-is_income", "accounting_class", "code"
+        ),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
     # requiredをFalseにするため上書きする。
@@ -130,7 +132,7 @@ class TransactionCreateForm(forms.ModelForm):
             "is_income",
             "calc_flg",
             "is_maeukekin",
-            "is_mishuukin",
+            # "is_mishuukin",
             "is_approval",
             "is_manualinput",
             "is_billing",
@@ -172,11 +174,11 @@ class TransactionCreateForm(forms.ModelForm):
                     "class": "checkbox",
                 }
             ),
-            "is_mishuukin": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
+            # "is_mishuukin": forms.CheckboxInput(
+            #     attrs={
+            #         "class": "checkbox",
+            #     }
+            # ),
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
@@ -185,7 +187,7 @@ class TransactionCreateForm(forms.ModelForm):
             "is_approval": "※ 収入項目、支払い承認が不要の場合はチェックを外す。",
             "is_billing": "※ 請求金額合計内訳の項目の場合はチェックする。",
             "is_maeukekin": "※ 請求承認期日後に振込みされた入金は前受金となるのでチェックする。",
-            "is_mishuukin": "※ 未収金の振込の場合はチェックする。",
+            # "is_mishuukin": "※ 未収金の振込の場合はチェックする。",
             "is_miharai": "※ 前期の未払い分の支出ではチェックする",
         }
 
@@ -233,6 +235,7 @@ class HimokuForm(forms.ModelForm):
             "is_approval",
             "is_default",
             "is_community",
+            "comment",
         ]
         labels = {"aggregate_flag": "集計:(aggregate_flag)"}
         widgets = {
@@ -272,6 +275,11 @@ class HimokuForm(forms.ModelForm):
                     "class": "checkbox",
                 }
             ),
+            "comment": forms.TextInput(
+                attrs={
+                    "class": "input",
+                }
+            ),
         }
         help_texts = {
             "code": "* 有効だが非表示にする費目は、費目コードを9000以上に設定する。",
@@ -308,7 +316,9 @@ class RequesterForm(forms.ModelForm):
     himoku = forms.ModelChoiceField(
         label="費目選択",
         required=False,
-        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by("code"),
+        queryset=Himoku.objects.filter(alive=True, is_income=False, code__lt=9000).order_by(
+            "-is_income", "code"
+        ),
         widget=forms.Select(attrs={"class": "select-css"}),
     )
 

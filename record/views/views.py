@@ -107,15 +107,13 @@ class CheckMaeukeDataView(PermissionRequiredMixin, generic.TemplateView):
         year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間
         tstart, tend = select_period(year, 0)
-        # 期間でfiler
+        # 期間と前受金フラグでfiler
         qs = (
-            Transaction.objects.all().select_related("account").filter(transaction_date__range=[tstart, tend])
+            Transaction.objects.all()
+            .select_related("account")
+            .filter(transaction_date__range=[tstart, tend])
+            .filter(is_maeukekin=True)
         )
-        # 管理会計区分を指定する
-        ac_class = AccountingClass.get_class_name("管理")
-        # 費目名「前受金」でfilter
-        maeukekin = Himoku.get_himoku_obj(settings.MAEUKE, ac_class)
-        qs = qs.filter(himoku=maeukekin).order_by("-transaction_date")
         form = TransactionDisplayForm(
             initial={
                 "year": year,
