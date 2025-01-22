@@ -50,8 +50,7 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend).order_by("himoku__himoku_name")
         # 月次収支の支出合計（集計フラグがFalseの費目を除外する）
-        qs_mr_without_netting = qs_mr.exclude(himoku__aggregate_flag=False)
-        total_mr = ReportTransaction.calc_total_withflg(qs_mr_without_netting, True)
+        total_mr = ReportTransaction.total_calc_flg(qs_mr)
         # ---------------------------------------------------------------------
         # 入出金明細データ
         # 町内会会計を除外する（2024-11-14）

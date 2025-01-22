@@ -504,7 +504,7 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["total_diff"] = context["total_pb"] - total_year_income
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
-        context["year"] = year
+        # context["year"] = year
         return context
 
 
@@ -584,5 +584,6 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["total_this_miharai"] = total_this_miharai
         # form
         context["form"] = form
+        # context["year"] = year
 
         return context

@@ -60,7 +60,7 @@
             {% for record in mr_list %}
             <tr>
               <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
-              {% if not record.himoku.aggregate_flag %}
+              {% if not record.himoku.aggregate_flag or not record.calc_flg %}
                 <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:10}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
               {% else %}

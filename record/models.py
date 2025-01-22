@@ -94,8 +94,7 @@ class AccountingClass(models.Model):
 
 class Himoku(models.Model):
     """費目マスタ
-    - aggregate_flag: 資金移動などの場合はFalseとする。
-      Falseの場合は表示するが、合計計算では無視する。
+    - aggregate_flag: 資金移動などの場合はFalseとする。Falseの場合は表示するが、合計計算では無視する。
     """
 
     code = models.IntegerField(verbose_name="コード", unique=True)

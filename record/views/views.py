@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
@@ -10,7 +9,7 @@ from record.forms import (
     ClaimListForm,
     TransactionDisplayForm,
 )
-from record.models import AccountingClass, ClaimData, Himoku, Transaction
+from record.models import ClaimData, Transaction
 
 logger = logging.getLogger(__name__)
 

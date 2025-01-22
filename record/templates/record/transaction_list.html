@@ -92,8 +92,10 @@
           {% endif %}
           {% if not record.calc_flg %}
             <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
-          {% elif record.is_manualinput %}
-            <td class="has-text-left has-text-success">{{record.himoku|truncatechars:14}}</td>
+          {% elif record.is_manualinput and not record.is_miharai %}
+            <td class="has-text-left has-text-link">{{record.himoku|truncatechars:14}}</td>
+          {% elif record.is_miharai %}
+            <td class="has-text-left has-text-success has-text-weight-bold">【未払い分】{{record.himoku|truncatechars:14}}</td>
           {% else %}
             <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
