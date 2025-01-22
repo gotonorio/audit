@@ -37,10 +37,10 @@
 {% endif %}
 <br>
 <div class="container is-fluid">
-  <div class="content has-text-centered">
-    <div class="is-size-5">取引明細データの登録</div>
+  <div class="content">
+    <div class="is-size-5">入出金明細データの修正</div>
   </div>
-  <form method='POST' enctype='multipart/form-data' id='form_style'>
+  <form method='POST' enctype='multipart/form-data'>
     {{ form.non_field_errors }}
     {% for field in form %}
       <div class='field'>
@@ -56,9 +56,9 @@
     {% endfor %}
     {% csrf_token %}
     <br>
-    <div class='my_button has-text-centered'>
-      <button type='submit' class='button is-danger is-size-7'>読込み</button>
-      <a class='button is-primary  is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
+    <div class='my_button'>
+      <button type='submit' class='button is-danger is-size-6'>読込み</button>
+      <a class='button is-primary  is-size-6' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
     </div>
   </form>
 </div>
