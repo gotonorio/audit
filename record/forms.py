@@ -162,6 +162,7 @@ class TransactionCreateForm(forms.ModelForm):
             "amount": forms.NumberInput(
                 attrs={
                     "class": "input",
+                    "readonly": True,
                 }
             ),
             "is_approval": forms.CheckboxInput(

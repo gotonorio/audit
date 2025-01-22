@@ -82,6 +82,7 @@ class MonthlyReportIncomeForm(forms.ModelForm):
             "amount": forms.NumberInput(
                 attrs={
                     "class": "input",
+                    "readonly": True,
                 }
             ),
             "description": forms.TextInput(
@@ -152,6 +153,7 @@ class MonthlyReportExpenseForm(MonthlyReportIncomeForm):
             "amount": forms.NumberInput(
                 attrs={
                     "class": "input",
+                    "readonly": True,
                 }
             ),
             "description": forms.TextInput(
@@ -200,6 +202,7 @@ class BalanceSheetForm(forms.ModelForm):
             "amounts": forms.NumberInput(
                 attrs={
                     "class": "input",
+                    "readonly": True,
                 }
             ),
             # 'item_name': forms.Select(attrs={
