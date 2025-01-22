@@ -81,7 +81,7 @@
               <td>{{record.himoku.accounting_class|truncatechars:3}}</td>
               {# 講座振替手数料(is_netting)または集計フラグ(aggregate_flag)がオフの費目の場合、赤字表示する #}
               {% comment %} {% if record.is_netting or not record.himoku.aggregate_flag %} {% endcomment %}
-              {% if not record.himoku.aggregate_flag %}
+              {% if not record.himoku.aggregate_flag or not record.calc_flg %}
                 <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>

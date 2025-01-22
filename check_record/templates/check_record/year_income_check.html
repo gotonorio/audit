@@ -99,17 +99,15 @@
               <td class="has-text-right">{{netting_total|intcomma}}</td>
               <td class="has-text-ledt is-size-7 has-text-danger">相殺処理分を考慮する</td>
             </tr>
-            {% if pb_last_maeuke > 0 %}
             <tr>
-              <td class="has-text-right">前月の前受金</td>
-              <td class="has-text-right has-text-danger">{{pb_last_maeuke|intcomma}}</td>
-              <td class="is-size-7 has-text-danger">使用する前受金</td>
+              <td class="has-text-right">前期の未収金</td>
+              <td class="has-text-right has-text-danger">{{pb_last_mishuukin|intcomma}}</td>
+              <td></td>
             </tr>
-            {% endif %}
             <tr>
               <td class="has-text-right">合計</td>
               <td class="has-text-right">{{total_pb|intcomma}}</td>
-              <td class="has-text-ledt is-size-7">相殺処理分を考慮</td>
+              <td class="has-text-ledt is-size-7">相殺処理金額・前期未収金額を考慮</td>
             </tr>
             <tr>
               <td class="has-text-right">月次報告との差額</td>

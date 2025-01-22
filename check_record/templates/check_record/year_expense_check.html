@@ -60,7 +60,7 @@
           <tbody>
             {% for record in year_list %}
             <tr>
-              {% if record.himoku__aggregate_flag %}
+              {% if record.himoku__aggregate_flag and record.calc_flg %}
                 <td class="has-text-ledt">{{record.himoku__himoku_name}}</td>
                 <td class="has-text-right">{{record.price|intcomma}}</td>
               {% else %}

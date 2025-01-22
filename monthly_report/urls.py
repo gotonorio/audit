@@ -142,4 +142,9 @@ urlpatterns = [
         views.CheckOffset.as_view(),
         name="chk_offset",
     ),
+    path(
+        "calcflg_off/",
+        views.CalcFlgList.as_view(),
+        name="calcflg_off",
+    ),
 ]

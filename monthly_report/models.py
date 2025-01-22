@@ -76,6 +76,16 @@ class ReportTransaction(models.Model):
         return qs_mr
 
     @staticmethod
+    def total_calc_flg(sql):
+        """計算対象の合計計算"""
+        total_withdrawals = 0
+        for data in sql:
+            if data.calc_flg:
+                total_withdrawals += data.amount
+
+        return total_withdrawals
+
+    @staticmethod
     def calc_total_withflg(sql, flg):
         """合計計算
         flg = Trueの場合、計算対象(calc_flg=True)の費目データだけ合計する。
@@ -98,10 +108,6 @@ class ReportTransaction(models.Model):
         """資金移動を除いて、計算対象の支出データを抽出するsqlを返す"""
         # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
         qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
-        # 資金移動は除く ToDo 2024-02-15 資金移動は表示して合計計算から除外する。
-        qs_mr = qs_mr.filter(himoku__aggregate_flag=True)
-        # # 計算対象データだけを抽出。
-        # qs_mr = qs_mr.filter(calc_flg=True)
         return qs_mr
 
     # @classmethod
@@ -180,6 +186,17 @@ class ReportTransaction(models.Model):
         return qs
 
     @classmethod
+    def get_calcflg_off(cls, start, end):
+        """計算対象外リストを返す"""
+        qs = (
+            cls.objects.all()
+            .filter(transaction_date__range=[start, end])
+            .filter(calc_flg=False)
+            .order_by("-transaction_date", "accounting_class")
+        )
+        return qs
+
+    @classmethod
     def get_year_income(cls, tstart, tend, community):
         """月次報告の年間収入リストを返す
         - 資金移動は含むので、必要なら呼び出し側で処理する。
@@ -217,7 +234,7 @@ class ReportTransaction(models.Model):
         # 費目で集約する
         qs_year_expense = (
             cls.objects.select_related("himoku")
-            .values("himoku__himoku_name", "himoku__aggregate_flag")
+            .values("himoku__himoku_name", "himoku__aggregate_flag", "calc_flg")
             .annotate(price=Sum("amount"))
         )
         # (1) 期間でfiler

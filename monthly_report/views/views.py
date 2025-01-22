@@ -277,8 +277,8 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             "calc_flg",
             "transaction_date",
         )
-        # 合計金額（Kuraselの月次収支データ全合計のためFalseを設定）
-        total_withdrawals = ReportTransaction.calc_total_withflg(qs, False)
+        # 合計金額（計算対象のみ）
+        total_withdrawals = ReportTransaction.total_calc_flg(qs)
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
@@ -333,7 +333,8 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
         # 月次データの支出合計
-        total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
+        # total_withdrawals = ReportTransaction.calc_total_withflg(qs, True)
+        total_withdrawals = ReportTransaction.total_calc_flg(qs)
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -503,6 +504,37 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         if ac_class == "":
             ac_class = "0"
         context["ac"] = ac_class
+        return context
+
+
+class CalcFlgList(PermissionRequiredMixin, generic.TemplateView):
+    """「計算対象」フラグOFF項目の一覧"""
+
+    template_name = "monthly_report/calcflg_off_list.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        year = self.request.GET.get("year", localtime(timezone.now()).year - 1)
+        # 抽出期間
+        tstart, tend = select_period(year, 0)
+        # 計算対象OFFリスト
+        qs = ReportTransaction.get_calcflg_off(tstart, tend)
+        # 未払金の合計
+        total = 0
+        for i in qs:
+            total += i.amount
+        # formに初期値を設定する
+        form = MonthlyReportViewForm(
+            initial={
+                "year": year,
+            }
+        )
+        context["calcflg_off_list"] = qs
+        context["total"] = total
+        context["form"] = form
+        context["year"] = year
         return context
 
 

@@ -149,8 +149,8 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 月次収支の支出データ
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
-        # 月次収支の支出合計（ネッティング処理、集計フラグがFalseの費目を除外する）
-        total_mr = ReportTransaction.calc_total_withflg(qs_mr, False)
+        # 月次収支報告の支出合計（相殺項目、資金移動、集計フラグがFalseの費目を除外する）
+        total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
         # ---------------------------------------------------------------------
         # 入出金明細の支出データ
@@ -480,19 +480,27 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
         if netting_total is None:
             netting_total = 0
 
+        # ---------------------------------------------------------------------
+        # (5) 貸借対照表データから前期の未収金額を求める。
+        # ---------------------------------------------------------------------
+        last_start_date, last_end_date = select_period(int(year) - 1, 12)
+        _, last_total_mishuu = BalanceSheet.get_mishuu_bs(last_start_date, last_end_date)
+
         # 月次収入データ
         context["year_list"] = mr_year_income
         # 入出金明細データ
         context["pb_list"] = pb_year_income
         # ネッティング額（相殺処理額）
         context["netting_total"] = netting_total
+        # 前期の未収金
+        context["pb_last_mishuukin"] = last_total_mishuu
         # 貸借対照表上の未収金リストと未収金額
         context["mishuu_list"] = qs_mishuu_bs
         context["total_mishuu_bs"] = total_mishuu_bs
         # 月次収入データの合計
         context["total_mr"] = total_year_income
         # 入出金明細データの合計
-        context["total_pb"] = total_pb + netting_total
+        context["total_pb"] = total_pb + netting_total - last_total_mishuu
         context["total_diff"] = context["total_pb"] - total_year_income
         context["form"] = form
         context["yyyymm"] = str(year) + "年"
@@ -528,10 +536,10 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         mr_year_expense = ReportTransaction.get_year_expense(tstart, tend)
         # 支出のない費目は除く
         mr_year_expense = mr_year_expense.exclude(amount=0)
-        # 年間支出の合計（集計フラグがONの項目合計）
+        # 年間支出の合計（費目の集計フラグとレコードの集計フラグが両方ONの項目合計）
         total_mr_expense = 0
         for i in mr_year_expense:
-            if i["himoku__aggregate_flag"]:
+            if i["himoku__aggregate_flag"] and i["calc_flg"]:
                 total_mr_expense += i["price"]
 
         # ---------------------------------------------------------------------
