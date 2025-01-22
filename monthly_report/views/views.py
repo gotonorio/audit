@@ -516,7 +516,7 @@ class CalcFlgList(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = self.request.GET.get("year", localtime(timezone.now()).year - 1)
+        year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間
         tstart, tend = select_period(year, 0)
         # 計算対象OFFリスト
@@ -580,7 +580,7 @@ class UnpaidBalanceListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = self.request.GET.get("year", localtime(timezone.now()).year - 1)
+        year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間
         tstart, tend = select_period(year, 0)
         # 未払金リスト
