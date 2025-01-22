@@ -428,16 +428,6 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
 
-        # 追加contextデータの初期化
-        context["netting_total"] = 0
-        context["total_mishuu_bs"] = 0
-        context["total_mishuu_claim"] = 0
-        context["total_last_mishuu"] = 0
-        context["total_mr"] = 0
-        context["total_pb"] = 0
-        # 口座振替不備分
-        context["transfer_error"] = 0
-
         # formの初期値を設定する。
         form = YearMonthForm(
             initial={
@@ -523,15 +513,6 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
 
-        # 追加contextデータの初期化
-        context["netting_total"] = 0
-        context["total_mishuu_bs"] = 0
-        context["total_mishuu_claim"] = 0
-        context["total_last_mishuu"] = 0
-        context["total_mr"] = 0
-        context["total_pb"] = 0
-        # 口座振替不備分
-        context["transfer_error"] = 0
         # formの初期値を設定する。
         form = YearMonthForm(
             initial={

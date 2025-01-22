@@ -71,7 +71,7 @@
             {% endfor %}
             <tr>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mr|add:total_mishuu_claim|intcomma}}</td>
+              <td class="has-text-right">{{total_mr|intcomma}}</td>
             </tr>
           </tbody>
         </table>
@@ -100,7 +100,6 @@
             <tr>
               <td class="has-text-right">当期支出合計</td>
               <td class="has-text-right">{{total_pb|intcomma}}</td>
-              <td></td>
             </tr>
           </tbody>
         </table>

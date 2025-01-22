@@ -36,7 +36,6 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  {% comment %} <div class="content has-text-centered"> {% endcomment %}
   <div class="content">
     <div class="is-size-5">{{yyyymm}} 管理費等 年間収入監査（町内会費含む）</div>
     <ul>
@@ -47,12 +46,10 @@
   <br>
   <div class='columns'>
     <div class='column is-half'>
-      {% comment %} <div class="content has-text-centered"> {% endcomment %}
       <div class="content">
         <div class="is-size-5">月次報告 年間収入データ</div>
       </div>
       <div class="table-container">
-        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
         <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
@@ -69,8 +66,7 @@
             {% endfor %}
             <tr>
               <td class="has-text-right">合計</td>
-              {% comment %} <td class="has-text-right">{{total_mr|add:total_last_maeuke|add:total_mishuu_claim|intcomma}}</td> {% endcomment %}
-              <td class="has-text-right">{{total_mr|add:total_mishuu_claim|intcomma}}</td>
+              <td class="has-text-right">{{total_mr|intcomma}}</td>
             </tr>
           </tbody>
         </table>
