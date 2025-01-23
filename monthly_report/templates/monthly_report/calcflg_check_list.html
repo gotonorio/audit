@@ -23,7 +23,7 @@ OFF
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'monthly_report:calcflg_off'%}" method="get">
+      <form class="navbar-item" action="{% url 'monthly_report:calcflg_check'%}" method="get">
         {{form.year}}
         <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
       </form>
@@ -41,7 +41,7 @@ OFF
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">{{year}}年 計算対象OFF（calc_flg=False）リスト</div>
+    <div class="is-size-5">{{year}}年度 合計計算除外（calc_flg=False, aggregate_flag=False）リスト</div>
   </div>
   <div class="table-container">
     <table class="table table_nowrap is-narrow is-striped">
@@ -64,6 +64,13 @@ OFF
           <td class="has-text-left">{{record.description}}</td>
         </tr>
         {% endfor %}
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="has-text-left">合計</td>
+          <td class="has-text-right">{{total|intcomma}}</td>
+          <td></td>
+        </tr>
       </tbody>
     </table>
   </div>

@@ -4,6 +4,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 from django.db.models.aggregates import Sum
 from django.utils import timezone
 from record.models import Account, AccountingClass, Himoku
@@ -186,13 +187,17 @@ class ReportTransaction(models.Model):
         return qs
 
     @classmethod
-    def get_calcflg_off(cls, start, end):
-        """計算対象外リストを返す"""
+    def get_calcflg_check(cls, start, end):
+        """合計計算対象外リスト
+        - calc_flg = False
+        - aggregate_flag = False
+        """
         qs = (
             cls.objects.all()
             .filter(transaction_date__range=[start, end])
-            .filter(calc_flg=False)
-            .order_by("-transaction_date", "accounting_class")
+            .filter(Q(calc_flg=False) | Q(himoku__aggregate_flag=False))
+            .filter(amount__gt=0)
+            .order_by("accounting_class", "himoku", "transaction_date")
         )
         return qs
 

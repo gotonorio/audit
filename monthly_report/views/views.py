@@ -506,10 +506,13 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         return context
 
 
-class CalcFlgList(PermissionRequiredMixin, generic.TemplateView):
-    """「計算対象」フラグOFF項目の一覧"""
+class CalcFlgCheckList(PermissionRequiredMixin, generic.TemplateView):
+    """合計計算から除外している項目リスト
+    - calc_flg（計算対象フラグ）がFalse
+    - 細目レベルでis_aggregareがFalse
+    """
 
-    template_name = "monthly_report/calcflg_off_list.html"
+    template_name = "monthly_report/calcflg_check_list.html"
     permission_required = "record.add_transaction"
     raise_exception = True
 
@@ -518,9 +521,9 @@ class CalcFlgList(PermissionRequiredMixin, generic.TemplateView):
         year = self.request.GET.get("year", localtime(timezone.now()).year)
         # 抽出期間
         tstart, tend = select_period(year, 0)
-        # 計算対象OFFリスト
-        qs = ReportTransaction.get_calcflg_off(tstart, tend)
-        # 未払金の合計
+        # 合計計算除外項目リスト（calc_flg=False, aggregate_flag=False）
+        qs = ReportTransaction.get_calcflg_check(tstart, tend)
+        # 除外項目の合計
         total = 0
         for i in qs:
             total += i.amount

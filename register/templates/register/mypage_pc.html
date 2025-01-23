@@ -79,7 +79,7 @@
               <a class="navbar-item" href="{% url 'monthly_report:chk_offset' %}">相殺処理一覧</a>
               <a class="navbar-item" href="{% url 'record:chk_maeuke' %}">前受金一覧</a>
               <a class="navbar-item" href="{% url 'monthly_report:unpaid_list' %}">未払い一覧</a>
-              <a class="navbar-item" href="{% url 'monthly_report:calcflg_off' %}">計算対象外一覧</a>
+              <a class="navbar-item" href="{% url 'monthly_report:calcflg_check' %}">計算対象外一覧</a>
               <hr class="navbar-divider">
               <a class="navbar-item" href="{% url 'monthly_report:simulation_data_list' %}">修繕計画用データ</a>
               {% if perms.register.add_user %}
