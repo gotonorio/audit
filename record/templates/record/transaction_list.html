@@ -113,7 +113,7 @@
           {% else %}
             <td class="has-text-left is-size-7">{{record.requesters_name }}</td>
           {% endif %}
-          <td class="has-text-left is-size-7">{{record.description|markdown_to_html }}</td>
+          <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
           {% if perms.record.add_transaction %}
             {% if record.is_manualinput %}
               <td class="has-text-centered">

@@ -548,22 +548,23 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         pb_year_expense = Transaction.get_year_expense(tstart, tend)
         pb_year_expense = pb_year_expense.order_by("himoku")
 
-        # # 2023年3月以前のデータを除外する。
-        # start_date = datetime.date(2023, 4, 1)
-        # pb_year_expense = pb_year_expense.filter(transaction_date__gte=start_date)
-        # # 資金移動は除く
-        # pb_year_expense = pb_year_expense.filter(himoku__aggregate_flag=True).order_by("himoku")
+        # ---------------------------------------------------------------------
+        # (3) 当年12月の貸借対照表による未払い
+        # ---------------------------------------------------------------------
+        tstart_12 = timezone.datetime(int(year), 12, 1, 0, 0, 0)
+        tend_12 = timezone.datetime(int(year), 12, 31, 0, 0, 0)
+        qs_this_miharai, total_this_miharai = BalanceSheet.get_miharai_bs(tstart_12, tend_12)
 
-        # ---------------------------------------------------------------------
-        # (3) 前年12月の未払金
-        # ---------------------------------------------------------------------
-        # 前年12月の期間
-        last_tstart, last_tend = select_period(int(year) - 1, 12)
-        _, total_last_miharai = BalanceSheet.get_miharai_bs(last_tstart, last_tend)
-        # ---------------------------------------------------------------------
-        # (4) 当年の未払金リスト
-        # ---------------------------------------------------------------------
-        _, total_this_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
+        # # ---------------------------------------------------------------------
+        # # (3) 前年12月の未払金
+        # # ---------------------------------------------------------------------
+        # # 前年12月の期間
+        # last_tstart, last_tend = select_period(int(year) - 1, 12)
+        # _, total_last_miharai = BalanceSheet.get_miharai_bs(last_tstart, last_tend)
+        # # ---------------------------------------------------------------------
+        # # (4) 当年の未払金リスト
+        # # ---------------------------------------------------------------------
+        # _, total_this_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
 
         # 支出合計金額
         total_pb_expense = 0
@@ -578,12 +579,18 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["pb_list"] = pb_year_expense
         # 通帳支出データの合計
         context["total_pb"] = total_pb_expense
-        # 前年12月の未払金
-        context["total_last_miharai"] = total_last_miharai
-        # 当年12月の未払金
-        context["total_this_miharai"] = total_this_miharai
+        # 合計の差額（未払金）
+        context["miharai"] = total_mr_expense - total_pb_expense
         # form
         context["form"] = form
+        # 当年の貸借対照表（未払金）
+        context["this_miharai"] = qs_this_miharai
+        context["total_this_miharai"] = total_this_miharai
+
+        # # 前年12月の未払金
+        # context["total_last_miharai"] = total_last_miharai
+        # # 当年12月の未払金
+        # context["total_this_miharai"] = total_this_miharai
         # context["year"] = year
 
         return context

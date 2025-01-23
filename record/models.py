@@ -520,12 +520,10 @@ class Transaction(models.Model):
     @classmethod
     def get_year_expense(cls, tstart, tend):
         """費目名で集計した出金リストのquerysetをDictで返す。
-        資金移動は除外する。
         - tstart/tend : 抽出期間。
-        - account:口座名（Kuraselの場合は1口座となる。
-        - ac_class:会計区分。（0は全会計区分）
-        - manualinput:手入力データを含まない抽出の場合はFalse。
-
+        - 資金移動は除外する。
+        - 前期の未払いの支払いは除外する。
+        - 非有効の費目データは除外する。
         """
         qs_pb = cls.objects.values("himoku__himoku_name").annotate(price=Sum("amount"))
         # 出金だけを抽出

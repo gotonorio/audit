@@ -95,7 +95,7 @@
             <td class="has-text-left has-text-danger">【未払い】 {{record.description}}</td>
           {% else %}
             <td class="has-text-right">{{record.amount|intcomma}}</td>
-            <td class="has-text-left is-size-7">{{record.description|truncatechars:40}}</td>
+            <td class="has-text-left is-size-7">{{record.description|truncatechars:40|markdown_to_html}}</td>
           {% endif %}
         </tr>
         {% endfor %}
