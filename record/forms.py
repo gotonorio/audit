@@ -65,6 +65,7 @@ class TransactionDisplayForm(YearMonthForm):
     # 費目
     himoku_id = forms.ModelChoiceField(
         label="入出金費目",
+        empty_label="全費目",
         required=False,
         queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by(
             "-is_income", "accounting_class", "code"
