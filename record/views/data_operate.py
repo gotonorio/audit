@@ -408,7 +408,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         # 保存が成功したら入出金明細にredirectする。
         year = transaction_date.year
         month = transaction_date.month
-        return redirect("record:transaction_list", year=year, month=month, list_order=0)
+        return redirect("record:transaction_list", year=year, month=month, list_order=0, himoku_id=0)
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
