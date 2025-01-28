@@ -262,8 +262,6 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # (3) 請求時点前受金リスト（当月使用する前受金）
         # ---------------------------------------------------------------------
         total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke_claim(year, month)
-        # if settings.DEBUG:
-        #     logger.debug(f"{month}月度の請求時前受金＝{total_last_maeuke:,}")
 
         # ---------------------------------------------------------------------
         # (4) 請求時点の未収金リストおよび未収金額
@@ -273,8 +271,6 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         #     logger.debug(f"{month}月度の請求時未収金＝{total_mishuu_claim:,}")
         # 確認のため貸借対照表データから前月の未収金を計算する。
         last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(last_tstart, last_tend)
-        # if settings.DEBUG:
-        #     logger.debug(f"{lastmonth}月度貸借対照表の未収金＝{total_last_mishuu:,}")
         check_last_mishuu = total_mishuu_claim - total_last_maeuke
 
         # ---------------------------------------------------------------------
@@ -536,7 +532,8 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         mr_year_expense = ReportTransaction.get_year_expense(tstart, tend)
         # 支出のない費目は除く
         mr_year_expense = mr_year_expense.exclude(amount=0)
-        # 年間支出の合計（費目の集計フラグとレコードの集計フラグが両方ONの項目合計）
+        # 年間支出の合計
+        # 「費目の集計フラグ」「レコードの集計フラグ」のどちらかが「False」の場合は合計に含める。
         total_mr_expense = 0
         for i in mr_year_expense:
             if i["himoku__aggregate_flag"] and i["calc_flg"]:
@@ -554,17 +551,6 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         tstart_12 = timezone.datetime(int(year), 12, 1, 0, 0, 0)
         tend_12 = timezone.datetime(int(year), 12, 31, 0, 0, 0)
         qs_this_miharai, total_this_miharai = BalanceSheet.get_miharai_bs(tstart_12, tend_12)
-
-        # # ---------------------------------------------------------------------
-        # # (3) 前年12月の未払金
-        # # ---------------------------------------------------------------------
-        # # 前年12月の期間
-        # last_tstart, last_tend = select_period(int(year) - 1, 12)
-        # _, total_last_miharai = BalanceSheet.get_miharai_bs(last_tstart, last_tend)
-        # # ---------------------------------------------------------------------
-        # # (4) 当年の未払金リスト
-        # # ---------------------------------------------------------------------
-        # _, total_this_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
 
         # 支出合計金額
         total_pb_expense = 0

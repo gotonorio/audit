@@ -229,12 +229,9 @@ class ReportTransaction(models.Model):
 
     @classmethod
     def get_year_expense(cls, tstart, tend):
-        """指定された「年月」「会計区分」「入金・支出」「町内会会計」で抽出する月次報告querysetを返す。
+        """指定された「年月」「入金」」で抽出する月次報告をDictで返す。
         - 資金移動は含むので、必要なら呼び出し側で処理する。
-        - ac_class == "0"の場合、全会計区分を対象とする。
-        - flg==''の場合は入出金データを抽出する。
-        - communityフラグがFalseの場合、町内会会計を除いて抽出する。 2024-1-25に追加
-        - 費目コードが9000以上は使用しないため表示しないようにする。有効フラグをOFFにすると、（Kuraselからの取り込みチェックでアウト）
+        - 費目コードが9000以上（新規に使用禁止の費目）も過去に使用している場合を考慮して抽出する。
         """
         # 費目で集約する
         qs_year_expense = (
@@ -244,12 +241,12 @@ class ReportTransaction(models.Model):
         )
         # (1) 期間でfiler
         qs_year_expense = qs_year_expense.filter(transaction_date__range=[tstart, tend])
-        # (2) 削除フラグをチェック
-        qs_year_expense = qs_year_expense.filter(delete_flg=False)
-        # (3) 収入でfilter
+        # (2) 収入でfilter
         qs_year_expense = qs_year_expense.filter(himoku__is_income=False)
-        # (4) 有効な費目、支出のある費目でfilter
+        # (3) 有効で支出のある費目でfilter
         qs_year_expense = qs_year_expense.filter(himoku__alive=True).exclude(amount=0)
+        # (4) 削除フラグをチェック
+        qs_year_expense = qs_year_expense.filter(delete_flg=False)
 
         return qs_year_expense.order_by("himoku")
 

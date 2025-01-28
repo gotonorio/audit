@@ -495,6 +495,8 @@ class Transaction(models.Model):
         - 町内会費は含む。
         - tstart/tend : 抽出期間。
         - manualinput:Trueの場合は補正データを含めて表示する。Falseの場合はKuraselの入出金明細データだけを表示。
+        - 費目レベルで集計フラグがON
+        - 収入データレベルで集計フラグがON
         """
         qs_pb = cls.objects.values("himoku__himoku_name").annotate(price=Sum("amount"))
         # 入金のfilter
@@ -504,14 +506,6 @@ class Transaction(models.Model):
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend])
         else:
             qs_pb = qs_pb.filter(transaction_date__range=[tstart, tend]).filter(is_manualinput=False)
-
-        # # デバッグ
-        # qs_debug = cls.objects.filter(is_income=True, calc_flg=False).filter(
-        #     transaction_date__range=[tstart, tend]
-        # )
-        # for i in qs_debug:
-        #     logger.debug(f"{i.transaction_date}:{i.himoku}:{i.amount}")
-
         # 計算フラグでfilterする
         qs_pb = qs_pb.filter(calc_flg=True)
         qs_pb = qs_pb.filter(himoku__aggregate_flag=True)
