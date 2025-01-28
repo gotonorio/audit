@@ -499,8 +499,7 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["total_pb"] = total_pb + netting_total - last_total_mishuu
         context["total_diff"] = context["total_pb"] - total_year_income
         context["form"] = form
-        context["yyyymm"] = str(year) + "年"
-        # context["year"] = year
+        context["year"] = year
         return context
 
 
@@ -572,11 +571,11 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 当年の貸借対照表（未払金）
         context["this_miharai"] = qs_this_miharai
         context["total_this_miharai"] = total_this_miharai
+        context["year"] = year
 
         # # 前年12月の未払金
         # context["total_last_miharai"] = total_last_miharai
         # # 当年12月の未払金
         # context["total_this_miharai"] = total_this_miharai
-        # context["year"] = year
 
         return context

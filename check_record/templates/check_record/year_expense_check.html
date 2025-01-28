@@ -25,7 +25,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'check_record:year_income_check' %}">年間収入チェック</a>
+      {% with year_with=year %}
+        <a class="navbar-item" href="{% url 'check_record:year_income_check' year_with %}">年間収入チェック</a>
+      {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
@@ -38,7 +40,7 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">{{yyyymm}} 管理費等 年間支出監査（町内会費含む）</div>
+    <div class="is-size-5">{{year}}年 管理費等 年間支出監査（町内会費含む）</div>
     <ul>
       <li>月次報告の「マンション共用保険」の計上は前払金の償却であり、実支出は発生しない。</li>
       <li>月次報告の「口座振替手数料」は天引きされているため、実支出としては発生しない。</li>

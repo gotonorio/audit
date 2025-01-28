@@ -25,7 +25,9 @@
       </form>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'check_record:year_expense_check' %}">年間支出チェック</a>
+      {% with year_with=year %}
+        <a class="navbar-item" href="{% url 'check_record:year_expense_check' year_with %}">年間支出チェック</a>
+      {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
@@ -38,7 +40,7 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">{{yyyymm}} 管理費等 年間収入監査（町内会費含む）</div>
+    <div class="is-size-5">{{year}}年 管理費等 年間収入監査（町内会費含む）</div>
     <ul>
       <li class="has-text-danger" >通帳 年間収入データの資金移動（共用保険の解約戻り金等）は含まない。</li>
       <li class="has-text-danger" >通帳 年間収入データの「管理費」は振替入金と振込入金の合計額。</li>
@@ -75,12 +77,10 @@
       <br>
     </div>
     <div class='column is-half'>
-      {% comment %} <div class="content has-text-centered"> {% endcomment %}
       <div class="content">
         <div class="is-size-5">入出金明細 年間収入データ</div>
       </div>
       <div class="table-container">
-        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
         <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
@@ -119,12 +119,10 @@
         </table>
       </div>
       <br>
-      {% comment %} <div class="content has-text-centered"> {% endcomment %}
       <div class="content">
         <div class="is-size-5">{{yyyymm}}12月の未収金（町内会会計含む）</div>
       </div>
       <div class="table-container">
-        {% comment %} <table class="table table_center_nowrap is-narrow is-striped"> {% endcomment %}
         <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
