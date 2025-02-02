@@ -68,8 +68,11 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 支払い承認データ
         # ---------------------------------------------------------------------
         qs_payment, total_ap = Payment.kurasel_get_payment(tstart, tend)
-        # 入出金明細データの取得。（口座は常に""とする）
-        qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", False, False)
+
+        # ---------------------------------------------------------------------
+        # 入出金明細データの取得
+        # ---------------------------------------------------------------------
+        qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True, False)
         qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
         # step1 摘要欄コメントで支払い承認の有無をチェック。
         _ = Transaction.set_is_approval_text(qs_pb)
