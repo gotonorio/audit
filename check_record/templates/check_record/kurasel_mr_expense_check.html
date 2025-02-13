@@ -158,6 +158,11 @@
                 <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
                 <td class="has-text-left has-text-danger is-size-7">{{record.description|markdown_to_html}}</td>
+              {% elif record.is_miharai %}
+                <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
+                <td class="has-text-ledt has-text-danger">【未払い分】{{record.himoku|truncatechars:10}}</td>
+                <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
+                <td class="has-text-left has-text-danger is-size-7">{{record.description|markdown_to_html}}</td>
               {% else %}
                 <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
                 <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
