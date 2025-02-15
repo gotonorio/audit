@@ -13,6 +13,9 @@ from record.models import AccountingClass
 logger = logging.getLogger(__name__)
 
 
+# -----------------------------------------------------------------------------
+# 貸借対照表表示用View
+# -----------------------------------------------------------------------------
 class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
     """貸借対照表の表示"""
 
@@ -43,7 +46,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         # 会計区分名(ac_class)
         # Noneならばdefault値だが、''の場合は、自分で処理しなければならない。
         if ac_class == "":
-            ac_class_name = "合算会計（町内会費会計除く）"
+            ac_class_name = "合算会計（町内会費会計含む）"
             ac_class = 0
         else:
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
@@ -53,10 +56,11 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         asset_list = []
         debt_list = []
         if ac_class == 0:
-            # 会計区分全体の貸借対照表（町内会会計を除く）
-            all_asset = BalanceSheet.get_bs(tstart, tend, False, True).exclude(
-                item_name__ac_class__accounting_name=settings.COMMUNITY_ACCOUNTING
-            )
+            # # 会計区分全体の貸借対照表（町内会会計を除く）
+            # all_asset = BalanceSheet.get_bs(tstart, tend, False, True).exclude(
+            #     item_name__ac_class__accounting_name=settings.COMMUNITY_ACCOUNTING
+            # )
+            all_asset = BalanceSheet.get_bs(tstart, tend, False, True)
             for item in all_asset:
                 tmp_list = list(item.values())
                 tmp_list.append("")
@@ -141,6 +145,9 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         return asset, debt, asset_total
 
 
+# -----------------------------------------------------------------------------
+# 貸借対照表リスト表示用View
+# -----------------------------------------------------------------------------
 class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
     """貸借対照表の修正用リスト表示View"""
 
