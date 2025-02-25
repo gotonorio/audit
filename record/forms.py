@@ -390,6 +390,7 @@ class TransactionOffsetForm(TransactionCreateForm):
                 }
             ),
             # form画面で非表示にする。
+            "is_income": forms.HiddenInput(),
             "balance": forms.HiddenInput(),
             "is_manualinput": forms.HiddenInput(),
             "calc_flg": forms.HiddenInput(),

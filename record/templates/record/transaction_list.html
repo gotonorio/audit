@@ -106,7 +106,8 @@
             <td class="has-text-right">0</td>
             <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
           {% endif%}
-          {% if record.requesters_name == "ソウゴウフリコミBIZ" %}
+          {% comment %} {% if record.requesters_name == "ソウゴウフリコミBIZ" %} {% endcomment %}
+          {% if "ソウゴウフリコミBIZ" in record.requesters_name  %}
             <td class="has-text-left is-size-7">
               <a href="{% url 'record:transaction_offset_create' record.pk %}"> {{record.requesters_name }}</a>
             </td>
