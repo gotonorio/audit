@@ -119,7 +119,7 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
         month = qs[0].month
         return reverse_lazy(
             "record:transaction_list",
-            kwargs={"year": year, "month": month, "list_order": 0},
+            kwargs={"year": year, "month": month, "list_order": 0, "himoku_id": 0},
         )
 
     def form_valid(self, form):
