@@ -39,6 +39,13 @@
         <div class='my_field'>{{ form.account }}</div>
       </div>
     </div>
+    {# 入金フラグ #}
+    <div class='field'>
+      <div class='control'>
+        <div class='label'>{{ form.is_income.label_tag }}</div>
+        <div class='my_field'>{{ form.is_income }}</div>
+      </div>
+    </div>
     {# 取引日 #}
     <div class='field'>
       <div class='control'>
@@ -96,7 +103,7 @@
     {% csrf_token %}
     <br>
     <div class='my_button'>
-      <button type='submit' class='button is-primary is-size-7'>読込み</button>
+      <button type='submit' class='button is-primary is-size-7'>登録</button>
       <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
     </div>
   </form>

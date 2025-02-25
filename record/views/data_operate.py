@@ -270,7 +270,6 @@ class TransferRequesterUpdateView(PermissionRequiredMixin, generic.UpdateView):
 class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView):
     """入出金明細データの相殺レコード作成（入出金明細データ一覧で「ソウゴウフリコミBIZ」を分解する時に呼ばれる）
     - 相殺データを作成した後、作成したレコードのpkをTransactionDivideCreateView()へ送るためにTemplateViewを使う。
-    - formはTransactionCreateFormを利用。
     - templateは不要な項目を表示しないように新規に作成。
     """
 
@@ -289,6 +288,7 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
             form = TransactionOffsetForm(
                 initial={
                     "account": qs.account,
+                    "is_income": qs.is_income,
                     "is_manualinput": True,
                     "calc_flg": True,
                     "transaction_date": qs.transaction_date,
@@ -303,6 +303,7 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
         return context
 
     def post(self, request, *args, **kwargs):
+        """登録ボタンが押された時の処理"""
         form = TransactionOffsetForm(request.POST)
         if form.is_valid():
             # formオブジェクトから年、月を読み込む。
@@ -352,6 +353,8 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
         base_ammount = -qs.amount
         # 分割した場合、費目はデフォルト費目とする
         default_himoku = Himoku.get_default_himoku()
+        # 入金・出金フラグ
+        is_income = qs.is_income
 
         # 分割したデータの合計金額をチェックする。
         total_divide_ammount = 0
@@ -385,7 +388,7 @@ class TransactionDivideCreateView(PermissionRequiredMixin, FormView):
                     # 残高
                     divide.balance = balance
                     # 登録するのは出金データのみ
-                    divide.is_income = False
+                    divide.is_income = is_income
                     # 費目名は「不明」に決め打ち
                     divide.himoku = default_himoku
                     # 金額、、振込依頼人、摘要はFormから受け取る
