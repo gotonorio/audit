@@ -292,7 +292,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 相殺項目合計が存在しない場合をチェック
         if netting_total is None:
             netting_total = 0
-        # 2024年4月度の処理。Kurasel監査の開始月（2024年4月）前月の未収金は規定値とする。
+        # 2023年4月度の処理。Kurasel監査の開始月（2023年4月）前月の未収金は規定値とする。
         if year == settings.START_KURASEL["year"] and month == settings.START_KURASEL["month"]:
             total_last_mishuu = settings.MISHUU_KANRI + settings.MISHUU_SHUUZEN + settings.MISHUU_PARKING
 
