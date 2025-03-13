@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import MonthlyBalanceForm
-from kurasel_translator.my_lib import check_lib
 from monthly_report.models import ReportTransaction
 from passbook.utils import redirect_with_param, select_period
 from record.models import AccountingClass, Himoku
