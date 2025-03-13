@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.utils import timezone
-from kurasel_translator.my_lib.append_list import select_period
+from passbook.utils import select_period
 
 user = get_user_model()
 logger = logging.getLogger(__name__)

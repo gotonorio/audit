@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from kurasel_translator.my_lib.append_list import select_period
+from passbook.utils import select_period
 from record.forms import (
     ClaimListForm,
     TransactionDisplayForm,

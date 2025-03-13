@@ -1,5 +1,6 @@
 import logging
 
+from control.models import ControlRecord
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -7,15 +8,67 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
-
-from control.models import ControlRecord
 from kurasel_translator.forms import MonthlyBalanceForm
-from kurasel_translator.my_lib import append_list, check_lib
-from kurasel_translator.my_lib.append_list import select_period
+from kurasel_translator.my_lib import check_lib
 from monthly_report.models import ReportTransaction
+from passbook.utils import redirect_with_param, select_period
 from record.models import AccountingClass, Himoku
 
 logger = logging.getLogger(__name__)
+
+
+def check_copy_area(data_list):
+    """コピーした範囲をチェック
+    - エラーがある場合はエラーメッセージを返す
+    - 正しければ、err_msg = Falseを返す
+    """
+    err_msg = False
+    # (1) １行目は「収入の部」「支出の部」
+    if data_list[0] not in ("収入の部", "支出の部"):
+        err_msg = "ヘッダの「収入の部」または「支出の部」の行からコピーしてください"
+        return err_msg
+    # (2) 最下行に「合計」が含まれているか.
+    for item in data_list:
+        if item in ("合計",):
+            err_msg = "「合計」の行は含めないでください"
+            return err_msg
+    return err_msg
+
+
+def check_accountingclass(data_list, ac):
+    """取り込んだ月次収支データのチェック
+    - d[0] : 費目名
+    - ac   : 会計区分
+    """
+    for d in data_list:
+        if d[0] in settings.KANRI_INCOME and ac in settings.KANRI_INCOME:
+            return True
+        elif d[0] in settings.KANRI_PAYMENT and ac in settings.KANRI_PAYMENT:
+            return True
+        elif d[0] in settings.SHUUZEN_INCOME and ac in settings.SHUUZEN_INCOME:
+            return True
+        elif d[0] in settings.SHUUZEN_PAYMENT and ac in settings.SHUUZEN_PAYMENT:
+            return True
+        elif d[0] in settings.PARKING_INCOME and ac in settings.PARKING_INCOME:
+            return True
+        elif d[0] in settings.PARKING_PAYMENT and ac in settings.PARKING_PAYMENT:
+            return True
+        elif d[0] in settings.COMMUNITY_INCOME and ac in settings.COMMUNITY_INCOME:
+            return True
+        elif d[0] in settings.COMMUNITY_PAYMENT and ac in settings.COMMUNITY_PAYMENT:
+            return True
+    return False
+
+
+def check_data_kind(data_list):
+    """ヘッダから「収入」「支出」を判断してからヘッダ部分を除去したdata_listを返す"""
+    if data_list[0] in ("収入の部"):
+        data_type = "収入"
+    else:
+        data_type = "支出"
+    # 先頭から6要素を削除
+    del data_list[0:6]
+    return data_type, data_list
 
 
 class MonthlyBalanceView(PermissionRequiredMixin, FormView):
@@ -63,12 +116,12 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         # tmp_listから空の要素を削除する。
         msg_list = [a for a in tmp_list if a != ""]
         # (1) msg_listがKurasel月次収支データのヘッダを正しくコピーしているかをチェック。
-        err_msg = check_lib.check_copy_area(msg_list)
+        err_msg = check_copy_area(msg_list)
         if err_msg:
             messages.add_message(self.request, messages.ERROR, err_msg)
             return render(self.request, self.template_name, context)
         # ヘッダから「収入」「支出」を判断した後、不要なヘッダ部分を除去する。
-        data_kind, msg_list = check_lib.check_data_kind(msg_list)
+        data_kind, msg_list = check_data_kind(msg_list)
         # (2) 収支区分（収入・支出）のチェック
         if data_kind != kind:
             err_msg = "「収支区分」がデータと一致していません！"
@@ -79,7 +132,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         data_list = self.translate(msg_list, 5)
 
         # 会計区分をチェックする。
-        chk = check_lib.check_accountingclass(data_list, str(accounting_class))
+        chk = check_accountingclass(data_list, str(accounting_class))
         if chk is False:
             msg = "「会計区分」を確認してください。"
             messages.add_message(self.request, messages.ERROR, msg)
@@ -109,9 +162,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
             return render(self.request, self.template_name, context)
         else:
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = ReportTransaction.monthly_from_kurasel(
-                accounting_class, context
-            )
+            rtn, error_list = ReportTransaction.monthly_from_kurasel(accounting_class, context)
             # 相殺処理の費目が設定されている場合、相殺フラグのセットを行う。
             offset_himoku = ControlRecord.get_offset_himoku()
             if offset_himoku:
@@ -127,15 +178,11 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
                 # 取り込みに成功したら、一覧表表示する。
                 if kind == "収入":
                     # 収入データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param(
-                        "monthly_report:incomelist", param
-                    )
+                    url = redirect_with_param("monthly_report:incomelist", param)
                     return redirect(url)
                 else:
                     # 支出データの取り込みに成功したら、一覧表表示する。
-                    url = append_list.redirect_with_param(
-                        "monthly_report:expenselist", param
-                    )
+                    url = redirect_with_param("monthly_report:expenselist", param)
                     return redirect(url)
             else:
                 # msg = f'月次収支データの取り込みに失敗しました。費目名 ＝ {error_list[0]}'
@@ -154,9 +201,7 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
         record_list = []
         line_list = []
         for line in msg_list:
-            line_list.append(
-                line.replace("¥", "").replace("（円）", "").replace(",", "").strip()
-            )
+            line_list.append(line.replace("¥", "").replace("（円）", "").replace(",", "").strip())
             cnt += 1
             if cnt == row:
                 record_list.append(line_list)

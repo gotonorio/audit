@@ -7,11 +7,24 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import BalanceSheetTranslateForm
-from kurasel_translator.my_lib import append_list
 from monthly_report.models import BalanceSheet
+from passbook.utils import redirect_with_param
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
+
+
+def list_to_dict(data_list):
+    """ListからDictを作成する
+    - [key1, value1, key2, value2,....]のリストから、
+    - {'key1':'value1', 'key2':'value2',..... }の辞書を作成して返す。
+    """
+    bs_dict = {}
+    for i in range(0, len(data_list), 2):
+        key = data_list[i]
+        value = data_list[i + 1]
+        bs_dict[key] = value
+    return bs_dict
 
 
 class BalanceSheetTranslateView(PermissionRequiredMixin, FormView):
@@ -66,8 +79,8 @@ class BalanceSheetTranslateView(PermissionRequiredMixin, FormView):
         # データ行の正規化
         asset_list, debt_list = self.bs_translate(msg_list)
         # Dictに変換
-        asset_dict = append_list.list_to_dict(asset_list)
-        debt_dict = append_list.list_to_dict(debt_list)
+        asset_dict = list_to_dict(asset_list)
+        debt_dict = list_to_dict(debt_list)
         bs_dict = dict(asset_dict, **debt_dict)
 
         context = {
@@ -92,7 +105,7 @@ class BalanceSheetTranslateView(PermissionRequiredMixin, FormView):
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
                 ac_pk = AccountingClass.objects.get(accounting_name=accounting_class).pk
-                url = append_list.redirect_with_param(
+                url = redirect_with_param(
                     "monthly_report:bs_table",
                     dict(year=year, month=str(month).zfill(2), ac_class=ac_pk),
                 )

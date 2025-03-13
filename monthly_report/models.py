@@ -275,7 +275,7 @@ class BalanceSheetItem(models.Model):
 
 
 class BalanceSheet(models.Model):
-    """貸借対照表の未収金、前受金保存モデル"""
+    """貸借対照表(Kurasel)の未収金、前受金保存モデル"""
 
     monthly_date = models.DateField(verbose_name="月度", null=True, blank=True)
     amounts = models.IntegerField(verbose_name="金額", default=0)

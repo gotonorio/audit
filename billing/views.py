@@ -2,8 +2,8 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView
-from kurasel_translator.my_lib.append_list import select_period
 from passbook.forms import YearMonthForm
+from passbook.utils import select_period
 
 from .models import Billing
 

@@ -1,13 +1,12 @@
 import logging
 
-from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from kurasel_translator.my_lib.append_list import append_list, select_period
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import BalanceSheet
+from passbook.utils import append_list, get_lastmonth, select_period
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
@@ -144,6 +143,18 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         debt.append([" ", "", None])
         return asset, debt, asset_total
 
+    @classmethod
+    def check_balancesheet(year, month, ac_class):
+        """貸借対照表のチェック
+        - 銀行残高の整合
+        - 未収金（滞納金一覧の合計金額）の整合
+        - 前受金（前受金一覧の合計金額）の整合
+        """
+        # 前月の年月
+        lastyear, lastmonth = get_lastmonth(year, month)
+        # 前月の銀行残高
+        last_bankbalance = 0
+
 
 # -----------------------------------------------------------------------------
 # 貸借対照表リスト表示用View
@@ -195,3 +206,10 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
         context["ac_class"] = ac_class
 
         return context
+
+
+# -----------------------------------------------------------------------------
+# 貸借対照表チェックView
+# -----------------------------------------------------------------------------
+class BalanceSheetCheckView(PermissionRequiredMixin, generic.TemplateView):
+    """"""

@@ -8,24 +8,13 @@ from django.db.models.aggregates import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from kurasel_translator.my_lib.append_list import select_period
-from kurasel_translator.my_lib.check_lib import check_period
 from monthly_report.models import BalanceSheet, ReportTransaction
 from passbook.forms import YearMonthForm
+from passbook.utils import check_period, get_lastmonth, select_period
 from payment.models import Payment
 from record.models import ClaimData, Transaction
 
 logger = logging.getLogger(__name__)
-
-
-def get_lastmonth(year, month):
-    """前月を返す"""
-    # 当月1日の値を出す
-    thismonth = datetime.datetime(int(year), int(month), 1)
-    # 前月末日の値を出す
-    lastmonth = thismonth + datetime.timedelta(days=-1)
-
-    return lastmonth.year, lastmonth.month
 
 
 class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):

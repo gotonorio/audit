@@ -10,7 +10,7 @@ from kurasel_translator.forms import (
     ClaimTranslateForm,
     PaymentAuditForm,
 )
-from kurasel_translator.my_lib import append_list
+from passbook.utils import redirect_with_param
 from payment.models import Payment
 from record.models import (
     ClaimData,
@@ -101,7 +101,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
                 # 保存成功後に遷移する場合のパラメータ
                 param = dict(year=year, month=month)
                 # 取り込みに成功したら、一覧表表示する。
-                url = append_list.redirect_with_param("payment:payment_list", param)
+                url = redirect_with_param("payment:payment_list", param)
                 return redirect(url)
                 # return redirect('payment:payment_list')
             else:
@@ -227,7 +227,7 @@ class ClaimTranslateView(PermissionRequiredMixin, FormView):
                 # # 保存成功後に遷移する場合のパラメータ
                 # param = dict(year=year, month=str(month).zfill(2))
                 # # 取り込みに成功したら、一覧表表示する。
-                # url = append_list.redirect_with_param("payment:payment_list", param)
+                # url = redirect_with_param("payment:payment_list", param)
                 # return redirect(url)
                 return redirect("register:master_page")
             else:

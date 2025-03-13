@@ -10,9 +10,9 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from kurasel_translator.my_lib.append_list import select_period
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import ReportTransaction
+from passbook.utils import select_period
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
