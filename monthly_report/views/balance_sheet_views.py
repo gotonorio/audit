@@ -215,10 +215,10 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
             # 当月の収入合計（未収金含む）
             tstart, tend = select_period(year, month)
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
             total_income = ReportTransaction.total_calc_flg(qs)
             # 当月の支出合計
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
             total_withdrawals = ReportTransaction.total_calc_flg(qs)
             # 当月の銀行残高（計算値）
             bank_balance = last_bankbalance + (total_income - total_withdrawals)
