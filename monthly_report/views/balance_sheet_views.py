@@ -1,11 +1,12 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
 from monthly_report.forms import MonthlyReportViewForm
-from monthly_report.models import BalanceSheet
+from monthly_report.models import BalanceSheet, ReportTransaction
 from passbook.utils import append_list, get_lastmonth, select_period
 from record.models import AccountingClass
 
@@ -48,43 +49,64 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             ac_class_name = "合算会計（町内会費会計含む）"
             ac_class = 0
         else:
+            ac_class = int(ac_class)
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
         # 抽出期間
         tstart, tend = select_period(year, month)
 
         asset_list = []
         debt_list = []
-        if ac_class == 0:
-            # # 会計区分全体の貸借対照表（町内会会計を除く）
-            # all_asset = BalanceSheet.get_bs(tstart, tend, False, True).exclude(
-            #     item_name__ac_class__accounting_name=settings.COMMUNITY_ACCOUNTING
-            # )
-            all_asset = BalanceSheet.get_bs(tstart, tend, False, True)
-            for item in all_asset:
-                tmp_list = list(item.values())
-                tmp_list.append("")
-                asset_list.append(tmp_list)
-            all_debt = BalanceSheet.get_bs(tstart, tend, False, False)
-            for item in all_debt:
-                tmp_list = list(item.values())
-                tmp_list.append("")
-                debt_list.append(tmp_list)
-        else:
-            # 会計区分毎の貸借対照表
+
+        if ac_class > 0:
+            # 会計区分毎の貸借対照表データを読み込む
             qs_asset = BalanceSheet.get_bs(tstart, tend, ac_class, True).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
             qs_debt = BalanceSheet.get_bs(tstart, tend, ac_class, False).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
-            all_debt = BalanceSheet.get_bs(tstart, tend, ac_class, False)
             # querysetの結果で資産リストを作成。
             asset_list = [list(i) for i in list(qs_asset)]
+            if asset_list:
+                # 未収金
+                recivable = [row for row in asset_list if settings.RECIVABLE in row[0]]
+                if recivable:
+                    recivable = recivable[0][1]
+                else:
+                    recivable = 0
+                # 口座残高
+                bank_balance = [row for row in asset_list if settings.BANK_NAME in row[0]]
+                if bank_balance:
+                    bank_balance = bank_balance[0][1]
+                else:
+                    bank_balance = 0
+
+                # 貸借対照表データのチェック
+                check_bs = self.check_balancesheet(year, month, ac_class, recivable)
+                context["chk_lastbank"] = check_bs["前月の銀行残高"]
+                context["chk_lastrecivable"] = check_bs["前月の未収金"]
+                context["chk_income"] = check_bs["当月の収入"]
+                context["chk_recivable"] = recivable
+                context["chk_payable"] = check_bs["前月の未払金"]
+                context["chk_expense"] = check_bs["当月の支出"]
+                logger.debug(check_bs["前月の未払金"])
+                context["chk_bank"] = (
+                    check_bs["前月の銀行残高"]
+                    + check_bs["前月の未収金"]
+                    + check_bs["当月の収入"]
+                    - check_bs["当月の支出"]
+                    - recivable
+                    - check_bs["前月の未払金"]
+                )
+                context["difference"] = bank_balance - context["chk_bank"]
             # querysetの結果で負債・剰余金リストを作成。
             debt_list = [list(i) for i in list(qs_debt)]
+        else:
+            # 全会計区分（町内会会計含む）の貸借対照表データを読み込む
+            asset_list, debt_list = self.get_balancesheet(tstart, tend)
 
         debt_list.insert(0, ["--- 負債の部 ---", "", None])
-        # 「負債の部合計」「剰余金の部合計」を追加する。
+        # 「負債の部合計」「剰余金の部合計」をasset_listに追加する。
         asset_list, debt_list, total_bs = self.make_balancesheet(asset_list, debt_list)
 
         # forms.pyに初期値を設定する
@@ -122,10 +144,10 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         context["year"] = year
         context["month"] = month
         context["ac_class"] = ac_class
+
         return context
 
-    @staticmethod
-    def make_balancesheet(asset, debt):
+    def make_balancesheet(self, asset, debt):
         """資産リストと負債リストから貸借対照表を生成する"""
         asset_total = 0
         debt_total = 0
@@ -143,17 +165,76 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         debt.append([" ", "", None])
         return asset, debt, asset_total
 
-    @classmethod
-    def check_balancesheet(year, month, ac_class):
-        """貸借対照表のチェック
-        - 銀行残高の整合
-        - 未収金（滞納金一覧の合計金額）の整合
-        - 前受金（前受金一覧の合計金額）の整合
-        """
-        # 前月の年月
+    def get_balancesheet(self, tstart, tend):
+        """会計区分全体の貸借対照表（町内会会計を含む）データを返す"""
+        asset_list = []
+        debt_list = []
+        all_asset = BalanceSheet.get_bs(tstart, tend, False, True)
+        for item in all_asset:
+            tmp_list = list(item.values())
+            tmp_list.append("")
+            asset_list.append(tmp_list)
+        all_debt = BalanceSheet.get_bs(tstart, tend, False, False)
+        for item in all_debt:
+            tmp_list = list(item.values())
+            tmp_list.append("")
+            debt_list.append(tmp_list)
+
+        return asset_list, debt_list
+
+    def check_balancesheet(self, year, month, ac_class, recivable):
+        """町内会会計を含む貸借対照表のチェック（銀行残高の整合）"""
+        # 会計区分毎の前月の資産
+        rtn_dict = {}
         lastyear, lastmonth = get_lastmonth(year, month)
-        # 前月の銀行残高
-        last_bankbalance = 0
+        last_tstart, last_tend = select_period(lastyear, lastmonth)
+        logger.debug(f"前月：{lastyear}-{lastmonth}")
+        if ac_class > 0:
+            # 会計区分を指定して貸借対照表を求める場合
+            # 前月の未収金
+            qs_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
+                "item_name__item_name", "amounts", "comment"
+            )
+            last_recivable = [row for row in qs_asset if settings.RECIVABLE in row[0]]
+            if last_recivable:
+                last_recivable = last_recivable[0][1]
+            else:
+                last_recivable = 0
+            # 前月の未払金
+            qs_debt = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, False).values_list(
+                "item_name__item_name", "amounts", "comment"
+            )
+            last_payable = [row for row in qs_debt if settings.PAYABLE in row[0]]
+            if last_payable:
+                last_payable = last_payable[0][1]
+            else:
+                last_payable = 0
+
+            # 前月の銀行残高
+            last_bankbalance = qs_asset[0][1]
+
+            # 当月の収入合計（未収金含む）
+            tstart, tend = select_period(year, month)
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+            total_income = ReportTransaction.total_calc_flg(qs)
+            # 当月の支出合計
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+            total_withdrawals = ReportTransaction.total_calc_flg(qs)
+            # 当月の銀行残高（計算値）
+            bank_balance = last_bankbalance + (total_income - total_withdrawals)
+            # 当月の銀行残高（貸借対照表データ）
+            rtn_dict["前月の銀行残高"] = last_bankbalance
+            rtn_dict["前月の未収金"] = last_recivable
+            rtn_dict["前月の未払金"] = last_payable
+            rtn_dict["当月の収入"] = total_income
+            rtn_dict["当月の支出"] = total_withdrawals
+            rtn_dict["当月の銀行残高"] = bank_balance
+        else:
+            # 全会計区分の貸借対照表を求める場合
+            asset_list, debt_list = self.get_balancesheet(last_tstart, last_tend)
+            bank_balance = 0
+
+        return rtn_dict
 
 
 # -----------------------------------------------------------------------------

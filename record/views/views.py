@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
@@ -140,9 +141,9 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
             year = self.request.GET.get("year", local_now.year)
             month = self.request.GET.get("month", local_now.month)
             # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
-            claim_type = self.request.GET.get("claim_type", "未収金")
+            claim_type = self.request.GET.get("claim_type", settings.RECIVABLE)
         # claim_list.htmlのタイトル
-        if claim_type in ("未収金", "前受金"):
+        if claim_type in (settings.RECIVABLE, settings.MAEUKE):
             title = "「請求時点」の" + claim_type
         else:
             title = claim_type

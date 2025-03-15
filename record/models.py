@@ -552,7 +552,7 @@ class ClaimData(models.Model):
         verbose_name="請求種別",
         choices=settings.CLAIMTYPE,
         max_length=4,
-        default="未収金",
+        default=settings.RECIVABLE,
     )
     room_no = models.CharField(verbose_name="部屋番号", max_length=16, default="")
     name = models.CharField(verbose_name="氏名", max_length=16, default="")
@@ -593,7 +593,7 @@ class ClaimData(models.Model):
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
         maeuke_dict = (
             cls.objects.filter(claim_date=claim_date)
-            .filter(claim_type="前受金")
+            .filter(claim_type=settings.MAEUKE)
             .values("claim_date", "room_no", "amount", "comment")
         )
         # 前受金の合計
@@ -612,7 +612,7 @@ class ClaimData(models.Model):
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
         mishuu_dict = (
             cls.objects.filter(claim_date=claim_date)
-            .filter(claim_type="未収金")
+            .filter(claim_type=settings.RECIVABLE)
             .values("claim_date", "room_no", "amount")
         )
         # 未収金の合駅

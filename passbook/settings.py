@@ -160,13 +160,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2025-03-13"
+VERSION_NO = "2025-03-15"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
 # SHIKIN_IDOU = '資金移動'
 
-# 前受金の費目名を設定
+# 貸借対照表 銀行口座名
+BANK_NAME = "三菱UFJ銀行普通預金"
+# 貸借対照表 未収金
+RECIVABLE = "未収金"
+# 貸借対照表 未払金
+PAYABLE = "未払金"
+# 貸借対照表 前受金
 MAEUKE = "前受金"
 # 町内会費会計
 COMMUNITY_ACCOUNTING = "町内会費会計"

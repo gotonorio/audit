@@ -34,24 +34,6 @@ def monthly_total(qs, year, item_name):
     return rtn
 
 
-# def aggregate_passbook(year, flg):
-#     """通帳データの年間月別集計関数
-#     - aggregate_flagが設定されている費目の通帳データ集計をDictで返す。
-#     - 資金移動と手動入力データは除く。
-#     """
-#     qs = Transaction.objects.filter(is_manualinput=False).select_related("account")
-#     if flg == "expense":
-#         # 出金だけ抽出
-#         qs = qs.filter(himoku__is_income=False)
-#     elif flg == "income":
-#         # 収入だけ抽出
-#         qs = qs.filter(himoku__is_income=True)
-#     # 資金移動は除く。（aggregate_flag=True）
-#     qs = qs.filter(himoku__aggregate_flag=True)
-#     # 月毎の支出合計を計算して返す。
-#     return monthly_total(qs, int(year), "amount")
-
-
 def adjust_month(year, month):
     # 管理会社の月次報告は2ヶ月遅れ。
     if month == 0:
@@ -332,8 +314,8 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         else:
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
-        # 月次データの支出合計
-        total_withdrawals = ReportTransaction.total_calc_flg(qs)
+        # 月次データの収入合計
+        total_income = ReportTransaction.total_calc_flg(qs)
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # forms.pyのKeikakuListFormに初期値を設定する
@@ -346,7 +328,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         )
         context["transaction_list"] = qs
         context["form"] = form
-        context["total_withdrawals"] = total_withdrawals
+        context["total_withdrawals"] = total_income
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
         context["month"] = month

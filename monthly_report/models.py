@@ -2,6 +2,7 @@ import calendar
 import datetime
 import logging
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
@@ -333,7 +334,7 @@ class BalanceSheet(models.Model):
         """指定期間の貸借対照表の未収金を返す"""
         qs_mishuu_bs = (
             cls.objects.filter(monthly_date__range=[tstart, tend])
-            .filter(item_name__item_name__contains="未収金")
+            .filter(item_name__item_name__contains=settings.RECIVABLE)
             .order_by("item_name")
         )
         # 貸借対照表上の前月の未収金合計
@@ -347,7 +348,7 @@ class BalanceSheet(models.Model):
     def get_miharai_bs(cls, tstart, tend):
         """期間の貸借対照表の未払金を返す"""
         qs_miharai = BalanceSheet.objects.filter(monthly_date__range=[tstart, tend]).filter(
-            item_name__item_name__contains="未払金"
+            item_name__item_name__contains=settings.PAYABLE
         )
         # 未払金合計
         total_miharai = 0

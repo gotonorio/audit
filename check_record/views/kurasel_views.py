@@ -81,7 +81,7 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
 
         # 前月の未払金
         qs_last_miharai = BalanceSheet.objects.filter(monthly_date__range=[last_tstart, last_tend]).filter(
-            item_name__item_name__contains="未払金"
+            item_name__item_name__contains=settings.PAYABLE
         )
         # 前月の未収金合計
         total_last_miharai = 0
