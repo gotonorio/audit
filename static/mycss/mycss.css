@@ -145,6 +145,9 @@ div.my_field > textarea {
 /* form入力style */
 #form_style {
   width: 420px;
+}
+#form_style_center {
+  width: 420px;
   margin: auto;
 }
 /* tableの中央配置 */

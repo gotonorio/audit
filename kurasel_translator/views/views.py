@@ -44,6 +44,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         return context
 
     def form_invalid(self, form):
+        """フォームデータに間違いがあった場合に呼ばれる"""
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
         mode = form.cleaned_data["mode"]
@@ -54,6 +55,7 @@ class PaymentAuditView(PermissionRequiredMixin, FormView):
         )
 
     def form_valid(self, form):
+        """フォームデータが正常な場合に呼ばれる"""
         year = form.cleaned_data["year"]
         month = form.cleaned_data["month"]
         day = form.cleaned_data["day"]

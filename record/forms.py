@@ -477,7 +477,7 @@ class ApprovalCheckDataForm(forms.ModelForm):
     """振込依頼者データ登録/修正用Form"""
 
     atext = forms.CharField(
-        label="判定文字列",
+        label="摘要欄の判定文字列",
         required=True,
         widget=forms.TextInput(
             attrs={

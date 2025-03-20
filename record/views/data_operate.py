@@ -196,7 +196,7 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
                 "accounting_class": ac_class,
             }
         )
-        if ac_class == "":
+        if ac_class is None:
             qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
         else:
             qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("-alive", "code")
