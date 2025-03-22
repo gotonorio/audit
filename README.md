@@ -4,7 +4,7 @@
 
 ### 1．初期設定
 
-1. プロジェクト層にlogs、bbackupDBという名前で空ディレクトリを作っておく。
+1. プロジェクト層にlogs、backupDBという名前で空ディレクトリを作っておく。
 2. python management.py migrateを行う。
     - migrateに失敗する場合は、マイグレーションファイルを全て削除する。
 3. createsuperuserで管理者ユーザを作成する。
