@@ -82,14 +82,14 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
                     bank_balance = 0
 
                 # 貸借対照表データのチェック
-                check_bs = self.check_balancesheet(year, month, ac_class, recivable)
+                check_bs = self.check_balancesheet(year, month, ac_class)
                 context["chk_lastbank"] = check_bs["前月の銀行残高"]
                 context["chk_lastrecivable"] = check_bs["前月の未収金"]
                 context["chk_income"] = check_bs["当月の収入"]
                 context["chk_recivable"] = recivable
                 context["chk_payable"] = check_bs["前月の未払金"]
                 context["chk_expense"] = check_bs["当月の支出"]
-                logger.debug(check_bs["前月の未払金"])
+                # logger.debug(f"前月の未払金＝{check_bs['前月の未払金']}")
                 context["chk_bank"] = (
                     check_bs["前月の銀行残高"]
                     + check_bs["前月の未収金"]
@@ -182,13 +182,12 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
         return asset_list, debt_list
 
-    def check_balancesheet(self, year, month, ac_class, recivable):
-        """町内会会計を含む貸借対照表のチェック（銀行残高の整合）"""
+    def check_balancesheet(self, year, month, ac_class):
+        """町内会会計を含む貸借対照表のチェック（銀行残高の整合チェック）"""
         # 会計区分毎の前月の資産
         rtn_dict = {}
         lastyear, lastmonth = get_lastmonth(year, month)
         last_tstart, last_tend = select_period(lastyear, lastmonth)
-        logger.debug(f"前月：{lastyear}-{lastmonth}")
         if ac_class > 0:
             # 会計区分を指定して貸借対照表を求める場合
             # 前月の未収金
@@ -209,7 +208,6 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
                 last_payable = last_payable[0][1]
             else:
                 last_payable = 0
-
             # 前月の銀行残高
             last_bankbalance = qs_asset[0][1]
 
@@ -287,10 +285,3 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
         context["ac_class"] = ac_class
 
         return context
-
-
-# -----------------------------------------------------------------------------
-# 貸借対照表チェックView
-# -----------------------------------------------------------------------------
-class BalanceSheetCheckView(PermissionRequiredMixin, generic.TemplateView):
-    """"""

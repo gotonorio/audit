@@ -111,7 +111,7 @@
         <tr>
           <td class="has-text-left">前月の銀行残高</td>
           <td class="has-text-right">{{chk_lastbank|intcomma}}</td>
-          <td class="has-text-left">当月の銀行残高（計算値）</td>
+          <td class="has-text-left">※ 当月の銀行残高</td>
           <td class="has-text-right">{{chk_bank|intcomma}}</td>
           <td class="has-text-right">差額：{{difference|intcomma}}</td>
         </tr>
@@ -123,7 +123,7 @@
         </tr>
         <tr>
           <td class="has-text-left">前月の未払金</td>
-          <td class="has-text-right">{{chk_lastrecivable|intcomma}}</td>
+          <td class="has-text-right">{{chk_payable|intcomma}}</td>
           <td class="has-text-left">当月の収入金</td>
           <td class="has-text-right">{{chk_income|intcomma}}</td>
         </tr>
@@ -136,7 +136,7 @@
       </tbody>
     </table>
   </div>
-  <div>※ 前月の銀行残高（未収金含む）+ 当月の収入金 - 当月の支出金 - 当月の未収金 - 前月の未払金</div>
+  <div>※ 前月の銀行残高 + 前月の未収金 + 当月の収入金 - 当月の支出金 - 当月の未収金 - 前月の未払金</div>
   {% endif %}
   <br>
 </div>
