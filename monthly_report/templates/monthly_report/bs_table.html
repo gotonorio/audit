@@ -103,6 +103,8 @@
       </tbody>
     </table>
   </div>
+
+  {% if perms.record.view_transaction %}
   {% if chk_lastbank %}
   <div class="has-text-weight-bold">貸借対照表のチェック</div>
   <div class="table-container">
@@ -137,6 +139,7 @@
     </table>
   </div>
   <div>※ 前月の銀行残高 + 前月の未収金 + 当月の収入金 - 当月の支出金 - 当月の未収金 - 前月の未払金</div>
+  {% endif %}
   {% endif %}
   <br>
 </div>

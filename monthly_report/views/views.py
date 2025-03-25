@@ -224,7 +224,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
     """月次報告 支出リスト"""
 
     template_name = "monthly_report/monthly_report_expense.html"
-    permission_required = ("record.view_transaction",)
+    permission_required = ("budget.view_expensebudget",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -287,7 +287,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
     """月次報告 収入リスト"""
 
     template_name = "monthly_report/monthly_report_income.html"
-    permission_required = ("record.view_transaction",)
+    permission_required = ("budget.view_expensebudget",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
