@@ -23,52 +23,52 @@
 
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-    {% if perms.record.view_transaction %}
       <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link is-size-6">通帳明細</a>
+        <a class="navbar-link is-size-6">月次報告</a>
         <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Raw data)</a>
+          <a class="navbar-item" href="{% url 'monthly_report:incomelist' %}">月別収入</a>
+          <a class="navbar-item" href="{% url 'monthly_report:expenselist' %}">月別支出</a>
+          <hr class="navbar-divider">
+          <a class="navbar-item" href="{% url 'monthly_report:year_income_expenselist' %}">年間収支</a>
+          <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' %}"%>年間収入</a>
+          <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
+          <hr class="navbar-divider">
+          <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
         </div>
       </div>
-      {% if perms.record.add_transaction %}
+      <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
+      {% if perms.record.view_transaction %}
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link is-size-6">請求データ</a>
+          <a class="navbar-link is-size-6">通帳明細</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" href="{% url 'billing:billing_list' %}">請求合計金額内訳</a>
-            <a class="navbar-item" href="{% url 'record:claim_list' %}">管理費等請求一覧</a>
+            <a class="navbar-item" href="{% url 'record:transaction_original_list' %}">入出金明細(Raw data)</a>
+          </div>
+        </div>
+        {% if perms.record.add_transaction %}
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link is-size-6">請求データ</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'billing:billing_list' %}">請求合計金額内訳</a>
+              <a class="navbar-item" href="{% url 'record:claim_list' %}">管理費等請求一覧</a>
+            </div>
+          </div>
+        {% endif %}
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link is-size-6">クラセル監査</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
+            <a class="navbar-item" href="{% url 'record:transaction_list' %}">入出金明細の一覧</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' %}">支払い承認チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' %}">月次支出チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' %}">月次収入チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:kurasel_billing_check' %}">請求金額チェック</a>
+            <hr class="navbar-divider">
+            <a class="navbar-item" href="{% url 'check_record:year_income_check' %}">年間収入チェック</a>
+            <a class="navbar-item" href="{% url 'check_record:year_expense_check' %}">年間支出チェック</a>
           </div>
         </div>
       {% endif %}
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link is-size-6">クラセル監査</a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'payment:payment_list' %}">支払い承認の一覧</a>
-          <a class="navbar-item" href="{% url 'record:transaction_list' %}">入出金明細の一覧</a>
-          <hr class="navbar-divider">
-          <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' %}">支払い承認チェック</a>
-          <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' %}">月次支出チェック</a>
-          <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' %}">月次収入チェック</a>
-          <a class="navbar-item" href="{% url 'check_record:kurasel_billing_check' %}">請求金額チェック</a>
-          <hr class="navbar-divider">
-          <a class="navbar-item" href="{% url 'check_record:year_income_check' %}">年間収入チェック</a>
-          <a class="navbar-item" href="{% url 'check_record:year_expense_check' %}">年間支出チェック</a>
-        </div>
-      </div>
-    {% endif %}
-    <div class="navbar-item has-dropdown is-hoverable">
-      <a class="navbar-link is-size-6">月次報告</a>
-      <div class="navbar-dropdown">
-        <a class="navbar-item" href="{% url 'monthly_report:incomelist' %}">月別収入</a>
-        <a class="navbar-item" href="{% url 'monthly_report:expenselist' %}">月別支出</a>
-        <hr class="navbar-divider">
-        <a class="navbar-item" href="{% url 'monthly_report:year_income_expenselist' %}">年間収支</a>
-        <a class="navbar-item" href="{% url 'monthly_report:year_incomelist' %}"%>年間収入</a>
-        <a class="navbar-item" href="{% url 'monthly_report:year_expenselist' %}">年間支出</a>
-        <hr class="navbar-divider">
-        <a class="navbar-item" href="{% url 'monthly_report:bs_table' %}">貸借対照表</a>
-      </div>
-    </div>
-    <a class="navbar-item" href="{% url 'budget:budget_list' %}">予算実績対比表</a>
     </div>
     <div class="navbar-end">
       {% if perms.record.add_transaction %}
