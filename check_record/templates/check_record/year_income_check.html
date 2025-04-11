@@ -26,7 +26,7 @@
     </div>
     <div class="navbar-end">
       {% with year_with=year %}
-        <a class="navbar-item" href="{% url 'check_record:year_expense_check' year_with %}">年間支出チェック</a>
+        <a class="navbar-item" href="{% url 'check_record:year_expense_check' year_with %}">決算支出チェック</a>
       {% endwith %}
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>

@@ -38,6 +38,7 @@
         <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' year_with month_with %}">月次支出</a>
         <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' year_with month_with %}">月次収入</a>
       {% endwith %}
+      <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
       <div class="navbar-item">
         <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
       </div>
