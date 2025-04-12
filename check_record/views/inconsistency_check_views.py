@@ -28,8 +28,6 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
 
-        # 前月の年月
-        lastyear, lastmonth = get_lastmonth(year, month)
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         year, month = check_period(year, month)
         # formの初期値を設定する。
@@ -41,12 +39,12 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         )
         # 当月の抽出期間
         tstart, tend = select_period(year, month)
-        # 前月の抽出期間
-        last_tstart, last_tend = select_period(lastyear, lastmonth)
         # ---------------------------------------------------------------------
         # 月次報告データ
         # ---------------------------------------------------------------------
-        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend).order_by("himoku__himoku_name")
+        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend).order_by(
+            "is_netting", "himoku__himoku_name"
+        )
         # 月次収支の支出合計（集計フラグがFalseの費目を除外する）
         total_mr = ReportTransaction.total_calc_flg(qs_mr)
         # ---------------------------------------------------------------------
