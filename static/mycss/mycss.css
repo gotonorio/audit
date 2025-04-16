@@ -172,6 +172,13 @@ div.my_field > textarea {
   margin: 8px;
 }
 
+/* 行間を調整した箇条書き */
+.narrow_spacing {
+  line-height:1.1;
+}
+
+
+
 /* メディアクエリ：スマホ対応 メニュー*/
 @media (max-width: 768px) {
   /* リンク */
