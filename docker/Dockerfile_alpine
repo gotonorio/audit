@@ -1,0 +1,28 @@
+# 使用するベースイメージ。
+FROM python:3-alpine
+# stdoutへの出力をバッファリングさせない。(errorやlogを直ちに出力して欲しいから)
+ENV PYTHONUNBUFFERED 1
+# コンテナ環境にホストのマウント用にディレクトリを作成する。
+RUN mkdir /code
+# /code/ディレクトリを作業用ディレクトリにする。
+WORKDIR /code
+# requirements.txtファイルを/code/ディレクトリにコピーする。
+COPY requirements.txt /code/
+# numpyのためにコンパイル環境をインストールする。
+RUN apk add --no-cache g++ gcc \
+            libc-dev \
+            libstdc++ \
+            gfortran \
+            make \
+            openblas-dev \
+            tzdata && \
+    # alpineでTimeZoneをJSTにするための追加処理。
+    # https://qiita.com/dtan4/items/8359e389b95cbc60952d#タイムゾーンの設定
+    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+    echo "Asia/Tokyo" > /etc/timezone && \
+    # pipでpythonパッケージをインストールする。
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+# ホスト上のdjangoアプリ、データベースファイルなどを/code/ディレクトリにコピーする。
+# https://docs.docker.com/compose/django/#define-the-project-components
+COPY . /code/

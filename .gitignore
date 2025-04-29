@@ -7,8 +7,6 @@
 *.sqlite3
 .DS_Store
 .env
-Dockerfile*
-compose.yml
 local_compose.yml
 local_settings.py
 private_settings.py
