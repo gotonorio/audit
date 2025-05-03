@@ -117,9 +117,14 @@ class TransactionCreateForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        self.create_flg = kwargs.pop("create_flag")
         super().__init__(*args, **kwargs)
         self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
         self.fields["is_manualinput"].initial = True
+        if self.create_flg:
+            self.fields["amount"].widget.attrs["readonly"] = False
+        else:
+            self.fields["amount"].widget.attrs["readonly"] = True
 
     class Meta:
         model = Transaction
@@ -158,12 +163,6 @@ class TransactionCreateForm(forms.ModelForm):
                 attrs={
                     "type": "date",
                     "class": "is-size-6",
-                }
-            ),
-            "amount": forms.NumberInput(
-                attrs={
-                    "class": "input",
-                    "readonly": True,
                 }
             ),
             "is_approval": forms.CheckboxInput(

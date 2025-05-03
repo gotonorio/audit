@@ -118,7 +118,12 @@
           {% else %}
             <td class="has-text-left is-size-7">{{record.requesters_name }}</td>
           {% endif %}
-          <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
+
+          {% if record.is_maeukekin %}
+            <td class="has-text-left is-size-7 has-text-weight-bold">【前受金】{{record.description|markdown_to_html}}</td>
+          {% else %}
+            <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
+          {% endif %}
           {% if perms.record.add_transaction %}
             {% if record.is_manualinput %}
               <td class="has-text-centered">

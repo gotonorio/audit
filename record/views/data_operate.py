@@ -46,6 +46,24 @@ class TransactionCreateView(PermissionRequiredMixin, generic.CreateView):
     # 保存が成功した場合に遷移するurl
     success_url = reverse_lazy("record:transaction_create")
 
+    # TransactionCreateFormに変数（値）を渡す
+    def get_form_kwargs(self, *args, **kwargs):
+        """formクラスでは以下のようにkwargsからpopする。
+        __init__(self, *args, **kwargs):
+            self.create_flag = kwargs.pop('create_flag')
+            super().__init__(*args, **kwargs)
+        """
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        kwgs["create_flag"] = True
+        return kwgs
+
+    def get_context_data(self, **kwargs):
+        """templateファイルに変数を渡す"""
+        context = super().get_context_data(**kwargs)
+        # ここで変数を追加
+        context["form_title"] = "入出金明細データの手動作成"
+        return context
+
     def form_valid(self, form):
         # commitを停止する。
         self.object = form.save(commit=False)
@@ -75,6 +93,17 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
     template_name = "record/transaction_form.html"
     permission_required = "record.add_transaction"
 
+    # TransactionCreateFormに変数（値）を渡す
+    def get_form_kwargs(self, *args, **kwargs):
+        """formクラスでは以下のようにkwargsからpopする。
+        __init__(self, *args, **kwargs):
+            self.create_flag = kwargs.pop('create_flag')
+            super().__init__(*args, **kwargs)
+        """
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        kwgs["create_flag"] = False
+        return kwgs
+
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
         qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
@@ -85,6 +114,13 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
             "record:transaction_list",
             kwargs={"year": year, "month": month, "list_order": 0, "himoku_id": 0},
         )
+
+    def get_context_data(self, **kwargs):
+        """templateファイルに変数を渡す"""
+        context = super().get_context_data(**kwargs)
+        # ここで変数を追加
+        context["form_title"] = "入出金明細データの修正"
+        return context
 
     def form_valid(self, form):
         # commitを停止する。
