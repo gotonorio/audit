@@ -21,7 +21,7 @@ def composit(budget, expense):
     - data[0]:費目名
     - data[1]:支出予算
     - data[2]:累積支出額
-    - data[3]:残高（予算-支出額）
+    - data[3]:残高（予算-支出額）、一度も支出がない費目の場合はdata[1]を設定する
     - data[4]:支出割合
     - data[5]:コメント
     """
@@ -41,6 +41,8 @@ def composit(budget, expense):
                 else:
                     data[4] = data[2] * 100 / data[1]
                 break
+            else:  # 一度も支出がない費目の場合
+                data[3] = data[1]
         comp_list.append(data)
     return comp_list
 
@@ -106,7 +108,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-        month = int(self.request.GET.get("month", 12))
+        month = int(self.request.GET.get("month", localtime(timezone.now()).month))
         ac_class = self.request.GET.get("ac_class", 1)
         # 会計区分が指定されていなければ、管理会計を選択する。
         if ac_class == "":
