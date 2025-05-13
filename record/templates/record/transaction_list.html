@@ -58,7 +58,6 @@
     <div class="is-size-5">{{year}}年{{month}}月 入出金明細リスト</div>
     <ul class="narrow_spacing">
       <li class="has-text-danger">資金移動を除くため「計算フラグ」ON（赤文字）の項目合計。</li>
-      <li class="has-text-success">緑文字は「ソウゴウフリコミBiz」を分解した出金項目。</li>
     </ul>
   </div>
   <div class="table-container">
@@ -95,7 +94,7 @@
           {% elif record.is_manualinput and not record.is_miharai %}
             <td class="has-text-left has-text-link">{{record.himoku|truncatechars:14}}</td>
           {% elif record.is_miharai %}
-            <td class="has-text-left has-text-success has-text-weight-bold">【未払い分】{{record.himoku|truncatechars:14}}</td>
+            <td class="has-text-left has-text-success has-text-weight-bold">{{record.himoku|add:"【未払金】"|truncatechars:14}}</td>
           {% else %}
             <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
           {% endif %}
@@ -120,7 +119,7 @@
           {% endif %}
 
           {% if record.is_maeukekin %}
-            <td class="has-text-left is-size-7 has-text-weight-bold">【前受金】{{record.description|markdown_to_html}}</td>
+            <td class="has-text-left is-size-7 has-text-weight-bold">{{record.description|add:"【前受金】"|markdown_to_html}}</td>
           {% else %}
             <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
           {% endif %}
