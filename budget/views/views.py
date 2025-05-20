@@ -54,12 +54,12 @@ def check_budget(budget, expense):
         chk = False
         himoku_id = ex["himoku"]
         for bu in budget:
-            if himoku_id == bu.himoku.id:
+            if himoku_id == bu.himoku.id:  # 支出の費目が予算リストにあればchk=Trueとする
                 chk = True
                 break
         if chk:
             continue
-        else:
+        else:  # 支出の費目が予算リストにない場合、comp_list[]に追加する
             data = ["", "", 0, 0]
             data[0] = ex["himoku__accounting_class__accounting_name"]
             data[1] = ex["himoku__himoku_name"]
@@ -160,7 +160,7 @@ class BudgetListView(LoginRequiredMixin, TemplateView):
         # 累計支出を算出する。デフォルトは月次報告のデータを使う。
         if kind == 0:
             qs_expense = ReportTransaction.objects.select_related("himoku")
-        else:
+        else:  # data_manager以上の権限保有者用
             qs_expense = Transaction.objects.select_related("himoku")
         # 入金以外（支出、資金移動）でfiler
         qs_expense = qs_expense.filter(himoku__is_income=False)
