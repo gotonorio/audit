@@ -47,15 +47,15 @@ class TransactionCreateView(PermissionRequiredMixin, generic.CreateView):
     success_url = reverse_lazy("record:transaction_create")
 
     # TransactionCreateFormに変数（値）を渡す
-    def get_form_kwargs(self, *args, **kwargs):
-        """formクラスでは以下のようにkwargsからpopする。
-        __init__(self, *args, **kwargs):
-            self.create_flag = kwargs.pop('create_flag')
-            super().__init__(*args, **kwargs)
-        """
-        kwgs = super().get_form_kwargs(*args, **kwargs)
-        kwgs["create_flag"] = True
-        return kwgs
+    #    def get_form_kwargs(self, *args, **kwargs):
+    #        """formクラスでは以下のようにkwargsからpopする。
+    #        __init__(self, *args, **kwargs):
+    #            self.create_flag = kwargs.pop('create_flag')
+    #            super().__init__(*args, **kwargs)
+    #        """
+    #        kwgs = super().get_form_kwargs(*args, **kwargs)
+    #        kwgs["create_flag"] = True
+    #        return kwgs
 
     def get_context_data(self, **kwargs):
         """templateファイルに変数を渡す"""
@@ -94,15 +94,15 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
     permission_required = "record.add_transaction"
 
     # TransactionCreateFormに変数（値）を渡す
-    def get_form_kwargs(self, *args, **kwargs):
-        """formクラスでは以下のようにkwargsからpopする。
-        __init__(self, *args, **kwargs):
-            self.create_flag = kwargs.pop('create_flag')
-            super().__init__(*args, **kwargs)
-        """
-        kwgs = super().get_form_kwargs(*args, **kwargs)
-        kwgs["create_flag"] = False
-        return kwgs
+    #    def get_form_kwargs(self, *args, **kwargs):
+    #        """formクラスでは以下のようにkwargsからpopする。
+    #        __init__(self, *args, **kwargs):
+    #            self.create_flag = kwargs.pop('create_flag')
+    #            super().__init__(*args, **kwargs)
+    #        """
+    #        kwgs = super().get_form_kwargs(*args, **kwargs)
+    #        kwgs["create_flag"] = False
+    #        return kwgs
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
