@@ -301,12 +301,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 前月の貸借対照表データの未収金
         context["total_last_mishuu"] = total_last_mishuu
         # 使用する前受金の合計
-        context["total_last_maeuke"] = -total_last_maeuke
+        context["total_last_maeuke"] = total_last_maeuke
         context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
         context["total_pb"] = total_pb + netting_total
-        context["total_diff"] = context["total_pb"] - (total_mr - total_last_maeuke + total_mishuu_claim)
+        # 収入差額＝（通帳収入＋口座振替手数料＋前受金）ー（月次報告収入＋前月の未収金）
+        logger.debug(total_mishuu_claim)
+        context["total_diff"] = context["total_pb"] + total_last_maeuke - (total_mr + total_mishuu_claim)
         # formデータ
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
