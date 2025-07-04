@@ -43,26 +43,6 @@ except ImportError:
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 
-## SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = False
-#
-#ALLOWED_HOSTS = ["*"]
-#
-## secret keyのセット。
-#try:
-#    from .private_settings import DB_NAME, MY_SECRET_KEY
-#except ImportError:
-#    pass
-## DEBUGモードのセット。
-#try:
-#    from .local_settings import DEBUG
-#except ImportError:
-#    pass
-#
-## SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = MY_SECRET_KEY
-
-
 # Application definition
 
 INSTALLED_APPS = [
