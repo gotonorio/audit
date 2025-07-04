@@ -1,5 +1,6 @@
 # common
-Django==5.2.1
+Django==5.2.3
+django-environ==0.12.0
 gunicorn==23.0.0
 markdown==3.8
 user-agents==2.2.0

@@ -10,35 +10,58 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import environ
 import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# instanceを作成
+env = environ.Env(
+    # 初期値を設定
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG=(bool, False)
+)
+# .envを読み込む
+environ.Env.read_env(os.path.join(BASE_DIR, "docker/.env"))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+# セキュリティ関係の環境変数を読み込む。
+# 読み込む環境変数のタイプに合わせる必要があるので注意。
+SECRET_KEY = env("SECRET_KEY")
+DB_NAME = env("DB_NAME")
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+DEBUG = env.bool("DEBUG")
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = ["*"]
-
-# secret keyのセット。
-try:
-    from .private_settings import DB_NAME, MY_SECRET_KEY
-except ImportError:
-    pass
-# DEBUGモードのセット。
+# ローカル環境でDEBUGを上書き（local_settings.pyがあれば）
 try:
     from .local_settings import DEBUG
 except ImportError:
     pass
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = MY_SECRET_KEY
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+
+
+## SECURITY WARNING: don't run with debug turned on in production!
+#DEBUG = False
+#
+#ALLOWED_HOSTS = ["*"]
+#
+## secret keyのセット。
+#try:
+#    from .private_settings import DB_NAME, MY_SECRET_KEY
+#except ImportError:
+#    pass
+## DEBUGモードのセット。
+#try:
+#    from .local_settings import DEBUG
+#except ImportError:
+#    pass
+#
+## SECURITY WARNING: keep the secret key used in production secret!
+#SECRET_KEY = MY_SECRET_KEY
+
 
 # Application definition
 
