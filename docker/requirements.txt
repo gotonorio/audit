@@ -1,9 +1,8 @@
 # common
-Django==5.2.3
+Django==5.2.4
 django-environ==0.12.0
 gunicorn==23.0.0
-markdown==3.8
+Markdown==3.8.2
 user-agents==2.2.0
 # special
-jpholiday==1.0.1
-django-debug-toolbar==5.1.0
+jpholiday==1.0.2
