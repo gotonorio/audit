@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-import environ
 import os
 from pathlib import Path
+
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -163,7 +164,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2025-06-07"
+VERSION_NO = "2025-07-24"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
