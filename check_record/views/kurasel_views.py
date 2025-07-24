@@ -110,6 +110,15 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
     template_name = "check_record/kurasel_mr_expense_check.html"
     permission_required = ("record.view_transaction",)
 
+    # templateファイルの切り替え
+    def get_template_names(self):
+        """templateファイルを切り替える"""
+        if self.request.user_agent_flag == "mobile":
+            template_name = "check_record/mobile/mobile_mr_expense_check.html"
+        else:
+            template_name = "check_record/kurasel_mr_expense_check.html"
+        return [template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
@@ -191,6 +200,15 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
 
     template_name = "check_record/kurasel_mr_income_check.html"
     permission_required = ("record.view_transaction",)
+
+    # templateファイルの切り替え
+    def get_template_names(self):
+        """templateファイルを切り替える"""
+        if self.request.user_agent_flag == "mobile":
+            template_name = "check_record/mobile/mobile_mr_income_check.html"
+        else:
+            template_name = "check_record/kurasel_mr_income_check.html"
+        return [template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
