@@ -356,3 +356,18 @@ class BalanceSheet(models.Model):
             total_miharai += d.amounts
 
         return qs_miharai, total_miharai
+
+    @classmethod
+    def get_maeuke_bs(cls, tstart, tend):
+        """指定期間の貸借対照表の前受金を返す"""
+        qs_maeuke_bs = (
+            cls.objects.filter(monthly_date__range=[tstart, tend])
+            .filter(item_name__item_name__contains=settings.MAEUKE)
+            .order_by("item_name")
+        )
+        # 貸借対照表上の前月の未収金合計
+        total_maeuke = 0
+        for d in qs_maeuke_bs:
+            total_maeuke += d.amounts
+
+        return total_maeuke

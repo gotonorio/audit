@@ -289,7 +289,12 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(tstart, tend)
 
         # ---------------------------------------------------------------------
-        # (6) 自動控除費目（相殺費目）の金額を求める。（口座振替手数料）
+        # (6) 貸借対照表データから当月の前受金を計算する。
+        # ---------------------------------------------------------------------
+        total_last_maeuke_bs = BalanceSheet.get_maeuke_bs(tstart, tend)
+
+        # ---------------------------------------------------------------------
+        # (7) 自動控除費目（相殺費目）の金額を求める。（口座振替手数料）
         #     aggregateで集約する場合は抽出結果がDictとなる
         # ---------------------------------------------------------------------
         qs_is_netting = ReportTransaction.objects.filter(transaction_date__range=[tstart, tend])
@@ -319,7 +324,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 前月の貸借対照表データの未収金
         context["total_last_mishuu"] = total_last_mishuu
         # 使用する前受金の合計
-        context["total_last_maeuke"] = total_last_maeuke
+        # context["total_last_maeuke"] = total_last_maeuke
+        context["total_last_maeuke"] = total_last_maeuke_bs
         context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
