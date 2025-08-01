@@ -72,14 +72,23 @@ class ReportTransaction(models.Model):
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
         # (6) 町内会会計を除くかどうか
-        if community is False:
+        if not community:
             obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)
         return qs_mr
 
     @staticmethod
-    def total_calc_flg(sql):
-        """計算対象の合計計算"""
+    def total_calc_flg(sql, community=True):
+        """計算対象の合計計算
+        - community = False：町内会費目を除外する
+        - aggregate_flag = Falseの費目は集計しない。
+        """
+        if not community:
+            obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
+            sql = sql.exclude(himoku__accounting_class=obj.pk)
+        # 計算対象でフィルター
+        sql = sql.filter(himoku__aggregate_flag=True)
+
         total_withdrawals = 0
         for data in sql:
             if data.calc_flg:
@@ -105,12 +114,12 @@ class ReportTransaction(models.Model):
                 total_withdrawals += data.amount
         return total_withdrawals
 
-    @classmethod
-    def get_monthly_report_expense(cls, tstart, tend):
-        """資金移動を除いて、計算対象の支出データを抽出するsqlを返す"""
-        # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
-        qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", False)
-        return qs_mr
+    # @classmethod
+    # def get_monthly_report_expense(cls, tstart, tend, community=False):
+    #     """資金移動を除いて、計算対象の支出データを抽出するsqlを返す"""
+    #     # 月次報告データの取得（Kurasel監査の月次報告支出チェックでは町内会会計を除外する）
+    #     qs_mr = cls.get_qs_mr(tstart, tend, "0", "expense", community)
+    #     return qs_mr
 
     # @classmethod
     # def get_monthly_report_income(cls, tstart, tend):

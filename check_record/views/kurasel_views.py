@@ -148,8 +148,9 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
 
         # ---------------------------------------------------------------------
         # 月次収支の支出データ
+        # 入出金明細データとの比較のため町内会会計を含める（2025-08-01）
         # ---------------------------------------------------------------------
-        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend)
+        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True)
         # 月次収支報告の支出合計（相殺項目、資金移動、集計フラグがFalseの費目を除外する）
         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
 
@@ -274,24 +275,22 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         total_last_maeuke, qs_last_maeuke, total_comment = ClaimData.get_maeuke_claim(year, month)
 
         # ---------------------------------------------------------------------
-        # (4) 請求時点の未収金リストおよび未収金額
+        # (4) 前月の借対照表データから当月の前受金を取得する。
+        # ---------------------------------------------------------------------
+        total_last_maeuke_bs = BalanceSheet.get_maeuke_bs(last_tstart, last_tend)
+
+        # ---------------------------------------------------------------------
+        # (5) 請求時点の未収金リストおよび未収金額
         # ---------------------------------------------------------------------
         total_mishuu_claim, qs_mishuu = ClaimData.get_mishuu(year, month)
-        # if settings.DEBUG:
-        #     logger.debug(f"{month}月度の請求時未収金＝{total_mishuu_claim:,}")
         # 確認のため貸借対照表データから前月の未収金を計算する。
         last_mishuu_bs, total_last_mishuu = BalanceSheet.get_mishuu_bs(last_tstart, last_tend)
         check_last_mishuu = total_mishuu_claim - total_last_maeuke
 
         # ---------------------------------------------------------------------
-        # (5) 貸借対照表データから当月の未収金を計算する。
+        # (6) 貸借対照表データから当月の未収金を取得する。
         # ---------------------------------------------------------------------
         qs_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(tstart, tend)
-
-        # ---------------------------------------------------------------------
-        # (6) 貸借対照表データから当月の前受金を計算する。
-        # ---------------------------------------------------------------------
-        total_last_maeuke_bs = BalanceSheet.get_maeuke_bs(tstart, tend)
 
         # ---------------------------------------------------------------------
         # (7) 自動控除費目（相殺費目）の金額を求める。（口座振替手数料）
@@ -325,14 +324,14 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         context["total_last_mishuu"] = total_last_mishuu
         # 使用する前受金の合計
         # context["total_last_maeuke"] = total_last_maeuke
-        context["total_last_maeuke"] = total_last_maeuke_bs
+        context["total_last_maeuke"] = total_last_maeuke
         context["total_comment"] = total_comment
         # 月次収入データの合計
         context["total_mr"] = total_mr
+        # 入出金明細データの合計
         context["total_pb"] = total_pb + netting_total
-        # 収入差額＝（通帳収入＋口座振替手数料＋前受金）ー（月次報告収入＋前月の未収金）
-        logger.debug(total_mishuu_claim)
-        context["total_diff"] = context["total_pb"] + total_last_maeuke - (total_mr + total_mishuu_claim)
+        # 収入差額＝（通帳収入＋口座振替手数料＋前受金）-（月次報告収入＋前月の未収金）
+        context["total_diff"] = (context["total_pb"] + total_last_maeuke) - (total_mr + total_mishuu_claim)
         # formデータ
         context["form"] = form
         context["yyyymm"] = str(year) + "年" + str(month) + "月"

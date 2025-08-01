@@ -249,9 +249,12 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
+            total_withdrawals = ReportTransaction.total_calc_flg(qs, True)
         else:
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+            total_withdrawals = ReportTransaction.total_calc_flg(qs, False)
+
         # 表示順序
         qs = qs.order_by(
             "himoku__accounting_class",
@@ -259,8 +262,6 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
             "calc_flg",
             "transaction_date",
         )
-        # 合計金額（計算対象のみ）
-        total_withdrawals = ReportTransaction.total_calc_flg(qs)
         # forms.pyのKeikakuListFormに初期値を設定する
         form = MonthlyReportViewForm(
             initial={
@@ -311,11 +312,12 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
+            total_income = ReportTransaction.total_calc_flg(qs, True)
         else:
             # 町内会会計以外が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
-        # 月次データの収入合計
-        total_income = ReportTransaction.total_calc_flg(qs)
+            total_income = ReportTransaction.total_calc_flg(qs, False)
+
         # 表示順序
         qs = qs.order_by("himoku__accounting_class", "calc_flg", "transaction_date")
         # forms.pyのKeikakuListFormに初期値を設定する

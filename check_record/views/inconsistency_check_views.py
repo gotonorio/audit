@@ -41,15 +41,16 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, month)
         # ---------------------------------------------------------------------
         # 月次報告データ
+        # 入出金明細は町内会会計を含むため、除外しない。
         # ---------------------------------------------------------------------
-        qs_mr = ReportTransaction.get_monthly_report_expense(tstart, tend).order_by(
+        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True).order_by(
             "is_netting", "himoku__himoku_name"
         )
-        # 月次収支の支出合計（集計フラグがFalseの費目を除外する）
-        total_mr = ReportTransaction.total_calc_flg(qs_mr)
+
+        # 月次収支の支出合計（入出金明細データとの比較のため町内会を含める）
+        total_mr = ReportTransaction.total_calc_flg(qs_mr, True)
         # ---------------------------------------------------------------------
         # 入出金明細データ
-        # 町内会会計を除外する（2024-11-14）
         # ---------------------------------------------------------------------
         qs = (
             Transaction.objects.filter(transaction_date__range=[tstart, tend])
@@ -62,7 +63,6 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         qs_list = list(qs)
         total_pb = 0
         for i in qs_list:
-            logger.debug(i["debt"])
             total_pb += i["debt"]
             if i["himoku__himoku_name"] == "緑地維持管理費":
                 i["himoku__himoku_name"] = "全体利用施設管理料"
