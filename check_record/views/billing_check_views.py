@@ -43,11 +43,11 @@ class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
         # ---------------------------------------------------------------------
         qs_billing = Billing.get_billing_list(tstart, tend)
         # 表示順序
-        qs_ba = qs_billing.order_by(
+        qs_billing = qs_billing.order_by(
             "-billing_amount",
         )
         # 合計金額
-        billing_total = Billing.calc_total_billing(qs_ba)
+        billing_total = Billing.calc_total_billing(qs_billing)
 
         # ---------------------------------------------------------------------
         # (2) 月次収入データを抽出
