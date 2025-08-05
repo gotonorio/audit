@@ -16,7 +16,7 @@ class BillingAdmin(admin.ModelAdmin):
     list_display = [
         "transaction_date",
         "billing_item",
-        "billing_ammount",
+        "billing_amount",
         "comment",
         "author",
     ]

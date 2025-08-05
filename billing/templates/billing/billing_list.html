@@ -70,9 +70,9 @@
           <td class="has-text-left">{{record.transaction_date|date:"m-d"}}</td>
           <td class="has-text-left">{{record.billing_item}}</td>
           {% if record.billing_item.is_billing %}
-            <td class="has-text-right">{{record.billing_ammount|intcomma}}</td>
+            <td class="has-text-right">{{record.billing_amount|intcomma}}</td>
           {% else %}
-            <td class="has-text-right has-text-danger">{{record.billing_ammount|intcomma}}</td>
+            <td class="has-text-right has-text-danger">{{record.billing_amount|intcomma}}</td>
           {% endif %}
           <td class="has-text-left is-size-7">{{record.comment|truncatechars:30}}</td>
         </tr>

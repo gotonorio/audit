@@ -10,7 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class BillingItem(models.Model):
-    """請求項目マスタデータ"""
+    """請求項目マスタデータ
+    - code: 請求項目コード
+    - item_name: 請求項目名
+    - is_billing: 請求合計金額に含めるかどうか（請求外入金は含めない）
+    - alive: 有効かどうか
+    - get_billingitem_obj: 請求合計金額内訳名からそのオブジェクトを返す
+    - __str__: 請求項目名を返す
+    """
 
     code = models.IntegerField(verbose_name="コード", unique=True)
     item_name = models.CharField(verbose_name="請求項目名", max_length=64)
@@ -36,13 +43,25 @@ class BillingItem(models.Model):
 
 
 class Billing(models.Model):
-    """請求データ"""
+    """請求データ
+    - transaction_date: 取引月
+    - billing_item: 請求内訳名
+    - billing_amount: 請求金額
+    - comment: 備考
+    - get_billing_list: 請求合計金額内訳データの抽出を行う
+    - billing_from_kurasel: Kuraselからの請求合計金額内訳データの保存処理を行う
+    - calc_total_billing: 合計計算を行う
+    """
 
     transaction_date = models.DateField("取引月")
-    billing_item = models.ForeignKey(BillingItem, verbose_name="請求内訳名", on_delete=models.CASCADE)
-    billing_ammount = models.IntegerField("請求金額", default=0)
+    billing_item = models.ForeignKey(
+        BillingItem, verbose_name="請求内訳名", on_delete=models.CASCADE
+    )
+    billing_amount = models.IntegerField("請求金額", default=0)
     comment = models.CharField("備考", max_length=64, blank=True, default="")
-    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(
+        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
+    )
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
 
     def __str__(self):
@@ -62,9 +81,7 @@ class Billing(models.Model):
         total_billing = 0
         for data in sql:
             if data.billing_item.is_billing:
-                total_billing += data.billing_ammount
-            else:
-                total_billing -= data.billing_ammount
+                total_billing += data.billing_amount
         return total_billing
 
     @classmethod
@@ -84,14 +101,16 @@ class Billing(models.Model):
             billingitem_id = BillingItem.get_billingitem_obj(item[0])
             if billingitem_id is None:
                 return False, [
-                    "請求合計金額内訳名「" + item[0] + "」がマスタデータに登録されていません。",
+                    "請求合計金額内訳名「"
+                    + item[0]
+                    + "」がマスタデータに登録されていません。",
                 ]
             try:
                 cls.objects.update_or_create(
                     transaction_date=ymd,
                     billing_item=billingitem_id,
                     defaults={
-                        "billing_ammount": int(item[1]),
+                        "billing_amount": int(item[1]),
                         "comment": "",
                         "author": author_obj,
                     },
