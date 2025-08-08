@@ -42,6 +42,10 @@ class BillingIntakeView(PermissionRequiredMixin, FormView):
         msg_list = [a for a in tmp_list if a != ""]
         # データの正規化を行う。
         data_list = self.translate_billing(msg_list, 2)
+        # 取り込むデータの合計を計算する。
+        total = 0
+        for data in data_list:
+            total += int(data[1])  # data[1]は金額の列
 
         # ここで取り込んだKuraselのデータを処理する
         context = {
@@ -51,6 +55,7 @@ class BillingIntakeView(PermissionRequiredMixin, FormView):
             "month": month,
             "mode": mode,
             "author": self.request.user.pk,
+            "total": total,
         }
 
         # 確認・取り込み処理
