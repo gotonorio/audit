@@ -4,7 +4,7 @@
 {% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
-クラセル支払い監査
+月次支出
 {% endblock title %}
 
 {% block head %}
@@ -30,6 +30,7 @@
     </div>
     <div class="navbar-end">
       {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'check_record:kurasel_billing_check' year_with month_with %}">請求金額</a>
         <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' year_with month_with %}">支払い承認</a>
         <a class="navbar-item" href="{% url 'check_record:kurasel_mr_income_check' year_with month_with %}">月次収入</a>
         <a class="navbar-item" href="{% url 'check_record:expense_check' year_with month_with %}">【不整合チェック】</a>

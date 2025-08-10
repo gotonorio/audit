@@ -4,7 +4,7 @@
 {% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
-月次報告の収入
+月次収入
 {% endblock title %}
 
 {% block head %}
@@ -30,6 +30,7 @@
     </div>
     <div class="navbar-end">
       {% with year_with=year month_with=month %}
+        <a class="navbar-item" href="{% url 'check_record:kurasel_billing_check' year_with month_with %}">請求金額</a>
         <a class="navbar-item" href="{% url 'check_record:kurasel_ap_expense_check' year_with month_with %}">支払い承認</a>
         <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' year_with month_with %}">月次支出</a>
       {% endwith %}
