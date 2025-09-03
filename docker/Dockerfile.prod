@@ -7,7 +7,8 @@ RUN mkdir /code
 # /code/ディレクトリを作業用ディレクトリにする。
 WORKDIR /code
 # requirements/base.txt記述ファイルを/code/ディレクトリにコピーする。
-COPY requirements/base.txt /code/
+# COPY requirements/base.txt /code/
+COPY requirements /code/requirements
 # pipでpythonパッケージをインストールする。
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir --requirement prod.txt
