@@ -1,0 +1,42 @@
+# -------------------------
+# Builder stage
+# -------------------------
+FROM python:3.13-slim AS builder
+
+WORKDIR /code
+
+# システム依存関係のインストール（wheel ビルド用など）
+RUN apt-get -y update \
+    && apt-get install -y \
+    build-essential gcc libpango-1.0-0 libpangoft2-1.0-0 fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 依存関係を先にコピー
+COPY requirements.txt .
+
+# wheel にまとめてビルド
+RUN pip install --upgrade pip \
+    && pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
+
+# -------------------------
+# Runtime stage
+# -------------------------
+FROM python:3.13-slim AS runtime
+
+ENV PYTHONUNBUFFERED=1
+WORKDIR /code
+
+# 実行時に必要なライブラリだけインストール
+RUN apt-get -y update \
+    && apt-get install -y \
+    libpango-1.0-0 libpangoft2-1.0-0 fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+# builder で作成した wheel をコピー
+COPY --from=builder /wheels /wheels
+
+# wheel からインストール
+RUN pip install --no-cache-dir /wheels/*
+
+# アプリケーションコードをコピー（ここは必要に応じて調整）
+COPY . /code

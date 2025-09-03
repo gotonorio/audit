@@ -1,0 +1,22 @@
+# 通帳監査システム
+services:
+  passbook:
+    # 相対パスでDockerfileのpathを指定。
+    build: ./
+    # image名:タグ
+    image: passbook
+    # container名
+    container_name: passbook
+    restart: always
+    # ホスト上のcalendar/ディレクトリをcode/としてコンテナにマウントする。
+    volumes:
+      - ../:/code
+    # 環境変数TZを設定。
+    environment:
+      TZ: "Asia/Tokyo"
+    # ローカル環境ではportをオープンする。
+    ports:
+      - "8700:8700"
+    command: python3 manage.py runserver 0.0.0.0:8700
+
+

@@ -2,7 +2,9 @@
 services:
   passbook:
     # 相対パスでDockerfileのpathを指定。
-    build: ./
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     # image名:タグ
     image: passbook
     # 起動ユーザを指定する

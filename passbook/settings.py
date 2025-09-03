@@ -34,7 +34,7 @@ DB_NAME = env("DB_NAME")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 DEBUG = env.bool("DEBUG")
 
-# ローカル環境でDEBUGを上書き（local_settings.pyがあれば）
+# ローカル環境でDEBUGを上書き（local_settings.pyがあればDEBUG=Trueとする）
 try:
     from .local_settings import DEBUG
 except ImportError:
