@@ -6,11 +6,11 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 # /code/ディレクトリを作業用ディレクトリにする。
 WORKDIR /code
-# requirements.txtファイルを/code/ディレクトリにコピーする。
-COPY requirements.txt /code/
+# requirements/以下の記述ファイルを/code/ディレクトリにコピーする。
+COPY requirements /code/requirements
 # pipでpythonパッケージをインストールする。
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir --requirement requirements.txt
+    pip install --no-cache-dir -r requirements/dev.txt
 # ホスト上のdjangoアプリ、データベースファイルなどを/code/ディレクトリにコピーする。
 # しかしCOPYコマンドでは、親ディテクトリはコピーできないので、docker-composeでmountする。
 # または、Dockerfileを親ディレクトリと同じ階層に配置して、djangoソースをコンテナ内にコピーする。

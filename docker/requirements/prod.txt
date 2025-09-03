@@ -1,0 +1,4 @@
+# read base.txt
+-r base.txt
+# for production
+gunicorn==23.0.0

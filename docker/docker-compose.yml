@@ -1,4 +1,5 @@
 # 通帳監査システム
+version: "3.9"
 services:
   passbook:
     # 相対パスでDockerfileのpathを指定。
