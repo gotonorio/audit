@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     # 初期値を設定
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG=(bool, False)
+    # DEBUG=(bool, False)
 )
 # .envを読み込む
 environ.Env.read_env(os.path.join(BASE_DIR, "docker/.env"))
@@ -32,8 +32,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, "docker/.env"))
 SECRET_KEY = env("SECRET_KEY")
 DB_NAME = env("DB_NAME")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-DEBUG = env.bool("DEBUG")
 
+# デフォルトはFalseとする。
+DEBUG = False
 # ローカル環境でDEBUGを上書き（local_settings.pyがあればDEBUG=Trueとする）
 try:
     from .local_settings import DEBUG

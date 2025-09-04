@@ -32,8 +32,7 @@ urlpatterns = [
     path("billing/", include("billing.urls")),
 ]
 
-if settings.DEBUG:
-    # for django-debug-toolbar
+if "debug_toolbar" in settings.INSTALLED_APPS:
     import debug_toolbar
 
     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
