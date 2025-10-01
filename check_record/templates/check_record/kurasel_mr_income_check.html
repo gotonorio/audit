@@ -88,7 +88,7 @@
               {% endif %}
             </tr>
             {% endfor %}
-            {% if last_mishuu_bs %}
+            {% if total_mishuu_claim %}
             <tr>
               <td></td>
               <td class="has-text-right">請求時点の未収金</td>
@@ -99,7 +99,7 @@
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_mr|add:total_mishuu_claim|intcomma}}</td>
+              <td class="has-text-right">{{total_mr|intcomma}}</td>
               <td></td>
             </tr>
           </tbody>

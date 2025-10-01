@@ -1,5 +1,5 @@
 # common
-Django==5.2.6
+Django==5.2.7
 django-environ==0.12.0
 Markdown==3.8.2
 user-agents==2.2.0
