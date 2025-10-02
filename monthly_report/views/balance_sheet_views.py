@@ -194,6 +194,9 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             qs_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
+            # 前月の貸借対照表データが存在しない場合
+            if not qs_asset:
+                raise ValueError("前月の貸借対照表データが存在しません。")
             last_recivable = [row for row in qs_asset if settings.RECIVABLE in row[0]]
             if last_recivable:
                 last_recivable = last_recivable[0][1]
