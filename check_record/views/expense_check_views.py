@@ -61,7 +61,8 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True)
         # 月次収支報告の支出合計（相殺項目、資金移動、集計フラグがFalseの費目を除外する）
-        total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
+        qs_mr = qs_mr.exclude(is_netting=True)
+        total_mr = ReportTransaction.total_calc_flg(qs_mr)
 
         # ---------------------------------------------------------------------
         # 入出金明細の支出データ

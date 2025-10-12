@@ -74,7 +74,7 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, generic.TemplateView
         # 収入のない費目は除く
         qs_mr = qs_mr.exclude(amount=0).order_by("himoku")
         # 月次収支の収入合計(町内会会計含む)
-        total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
+        total_mr = ReportTransaction.total_calc_flg(qs_mr)
 
         # ---------------------------------------------------------------------
         # (2) 入出金明細データ（通帳データ）の収入リスト

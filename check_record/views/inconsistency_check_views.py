@@ -41,14 +41,13 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, month)
         # ---------------------------------------------------------------------
         # 月次報告データ
-        # 入出金明細は町内会会計を含むため、除外しない。
+        # 入出金明細は町内会会計を含むため町内会費を除外しない。
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True).order_by(
             "is_netting", "himoku__himoku_name"
         )
-
-        # 月次収支の支出合計（入出金明細データとの比較のため町内会を含める）
-        total_mr = ReportTransaction.total_calc_flg(qs_mr, True)
+        # 月次収支の支出合計（口座振替手数料を除く）
+        total_mr = ReportTransaction.total_calc_flg(qs_mr.exclude(is_netting=True))
         # ---------------------------------------------------------------------
         # 入出金明細データ
         # ---------------------------------------------------------------------

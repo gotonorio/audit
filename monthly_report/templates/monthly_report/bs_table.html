@@ -103,43 +103,60 @@
       </tbody>
     </table>
   </div>
-
+  <br>
   {% if perms.record.view_transaction %}
-  {% if chk_lastbank %}
   <div class="has-text-weight-bold">貸借対照表のチェック</div>
   <div class="table-container">
     <table class="table table_nowrap is-bordered">
       <tbody>
         <tr>
           <td class="has-text-left">前月の銀行残高</td>
-          <td class="has-text-right">{{chk_lastbank|intcomma}}</td>
-          <td class="has-text-left">※ 当月の銀行残高</td>
-          <td class="has-text-right">{{chk_bank|intcomma}}</td>
-          <td class="has-text-right">差額：{{difference|intcomma}}</td>
+          <td class="has-text-right">{{prev_dict.三菱UFJ銀行普通預金|intcomma}}</td>
+          <td class="has-text-left">計算上の当月の銀行残高</td>
+          <td class="has-text-right">{{curr_dict.計算現金残高|intcomma}}</td>
+          <td class="has-text-right has-text-danger">誤差：{{difference|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-left"></td>
+          <td class="has-text-right"></td>
+          <td class="has-text-left">当月の収入</td>
+          <td class="has-text-right">{{curr_dict.当月収入|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-left"></td>
+          <td class="has-text-right"></td>
+          <td class="has-text-left">当月の支出</td>
+          <td class="has-text-right">{{curr_dict.当月支出|intcomma}}</td>
         </tr>
         <tr>
           <td class="has-text-left">前月の未収金</td>
-          <td class="has-text-right">{{chk_lastrecivable|intcomma}}</td>
+          <td class="has-text-right">{{prev_dict.未収金|intcomma}}</td>
           <td class="has-text-left">当月の未収金</td>
-          <td class="has-text-right">{{chk_recivable|intcomma}}</td>
+          <td class="has-text-right">{{curr_dict.未収金|intcomma}}</td>
         </tr>
         <tr>
           <td class="has-text-left">前月の未払金</td>
-          <td class="has-text-right">{{chk_payable|intcomma}}</td>
-          <td class="has-text-left">当月の収入金</td>
-          <td class="has-text-right">{{chk_income|intcomma}}</td>
+          <td class="has-text-right">{{prev_dict.未払金|intcomma}}</td>
+          <td class="has-text-left">当月の未払金</td>
+          <td class="has-text-right">{{curr_dict.未払金|intcomma}}</td>
         </tr>
         <tr>
-          <td></td>
-          <td></td>
-          <td class="has-text-left">当月の支出金</td>
-          <td class="has-text-right">{{chk_expense|intcomma}}</td>
+          <td class="has-text-left">前月の前受金</td>
+          <td class="has-text-right">{{prev_dict.前受金|intcomma}}</td>
+          <td class="has-text-left">当月の前受金</td>
+          <td class="has-text-right">{{curr_dict.前受金|intcomma}}</td>
+        </tr>
+        <tr>
+          <td class="has-text-left">前月の前払金</td>
+          <td class="has-text-right">{{prev_dict.前払金|intcomma}}</td>
+          <td class="has-text-left">当月の前払金</td>
+          <td class="has-text-right">{{curr_dict.前払金|intcomma}}</td>
         </tr>
       </tbody>
     </table>
+    <div>今月末現金残高 = 前月末現金残高 + 今月収入 - 今月支出 +（未払金増加＋前受金増加）−（未収金増加＋前払金増加）</div>
+    <div>※誤差がある場合は、収入・支出の記録漏れや、未収金・未払金・前受金・前払金の計上漏れがないか確認してください。</div>
   </div>
-  <div>※ 前月の銀行残高 + 前月の未収金 + 当月の収入金 - 当月の支出金 - 当月の未収金 - 前月の未払金</div>
-  {% endif %}
   {% endif %}
   <br>
 </div>

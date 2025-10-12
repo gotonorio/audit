@@ -56,7 +56,7 @@ class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 収入のない費目は除く
         qs_mr = qs_mr.exclude(amount=0).order_by("-amount")
         # 月次収支の収入合計
-        total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
+        total_mr = ReportTransaction.total_calc_flg(qs_mr)
 
         # ---------------------------------------------------------------------
         # (3) 請求時点の未収金リストおよび未収金額
@@ -89,67 +89,3 @@ class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
         context["year"] = year
         context["month"] = month
         return context
-
-
-# class BillingAmountCheckView(PermissionRequiredMixin, generic.TemplateView):
-#     """請求金額内訳データと月次報告比較リスト"""
-
-#     template_name = "check_record/billing_income_check.html"
-#     permission_required = ("record.view_transaction",)
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         if kwargs:
-#             year = kwargs.get("year")
-#             month = kwargs.get("month")
-#         else:
-#             year = self.request.GET.get("year", localtime(timezone.now()).year)
-#             month = self.request.GET.get("month", localtime(timezone.now()).month)
-
-#         # 当月の抽出期間
-#         tstart, tend = select_period(year, month)
-#         # forms.pyのKeikakuListFormに初期値を設定する
-#         form = YearMonthForm(
-#             initial={
-#                 "year": year,
-#                 "month": month,
-#             }
-#         )
-
-#         # ---------------------------------------------------------------------
-#         # (1) 請求金額内訳データを抽出
-#         # ---------------------------------------------------------------------
-#         qs_ba = Billing.get_billing_list(tstart, tend)
-#         # 表示順序
-#         qs_ba = qs_ba.order_by(
-#             "billing_item__code",
-#         )
-#         # 合計金額
-#         billing_total = Billing.calc_total_billing(qs_ba)
-
-#         # ---------------------------------------------------------------------
-#         # (2) 月次収入データを抽出
-#         # ---------------------------------------------------------------------
-#         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "income", True)
-#         # 収入のない費目は除く
-#         qs_mr = qs_mr.exclude(amount=0).order_by("himoku")
-#         # 月次収支の収入合計
-#         total_mr = ReportTransaction.calc_total_withflg(qs_mr, True)
-
-#         # ---------------------------------------------------------------------
-#         # (5) 請求時点の未収金リストおよび未収金額
-#         # ---------------------------------------------------------------------
-#         total_mishuu_claim, _ = ClaimData.get_mishuu(year, month)
-
-#         # 請求金額内訳データ
-#         context["billing_list"] = qs_ba
-#         context["billing_total"] = billing_total
-#         # 入出金明細データ
-#         context["mr_list"] = qs_mr
-#         context["total_mr"] = total_mr
-#         context["total_mishuu_claim"] = total_mishuu_claim
-#         context["form"] = form
-#         context["yyyymm"] = str(year) + "年" + str(month) + "月"
-#         context["year"] = year
-#         context["month"] = month
-#         return context

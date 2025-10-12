@@ -82,23 +82,27 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
                     bank_balance = 0
 
                 # 貸借対照表データのチェック
-                check_bs = self.check_balancesheet(year, month, ac_class)
-                context["chk_lastbank"] = check_bs["前月の銀行残高"]
-                context["chk_lastrecivable"] = check_bs["前月の未収金"]
-                context["chk_income"] = check_bs["当月の収入"]
-                context["chk_recivable"] = recivable
-                context["chk_payable"] = check_bs["前月の未払金"]
-                context["chk_expense"] = check_bs["当月の支出"]
-                # logger.debug(f"前月の未払金＝{check_bs['前月の未払金']}")
-                context["chk_bank"] = (
-                    check_bs["前月の銀行残高"]
-                    + check_bs["前月の未収金"]
-                    + check_bs["当月の収入"]
-                    - check_bs["当月の支出"]
-                    - recivable
-                    - check_bs["前月の未払金"]
-                )
-                context["difference"] = bank_balance - context["chk_bank"]
+                # check_bs = self.check_balancesheet(year, month, ac_class)
+                # context["chk_lastbank"] = check_bs["前月の銀行残高"]
+                # context["chk_lastrecivable"] = check_bs["前月の未収金"]
+                # context["chk_income"] = check_bs["当月の収入"]
+                # context["chk_recivable"] = recivable
+                # context["chk_payable"] = check_bs["前月の未払金"]
+                # context["chk_expense"] = check_bs["当月の支出"]
+                # context["chk_bank"] = (
+                #     check_bs["前月の銀行残高"]
+                #     + check_bs["前月の未収金"]
+                #     + check_bs["当月の収入"]
+                #     - check_bs["当月の支出"]
+                #     - recivable
+                #     - check_bs["前月の未払金"]
+                # )
+                # context["difference"] = bank_balance - context["current_cache"]
+                prev_dict, curr_dict = self.check_balancesheet_new(year, month, ac_class)
+                context["difference"] = bank_balance - curr_dict["計算現金残高"]
+                context["check_dict"] = curr_dict
+                context["prev_dict"] = prev_dict
+                context["curr_dict"] = curr_dict
             # querysetの結果で負債・剰余金リストを作成。
             debt_list = [list(i) for i in list(qs_debt)]
         else:
@@ -182,60 +186,179 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
         return asset_list, debt_list
 
-    def check_balancesheet(self, year, month, ac_class):
-        """町内会会計を含む貸借対照表のチェック（銀行残高の整合チェック）"""
+    # def check_balancesheet(self, year, month, ac_class):
+    #     """町内会会計を含む貸借対照表のチェック（銀行残高の整合チェック）"""
+    #     # 会計区分毎の前月の資産
+    #     rtn_dict = {}
+    #     lastyear, lastmonth = get_lastmonth(year, month)
+    #     last_tstart, last_tend = select_period(lastyear, lastmonth)
+    #     if ac_class > 0:
+    #         # 会計区分を指定して貸借対照表を求める場合
+    #         # （1）前月の未収金
+    #         qs_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
+    #             "item_name__item_name", "amounts", "comment"
+    #         )
+    #         # 前月の貸借対照表データが存在しない場合
+    #         if not qs_asset:
+    #             raise ValueError("前月の貸借対照表データが存在しません。")
+    #         last_recivable = [row for row in qs_asset if settings.RECIVABLE in row[0]]
+    #         if last_recivable:
+    #             last_recivable = last_recivable[0][1]
+    #         else:
+    #             last_recivable = 0
+    #         # （2）前月の未払金
+    #         qs_debt = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, False).values_list(
+    #             "item_name__item_name", "amounts", "comment"
+    #         )
+    #         last_payable = [row for row in qs_debt if settings.PAYABLE in row[0]]
+    #         if last_payable:
+    #             last_payable = last_payable[0][1]
+    #         else:
+    #             last_payable = 0
+    #         # （3）前月の銀行残高
+    #         last_bankbalance = qs_asset[0][1]
+
+    #         # （4）当月の収入合計（未収金含む）
+    #         tstart, tend = select_period(year, month)
+    #         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
+    #         total_income = ReportTransaction.total_calc_flg(qs)
+    #         # （5）当月の支出合計
+    #         qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
+    #         total_withdrawals = ReportTransaction.total_calc_flg(qs)
+    #         # （6）当月の銀行残高（計算値）
+    #         bank_balance = last_bankbalance + (total_income - total_withdrawals)
+    #         # （7）当月の銀行残高（貸借対照表データ）
+    #         rtn_dict["前月の銀行残高"] = last_bankbalance
+    #         rtn_dict["前月の未収金"] = last_recivable
+    #         rtn_dict["前月の未払金"] = last_payable
+    #         rtn_dict["当月の収入"] = total_income
+    #         rtn_dict["当月の支出"] = total_withdrawals
+    #         rtn_dict["当月の銀行残高"] = bank_balance
+    #     else:
+    #         # 全会計区分の貸借対照表を求める場合
+    #         asset_list, debt_list = self.get_balancesheet(last_tstart, last_tend)
+    #         bank_balance = 0
+
+    #     return rtn_dict
+
+    def check_balancesheet_new(self, year, month, ac_class):
+        """町内会会計を含む貸借対照表のチェック（銀行残高の整合チェック）
+        - 「未収金」「未払金」「前受金」「前払金」などの発生主義のズレ要素があるため、それらを調整して現金主義ベースに直す。
+        - 今月末現金残高＝前月末現金残高+今月現金収入-今月現金支出-（前月未収金-今月未収金）+（前月未払金-今月未払金）+（前月前受金-今月前受金）-（前月前払金-今月前払金）
+        - ただし、未収金、未払金がマイナスになる場合は、0とする。
+        """
         # 会計区分毎の前月の資産
-        rtn_dict = {}
+        previous_bs_dict = {}
         lastyear, lastmonth = get_lastmonth(year, month)
         last_tstart, last_tend = select_period(lastyear, lastmonth)
+        # 会計区分毎の当月の資産
+        current_bs_dict = {}
+        tstart, tend = select_period(year, month)
         if ac_class > 0:
-            # 会計区分を指定して貸借対照表を求める場合
-            # 前月の未収金
-            qs_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
+            # 前月末の貸借対照表データ（資産の部）を取得
+            previous_qs_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
+                "item_name__item_name", "amounts", "comment"
+            )
+            # 前月末の貸借対照表データ（負債・剰余金の部）を取得
+            previous_qs_debt = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, False).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
             # 前月の貸借対照表データが存在しない場合
-            if not qs_asset:
+            if not previous_qs_asset:
                 raise ValueError("前月の貸借対照表データが存在しません。")
-            last_recivable = [row for row in qs_asset if settings.RECIVABLE in row[0]]
+
+            # （1）前月末の現金残高
+            last_bankbalance = [row for row in previous_qs_asset if settings.BANK_NAME in row[0]]
+            if not last_bankbalance:
+                raise ValueError("前月の貸借対照表データに銀行残高が存在しません。")
+            previous_bs_dict[settings.BANK_NAME] = last_bankbalance[0][1]
+            # （2）前月の未収金
+            last_recivable = [row for row in previous_qs_asset if settings.RECIVABLE in row[0]]
             if last_recivable:
-                last_recivable = last_recivable[0][1]
+                previous_bs_dict[settings.RECIVABLE] = last_recivable[0][1]
             else:
-                last_recivable = 0
-            # 前月の未払金
-            qs_debt = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, False).values_list(
+                previous_bs_dict[settings.RECIVABLE] = 0
+            # （3）前月の未払金
+            last_payable = [row for row in previous_qs_debt if settings.PAYABLE in row[0]]
+            if last_payable:
+                previous_bs_dict[settings.PAYABLE] = last_payable[0][1]
+            else:
+                previous_bs_dict[settings.PAYABLE] = 0
+            # （4）前月の前受金
+            last_maeuke = [row for row in previous_qs_debt if settings.MAEUKE in row[0]]
+            if last_maeuke:
+                previous_bs_dict[settings.MAEUKE] = last_maeuke[0][1]
+            else:
+                previous_bs_dict[settings.MAEUKE] = 0
+            # （5）前月の前払金
+            last_maebarai = [row for row in previous_qs_asset if settings.MAEBARAI in row[0]]
+            if last_maebarai:
+                previous_bs_dict[settings.MAEBARAI] = last_maebarai[0][1]
+            else:
+                previous_bs_dict[settings.MAEBARAI] = 0
+
+            # 当月の貸借対照表データ（資産の部）を取得
+            current_qs_asset = BalanceSheet.get_bs(tstart, tend, ac_class, True).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
-            last_payable = [row for row in qs_debt if settings.PAYABLE in row[0]]
-            if last_payable:
-                last_payable = last_payable[0][1]
+            # 当月の貸借対照表データ（負債・剰余金の部）を取得
+            current_qs_debt = BalanceSheet.get_bs(tstart, tend, ac_class, False).values_list(
+                "item_name__item_name", "amounts", "comment"
+            )
+            # (6) 当月の収入データ（町内会費会計を除く）
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+            current_income = ReportTransaction.total_calc_flg(qs)
+            current_bs_dict["当月収入"] = current_income
+            # (7) 当月の支出合計（口座振替手数料は含める、町内会費会計を除く）
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+
+            total = 0
+            for row in qs:
+                total += row.amount
+            logger.debug(f"check_bs_new: total={total}")
+
+            # 口座振替手数料は相殺処理なので除外する。
+            current_expense = ReportTransaction.total_calc_flg(qs)
+            current_bs_dict["当月支出"] = current_expense
+            # (8) 当月の未収金
+            current_recivable = [row for row in current_qs_asset if settings.RECIVABLE in row[0]]
+            if current_recivable:
+                current_bs_dict[settings.RECIVABLE] = current_recivable[0][1]
             else:
-                last_payable = 0
-            # 前月の銀行残高
-            last_bankbalance = qs_asset[0][1]
+                current_bs_dict[settings.RECIVABLE] = 0
+            # (9) 当月の未払金
+            current_payable = [row for row in current_qs_debt if settings.PAYABLE in row[0]]
+            if current_payable:
+                current_bs_dict[settings.PAYABLE] = current_payable[0][1]
+                logger.debug(f"check_bs_new: current_payable={current_payable[0][1]}")
+            else:
+                current_bs_dict[settings.PAYABLE] = 0
+            # (10) 当月の前受金
+            current_maeuke = [row for row in current_qs_debt if settings.MAEUKE in row[0]]
+            if current_maeuke:
+                current_bs_dict[settings.MAEUKE] = current_maeuke[0][1]
+            else:
+                current_bs_dict[settings.MAEUKE] = 0
+            # (11) 当月の前払金
+            current_maebarai = [row for row in current_qs_asset if settings.MAEBARAI in row[0]]
+            if current_maebarai:
+                current_bs_dict[settings.MAEBARAI] = current_maebarai[0][1]
+            else:
+                current_bs_dict[settings.MAEBARAI] = 0
 
-            # 当月の収入合計（未収金含む）
-            tstart, tend = select_period(year, month)
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
-            total_income = ReportTransaction.total_calc_flg(qs, True)
-            # 当月の支出合計
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
-            total_withdrawals = ReportTransaction.total_calc_flg(qs, True)
-            # 当月の銀行残高（計算値）
-            bank_balance = last_bankbalance + (total_income - total_withdrawals)
-            # 当月の銀行残高（貸借対照表データ）
-            rtn_dict["前月の銀行残高"] = last_bankbalance
-            rtn_dict["前月の未収金"] = last_recivable
-            rtn_dict["前月の未払金"] = last_payable
-            rtn_dict["当月の収入"] = total_income
-            rtn_dict["当月の支出"] = total_withdrawals
-            rtn_dict["当月の銀行残高"] = bank_balance
-        else:
-            # 全会計区分の貸借対照表を求める場合
-            asset_list, debt_list = self.get_balancesheet(last_tstart, last_tend)
-            bank_balance = 0
+            # 当月の現金残高
+            calc_bankbalance = (
+                previous_bs_dict[settings.BANK_NAME]
+                + current_bs_dict["当月収入"]
+                - current_bs_dict["当月支出"]
+                - (current_bs_dict[settings.RECIVABLE] - previous_bs_dict[settings.RECIVABLE])
+                + (current_bs_dict[settings.PAYABLE] - previous_bs_dict[settings.PAYABLE])
+                + (current_bs_dict[settings.MAEUKE] - previous_bs_dict[settings.MAEUKE])
+                - (current_bs_dict[settings.MAEBARAI] - previous_bs_dict[settings.MAEBARAI])
+            )
+            current_bs_dict["計算現金残高"] = calc_bankbalance
 
-        return rtn_dict
+        return previous_bs_dict, current_bs_dict
 
 
 # -----------------------------------------------------------------------------
