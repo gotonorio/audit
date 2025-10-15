@@ -81,7 +81,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
                 else:
                     bank_balance = 0
 
-                prev_dict, curr_dict = self.check_balancesheet_new(year, month, ac_class)
+                prev_dict, curr_dict = self.check_balancesheet(year, month, ac_class)
                 context["difference"] = bank_balance - curr_dict["計算現金残高"]
                 context["check_dict"] = curr_dict
                 context["prev_dict"] = prev_dict
@@ -169,7 +169,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
 
         return asset_list, debt_list
 
-    def check_balancesheet_new(self, year, month, ac_class):
+    def check_balancesheet(self, year, month, ac_class):
         """町内会会計を含む貸借対照表のチェック（銀行残高の整合チェック）
         - 「未収金」「未払金」「前受金」「前払金」などの発生主義のズレ要素があるため、それらを調整して現金主義ベースに直す。
         - 今月末現金残高＝前月末現金残高+今月現金収入-今月現金支出-（前月未収金-今月未収金）+（前月未払金-今月未払金）+（前月前受金-今月前受金）-（前月前払金-今月前払金）
