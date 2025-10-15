@@ -68,24 +68,20 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             # querysetの結果で資産リストを作成。
             asset_list = [list(i) for i in list(qs_asset)]
             if asset_list:
-                # 未収金
-                recivable = [row for row in asset_list if settings.RECIVABLE in row[0]]
-                if recivable:
-                    recivable = recivable[0][1]
-                else:
-                    recivable = 0
                 # 口座残高
                 bank_balance = [row for row in asset_list if settings.BANK_NAME in row[0]]
                 if bank_balance:
                     bank_balance = bank_balance[0][1]
                 else:
                     bank_balance = 0
-
+                # 貸借対照表のチェック
                 prev_dict, curr_dict = self.check_balancesheet(year, month, ac_class)
-                context["difference"] = bank_balance - curr_dict["計算現金残高"]
-                context["check_dict"] = curr_dict
-                context["prev_dict"] = prev_dict
-                context["curr_dict"] = curr_dict
+                # 前月の貸借対照表データが存在しない場合、Noneが返る。
+                if prev_dict and curr_dict:
+                    context["difference"] = bank_balance - curr_dict["計算現金残高"]
+                    context["check_dict"] = curr_dict
+                    context["prev_dict"] = prev_dict
+                    context["curr_dict"] = curr_dict
             # querysetの結果で負債・剰余金リストを作成。
             debt_list = [list(i) for i in list(qs_debt)]
         else:
@@ -193,7 +189,9 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             )
             # 前月の貸借対照表データが存在しない場合
             if not previous_qs_asset:
-                raise ValueError("前月の貸借対照表データが存在しません。")
+                # raise ValueError("前月の貸借対照表データが存在しません。")
+                message = f"{lastyear}年{lastmonth}月の貸借対照表データが存在しません。"
+                return None, None
 
             # （1）前月末の現金残高
             last_bankbalance = [row for row in previous_qs_asset if settings.BANK_NAME in row[0]]
@@ -234,12 +232,12 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
                 "item_name__item_name", "amounts", "comment"
             )
             # (6) 当月の収入合計（町内会費会計を除く）
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
             # 当月収入合計
             current_income = ReportTransaction.total_calc_flg(qs)
             current_bs_dict["当月収入"] = current_income
             # (7) 当月の支出合計（口座振替手数料・町内会費会計を除く）
-            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+            qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
             # 当月支出合計
             current_expense = ReportTransaction.total_calc_flg(qs)
             current_bs_dict["当月支出"] = current_expense

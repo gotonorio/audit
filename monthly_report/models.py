@@ -79,14 +79,10 @@ class ReportTransaction(models.Model):
 
     @staticmethod
     def total_calc_flg(sql):
-        """計算対象の合計計算
-        - community = False：町内会費目を除外する
-        - aggregate_flag = Falseの費目は集計しない。
-        """
+        """ReportTransactionクラスの合計計算"""
         total_withdrawals = 0
         for row in sql:
-            if row.calc_flg:
-                total_withdrawals += row.amount
+            total_withdrawals += row.amount
 
         return total_withdrawals
 
