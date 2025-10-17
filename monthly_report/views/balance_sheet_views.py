@@ -231,14 +231,14 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             current_qs_debt = BalanceSheet.get_bs(tstart, tend, ac_class, False).values_list(
                 "item_name__item_name", "amounts", "comment"
             )
-            # (6) 当月の収入合計（町内会費会計を除く）
+            # (6) 当月の収入合計
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
-            # 当月収入合計
+            # (6-1) 当月収入合計
             current_income = ReportTransaction.total_calc_flg(qs)
             current_bs_dict["当月収入"] = current_income
-            # (7) 当月の支出合計（口座振替手数料・町内会費会計を除く）
+            # (7) 当月の支出合計（口座振替手数料）
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
-            # 当月支出合計
+            # (7-1) 当月支出合計
             current_expense = ReportTransaction.total_calc_flg(qs)
             current_bs_dict["当月支出"] = current_expense
             # (8) 当月の未収金
@@ -251,7 +251,6 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             current_payable = [row for row in current_qs_debt if settings.PAYABLE in row[0]]
             if current_payable:
                 current_bs_dict[settings.PAYABLE] = current_payable[0][1]
-                logger.debug(f"check_bs_new: current_payable={current_payable[0][1]}")
             else:
                 current_bs_dict[settings.PAYABLE] = 0
             # (10) 当月の前受金

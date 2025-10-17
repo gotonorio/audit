@@ -183,7 +183,6 @@ PAYABLE = "未払金"
 MAEUKE = "前受金"
 # 町内会費会計
 COMMUNITY_ACCOUNTING = "町内会費会計"
-COMMUNITY_FLAG = True
 # Kurasel監査のスタート年月
 START_KURASEL = {"year": 2023, "month": 4}
 # Kurasel監査のスタート前月の未払金額

@@ -70,7 +70,7 @@ class ReportTransaction(models.Model):
         # (5) 費目の会計区分でfilter 2023-11-23に追加
         if ac_class != "0":
             qs_mr = qs_mr.filter(himoku__accounting_class=ac_class)
-        # (6) 町内会会計を除くかどうか
+        # (6) 町内会会計を除くかどうか（ToDo: 2025-10-17に追加）
         if not community:
             obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
             qs_mr = qs_mr.exclude(himoku__accounting_class=obj.pk)

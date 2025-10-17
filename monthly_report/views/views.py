@@ -202,11 +202,9 @@ def aggregate_himoku(qs):
 
 
 def qs_year_income(tstart, tend, ac_class, others_flg):
-    """月次報告の年間収入データを返す
-    settings.COMMUNITY_FLAG:町内会会計を含むかどうかのフラグ
-    """
+    """月次報告の年間収入データを返す"""
     # 月次報告収入リスト
-    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", settings.COMMUNITY_FLAG)
+    qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
     # 修繕積立会計の「修繕積立金」以外の収入を抽出する。
     if others_flg:
         qs = qs.exclude(himoku__himoku_name="修繕積立金")
@@ -245,13 +243,13 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         tstart, tend = select_period(year, month)
 
         # 町内会会計が選択された場合の処理
-        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内"))
+        ac_name = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
         if ac_name.pk == int(ac_class):
             # 町内会会計が指定された場合。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
             total_withdrawals = ReportTransaction.total_calc_flg(qs)
         else:
-            # 町内会会計以外が指定された場合。
+            # 全会計区分が選択された場合、町内会会計は除外する。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
             total_withdrawals = ReportTransaction.total_calc_flg(qs)
 
@@ -314,7 +312,7 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
             total_income = ReportTransaction.total_calc_flg(qs)
         else:
-            # 町内会会計以外が指定された場合。
+            # 全会計区分が選択された場合、町内会会計は除外する。
             qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
             total_income = ReportTransaction.total_calc_flg(qs)
 
@@ -365,7 +363,7 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         # 抽出期間
         tstart, tend = select_period(year, 0)
 
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", settings.COMMUNITY_FLAG)
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_total = monthly_total(qs, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。
