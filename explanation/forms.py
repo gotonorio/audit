@@ -29,11 +29,6 @@ class DescriptionCreateForm(forms.ModelForm):
                     "rows": "14",
                 }
             ),
-            "data_operation": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
         }
 
 

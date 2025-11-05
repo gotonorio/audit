@@ -116,16 +116,6 @@ class TransactionCreateForm(forms.ModelForm):
         ),
     )
 
-    #    def __init__(self, *args, **kwargs):
-    #        self.create_flg = kwargs.pop("create_flag")
-    #        super().__init__(*args, **kwargs)
-    #        self.fields["transaction_date"].initial = timezone.datetime.now().strftime("%Y-%m-%d")
-    #        self.fields["is_manualinput"].initial = True
-    #        if self.create_flg:
-    #            self.fields["amount"].widget.attrs["readonly"] = False
-    #        else:
-    #            self.fields["amount"].widget.attrs["readonly"] = True
-
     class Meta:
         model = Transaction
         fields = [
@@ -146,40 +136,12 @@ class TransactionCreateForm(forms.ModelForm):
         ]
         labels = {"calc_flg": "チェック計算対象(calc_flg)", "is_manualinput": "手動入力Flg"}
         widgets = {
-            # 'account': forms.Select(attrs={
-            #     'class': 'select-css',
-            # }),
-            "is_income": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "is_manualinput": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
             "transaction_date": forms.DateInput(
                 attrs={
                     "type": "date",
                     "class": "is-size-6",
                 }
             ),
-            "is_approval": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "is_maeukekin": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            # "is_mishuukin": forms.CheckboxInput(
-            #     attrs={
-            #         "class": "checkbox",
-            #     }
-            # ),
         }
         help_texts = {
             "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
@@ -249,31 +211,6 @@ class HimokuForm(forms.ModelForm):
                 attrs={
                     "class": "input",
                     # 'readonly': 'readonly',
-                }
-            ),
-            "is_income": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "alive": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "aggregate_flag": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "is_approval": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
-                }
-            ),
-            "is_default": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
                 }
             ),
             "comment": forms.TextInput(
@@ -501,11 +438,6 @@ class ApprovalCheckDataForm(forms.ModelForm):
             "comment": forms.TextInput(
                 attrs={
                     "class": "input",
-                }
-            ),
-            "alive": forms.CheckboxInput(
-                attrs={
-                    "class": "checkbox",
                 }
             ),
         }

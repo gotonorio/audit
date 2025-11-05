@@ -54,13 +54,13 @@
     </div>
     {# 有効フラグ #}
     <div class="field">
-      <div class='label'>{{ form.alive.label_tag }}</div>
-      <div class='my_field'>{{ form.alive }}</div>
-    </div>
-    {# 管理者フラグ #}
-    <div class="field">
-      <div class='label'>{{ form.data_operation.label_tag }}</div>
-      <div class='my_field'>{{ form.data_operation }}</div>
+      <label class="label">有効フラグ</label>
+      <div class="control">
+        <label class="checkbox">
+          {{ form.alive }}
+          有効
+        </label>
+      </div>
     </div>
     <br>
     <div class="content has-text-centered">
