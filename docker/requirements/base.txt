@@ -1,7 +1,7 @@
 # common
-Django==5.2.7
+Django==5.2.8
 django-environ==0.12.0
-Markdown==3.8.2
+Markdown==3.10
 user-agents==2.2.0
 # special
 jpholiday==1.0.2
