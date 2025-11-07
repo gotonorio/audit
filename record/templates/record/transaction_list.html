@@ -88,16 +88,20 @@
             <td class="has-text-centered">{{record.transaction_date|date:'m-d'}}</td>
           {% endif %}
 
-          {% if not record.calc_flg %}
-            <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
-          {% elif record.is_manualinput %}
+          {% if record.is_manualinput %}
             {% if record.is_miharai %}
-              <td class="has-text-left has-text-success">{{record.himoku|truncatechars:14}}【未払金】</td>
+              <td class="has-text-left has-text-link has-text-weight-medium">{{record.himoku|truncatechars:14}}【未払金】</td>
             {% else %}
               <td class="has-text-left has-text-link">{{record.himoku|truncatechars:14}}</td>
             {% endif %}
           {% else %}
-            <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
+            {% if record.is_miharai %}
+              <td class="has-text-left has-text-weight-medium">{{record.himoku|truncatechars:14}}【未払金】</td>
+            {% elif not record.calc_flg %}
+              <td class="has-text-left has-text-danger">{{record.himoku|truncatechars:14}}</td>
+            {% else %}
+              <td class="has-text-left">{{record.himoku|truncatechars:14}}</td>
+            {% endif %}
           {% endif %}
 
           {% if record.is_income %}
