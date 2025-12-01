@@ -1,5 +1,4 @@
 from django.db import models
-
 from record.models import Himoku
 
 
@@ -16,6 +15,8 @@ class ControlRecord(models.Model):
     to_offset = models.ForeignKey(
         Himoku, verbose_name="費目名", on_delete=models.CASCADE, blank=True, null=True
     )
+    # データ削除フラグの表示/非表示コントロールを追加（2025年12月1日）
+    delete_data_flg = models.BooleanField(verbose_name="データ削除", default=False)
 
     @classmethod
     def show_tmp_user_menu(cls):
