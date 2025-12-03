@@ -1,5 +1,6 @@
 import logging
 
+from control.models import ControlRecord
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
@@ -69,6 +70,7 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
         context["month"] = month
+        context["delete_flg"] = ControlRecord.get_delete_flg()
         # 会計区分が''だった場合の処理
         if ac_class == "":
             ac_class = "0"
@@ -127,6 +129,8 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
         context["month"] = month
+        logger.debug(f"delete_flg: {ControlRecord.get_delete_flg()}")
+        context["delete_flg"] = ControlRecord.get_delete_flg()
         # 会計区分が''だった場合の処理
         if ac_class == "":
             ac_class = "0"

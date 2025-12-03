@@ -165,7 +165,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ##################################################################
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2025-12-01"
+VERSION_NO = "2025-12-03"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定

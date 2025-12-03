@@ -3,7 +3,14 @@ from record.models import Himoku
 
 
 class ControlRecord(models.Model):
-    """プロジェクトのコントロール用定数を定義"""
+    """プロジェクトのコントロール用定数を定義
+    - tmp_user_flg : 仮登録メニューの表示/非表示（ユーザー登録させる場合に表示させる。普段は非表示とする）
+    - annual_management_fee : 管理費収入額（予算実績対比表で管理会計の予算オーバー防止のために使用）
+    - annual_greenspace_fee : 緑地維持管理費収入額（予算実績対比表で管理会計の予算オーバー防止のために使用）
+    - to_offset : 相殺処理する費目名（収納代行会社：三菱UFJファクター株式会社による振替時に自動的に支出される手数料項目）
+    - delete_data_flg : データ削除フラグの表示/非表示（データ取り込み時に年月を指定する場合、年月のミスが起こり得るため、
+                        データ削除を許可する場合に表示させる。普段は非表示とする）
+    """
 
     # 仮登録メニューの表示/非表示コントロール
     tmp_user_flg = models.BooleanField(verbose_name="仮登録", default=False)
@@ -29,3 +36,8 @@ class ControlRecord(models.Model):
         """
         offset_himoku = cls.objects.values("to_offset__himoku_name").first()
         return offset_himoku["to_offset__himoku_name"]
+
+    @classmethod
+    def get_delete_flg(cls):
+        """データ削除フラグの表示/非表示を返す"""
+        return cls.objects.values("delete_data_flg")[0]["delete_data_flg"]
