@@ -121,7 +121,7 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         if kwargs:
             # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(kwargs.get("year"))
+            year = str(self.kwargs.get("year"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)

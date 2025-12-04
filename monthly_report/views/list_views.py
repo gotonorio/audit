@@ -24,9 +24,9 @@ class MonthlyReportExpenseListView(PermissionRequiredMixin, generic.TemplateView
         context = super().get_context_data(**kwargs)
         if kwargs:
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
-            year = str(kwargs.get("year"))
-            month = str(kwargs.get("month"))
-            ac_class = str(kwargs.get("ac_class"))
+            year = str(self.kwargs.get("year"))
+            month = str(self.kwargs.get("month"))
+            ac_class = str(self.kwargs.get("ac_class"))
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
@@ -89,9 +89,9 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         context = super().get_context_data(**kwargs)
         if kwargs:
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
-            year = kwargs.get("year")
-            month = kwargs.get("month")
-            ac_class = str(kwargs.get("ac_class"))
+            year = self.kwargs.get("year")
+            month = self.kwargs.get("month")
+            ac_class = str(self.kwargs.get("ac_class"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
@@ -129,7 +129,6 @@ class MonthlyReportIncomeListView(PermissionRequiredMixin, generic.TemplateView)
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         context["year"] = year
         context["month"] = month
-        logger.debug(f"delete_flg: {ControlRecord.get_delete_flg()}")
         context["delete_flg"] = ControlRecord.get_delete_flg()
         # 会計区分が''だった場合の処理
         if ac_class == "":
@@ -149,8 +148,8 @@ class YearExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         if kwargs:
             # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(kwargs.get("year"))
-            ac_class = str(kwargs.get("ac_class"))
+            year = str(self.kwargs.get("year"))
+            ac_class = str(self.kwargs.get("ac_class"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
@@ -199,8 +198,8 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         if kwargs:
             # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(kwargs.get("year"))
-            ac_class = str(kwargs.get("ac_class"))
+            year = str(self.kwargs.get("year"))
+            ac_class = str(self.kwargs.get("ac_class"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)
@@ -242,8 +241,8 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         if kwargs:
             # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(kwargs.get("year"))
-            ac_class = str(kwargs.get("ac_class"))
+            year = str(self.kwargs.get("year"))
+            ac_class = str(self.kwargs.get("ac_class"))
         else:
             # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
             year = self.request.GET.get("year", localtime(timezone.now()).year)

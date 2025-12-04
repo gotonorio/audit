@@ -88,8 +88,8 @@ class MonthlyBalanceView(PermissionRequiredMixin, FormView):
 
         if kwargs:
             # 遷移で表示された時。（kwargsにデータが渡される）
-            year = str(kwargs.get("year"))
-            month = str(kwargs.get("month"))
+            year = str(self.kwargs.get("year"))
+            month = str(self.kwargs.get("month"))
             # 年月既定値
             form = MonthlyBalanceForm(
                 initial={

@@ -33,10 +33,10 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         # 入出金データの「読込み・修正」が成功した場合にDepositWithdrawalVie()でwkwargsがセットされる。
         if kwargs:
-            year = kwargs["year"]
-            month = kwargs["month"]
-            list_order = str(kwargs["list_order"])
-            himoku_id = kwargs["himoku_id"]
+            year = self.kwargs["year"]
+            month = self.kwargs["month"]
+            list_order = str(self.kwargs["list_order"])
+            himoku_id = self.kwargs["himoku_id"]
         else:
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", local_now.year)
@@ -133,9 +133,9 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if kwargs:
-            year = kwargs["year"]
-            month = kwargs["month"]
-            claim_type = str(kwargs["claim_type"])
+            year = self.kwargs["year"]
+            month = self.kwargs["month"]
+            claim_type = str(self.kwargs["claim_type"])
         else:
             local_now = localtime(timezone.now())
             year = self.request.GET.get("year", local_now.year)

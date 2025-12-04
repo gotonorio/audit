@@ -30,7 +30,7 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
         if kwargs:
             # 遷移で表示された時。（kwargsにデータが渡される）
             year = str(kwargs.get("year"))
-            month = str(kwargs.get("month"))
+            month = str(self.kwargs.get("month"))
             day = self.request.GET.get("day", "00")
             # 表示順は入力されないので、日付順をデフォルトとして設定する。
             list_order = "0"

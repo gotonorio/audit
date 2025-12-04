@@ -18,8 +18,8 @@ class BillingListView(PermissionRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         if kwargs:
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
-            year = str(kwargs.get("year"))
-            month = str(kwargs.get("month"))
+            year = str(self.kwargs.get("year"))
+            month = str(self.kwargs.get("month"))
         else:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
