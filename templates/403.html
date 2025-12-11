@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navbar %}
+<!-- navbar -->
+{% endblock %}
+{% block content %}
+<div class="content">
+  <section class="content has-text-centered">
+    <div>
+        <h1>操作権限がありません。</h1>
+    </div>
+    {% if exception %}
+    <p style="color: red">{{ exception }}</p>
+    {% endif %}
+    <a href="{% url 'register:mypage' %}" class="is-size-5">戻る</a>
+  </section>
+</div>
+{% endblock %}
