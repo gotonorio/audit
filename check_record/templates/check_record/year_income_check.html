@@ -4,13 +4,13 @@
 {% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
-年次決算の収入チェック
+年次収入監査
 {% endblock title %}
 
 {% block navbar %}
 <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【年次収入監査】</a>
     <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -120,7 +120,7 @@
       </div>
       <br>
       <div class="content">
-        <div class="is-size-5">{{yyyymm}}12月の未収金（町内会会計含む）</div>
+        <div class="is-size-5">{{year}}年12月の未収金（町内会会計含む）</div>
       </div>
       <div class="table-container">
         <table class="table table_nowrap is-narrow is-striped">
