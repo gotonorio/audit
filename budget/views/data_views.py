@@ -1,5 +1,8 @@
 import logging
 
+from budget.forms import Budget_listForm, BudgetExpenseForm, DuplicateBudgetForm
+from budget.models import ExpenseBudget
+from control.models import ControlRecord
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
@@ -8,10 +11,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-
-from budget.forms import Budget_listForm, BudgetExpenseForm, DuplicateBudgetForm
-from budget.models import ExpenseBudget
-from control.models import ControlRecord
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
@@ -97,8 +96,16 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
     form_class = BudgetExpenseForm
     template_name = "budget/budget_form.html"
     permission_required = "record.add_transaction"
+
     # 保存が成功した場合に遷移するurl
-    success_url = reverse_lazy("budget:budget_update_list")
+    def get_success_url(self):
+        return reverse_lazy(
+            "budget:budget_update_list",
+            kwargs={
+                "year": self.object.year,
+                "ac_class": self.object.himoku.accounting_class.id,
+            },
+        )
 
     def get_form_kwargs(self, *args, **kwargs):
         """Formで必要なため、kwargsに「accounting_class名」を渡す
@@ -123,8 +130,12 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-        ac_class = self.request.GET.get("ac_class", 1)
+        if self.kwargs.get("year"):
+            year = self.kwargs.get("year")
+            ac_class = self.kwargs.get("ac_class")
+        else:
+            year = int(self.request.GET.get("year", localtime(timezone.now()).year))
+            ac_class = self.request.GET.get("ac_class", 1)
         # 支出予算
         qs = ExpenseBudget.objects.filter(year=year).filter(himoku__alive=True)
         qs = qs.filter(himoku__accounting_class=ac_class).order_by("himoku__code")
@@ -226,7 +237,16 @@ class DeleteBudgetView(PermissionRequiredMixin, generic.DeleteView):
     model = ExpenseBudget
     template_name = "budget/delete_confirm.html"
     permission_required = "record.add_transaction"
-    success_url = reverse_lazy("budget:budget_update_list")
+
+    # success_url = reverse_lazy("budget:budget_update_list")
+    def get_success_url(self):
+        return reverse_lazy(
+            "budget:budget_update_list",
+            kwargs={
+                "year": self.object.year,
+                "ac_class": self.object.himoku.accounting_class.id,
+            },
+        )
 
     # 削除処理をログ出力する。
     # # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。

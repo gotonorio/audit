@@ -1,6 +1,6 @@
 from django.urls import path
-from budget.views import views, data_views
 
+from budget.views import data_views, views
 
 app_name = "budget"
 urlpatterns = [
@@ -26,6 +26,11 @@ urlpatterns = [
     # データアップデート
     path(
         "budget_update_list/",
+        data_views.UpdateBudgetListView.as_view(),
+        name="budget_update_list",
+    ),
+    path(
+        "budget_update_list/<int:year>/<int:ac_class>/",
         data_views.UpdateBudgetListView.as_view(),
         name="budget_update_list",
     ),
