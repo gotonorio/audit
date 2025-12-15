@@ -60,6 +60,7 @@
           <th class="has-text-centered">No</th>
           <th class="has-text-centered">日付</th>
           <th class="has-text-centered">費目</th>
+          <th class="has-text-centered">金額</th>
           <th class="has-text-centered">フラグ</th>
         </tr>
       </thead>
@@ -69,6 +70,7 @@
           <td class="has-text-centered">{{forloop.counter}}</td>
           <td class="has-text-centered">{{record.transaction_date|date:'Y-m-d'}}</td>
           <td class="has-text-left">{{record.himoku}}</td>
+          <td class="has-text-left">{{record.amount|intcomma}}</td>
           <td class="has-text-left">{{record.is_netting }}</td>
         </tr>
         {% endfor %}
