@@ -28,7 +28,7 @@
 {% block content %}
 <br>
 <div class="container is-fluid">
-  <div class="content has-text-centered">
+  <div class="content">
     <div class="is-size-5">{{title}}</div>
   </div>
     <br>
@@ -54,29 +54,6 @@
         <a class='button is-danger is-size-7' href='javascript:void(0);' onclick='window.history.back();'>キャンセル</a>
       </div>
     </form>
-  </div>
-
-  <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
-      <thead>
-        <tr>
-          <th class="has-text-centered">年</th>
-          <th class="has-text-centered">費目</th>
-          <th class="has-text-centered">予算</th>
-          <th class="has-text-centered">備考</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for record in budget %}
-        <tr>
-          <td class="has-text-left">{{record.year}}</td>
-          <td class="has-text-left">{{record.himoku}}</td>
-          <td class="has-text-right">{{record.budget_expense|intcomma}}</td>
-          <td class="has-text-left">{{record.comment|default_if_none:''}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   </div>
 </div>
 {% endblock content %}

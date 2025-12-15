@@ -49,12 +49,12 @@
   </div>
 </div>
 {% endif %}
-<div class="container is-fulid">
-  <div class="content has-text-centered">
+<div class="container is-fluid">
+  <div class="content">
     <div class="is-size-5">{{title}}</div>
   </div>
   <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
+    <table class="table table_nowrap is-narrow is-striped">
       <thead>
         <tr>
           <th class="has-text-centered">費目</th>
@@ -76,10 +76,11 @@
         {% endfor %}
         <td></td>
         <td class="has-text-rigjt">{{total|intcomma}}</td>
-        <td class="has-text-left">{{annual_income|intcomma}}</td>
+        <td></td>
         <td></td>
       </tbody>
     </table>
   </div>
 </div>
+<br>
 {% endblock %}
