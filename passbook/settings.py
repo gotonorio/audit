@@ -160,9 +160,9 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-##################################################################
+# ------------------------------------------------------------------
 # User settings
-##################################################################
+# ------------------------------------------------------------------
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 VERSION_NO = "2025-12-15"
@@ -323,23 +323,23 @@ if DEBUG:
     # 開発環境における静的ファイルの場所を指定する。
     STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
     # for django-debug-toolbar
-    INTERNAL_IPS = ["127.0.0.1"]
-    INSTALLED_APPS += ["debug_toolbar"]
-    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-    DEBUG_TOOLBAR_PANELS = [
-        "debug_toolbar.panels.versions.VersionsPanel",
-        "debug_toolbar.panels.timer.TimerPanel",
-        "debug_toolbar.panels.settings.SettingsPanel",
-        "debug_toolbar.panels.headers.HeadersPanel",
-        "debug_toolbar.panels.request.RequestPanel",
-        "debug_toolbar.panels.sql.SQLPanel",
-        "debug_toolbar.panels.staticfiles.StaticFilesPanel",
-        "debug_toolbar.panels.templates.TemplatesPanel",
-        "debug_toolbar.panels.cache.CachePanel",
-        "debug_toolbar.panels.signals.SignalsPanel",
-        "debug_toolbar.panels.logging.LoggingPanel",
-        "debug_toolbar.panels.redirects.RedirectsPanel",
-    ]
+    # INTERNAL_IPS = ["127.0.0.1"]
+    # INSTALLED_APPS += ["debug_toolbar"]
+    # MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+    # DEBUG_TOOLBAR_PANELS = [
+    #     "debug_toolbar.panels.versions.VersionsPanel",
+    #     "debug_toolbar.panels.timer.TimerPanel",
+    #     "debug_toolbar.panels.settings.SettingsPanel",
+    #     "debug_toolbar.panels.headers.HeadersPanel",
+    #     "debug_toolbar.panels.request.RequestPanel",
+    #     "debug_toolbar.panels.sql.SQLPanel",
+    #     "debug_toolbar.panels.staticfiles.StaticFilesPanel",
+    #     "debug_toolbar.panels.templates.TemplatesPanel",
+    #     "debug_toolbar.panels.cache.CachePanel",
+    #     "debug_toolbar.panels.signals.SignalsPanel",
+    #     "debug_toolbar.panels.logging.LoggingPanel",
+    #     "debug_toolbar.panels.redirects.RedirectsPanel",
+    # ]
 else:
     # for nginx
     STATIC_ROOT = "/code/static"

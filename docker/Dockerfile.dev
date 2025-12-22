@@ -1,5 +1,5 @@
 # 使用するベースイメージ。
-FROM python:3.13-slim
+FROM python:3.14-slim
 # stdoutへの出力をバッファリングさせない。(errorやlogを直ちに出力して欲しいから)
 ENV PYTHONUNBUFFERED 1
 # コンテナ環境にホストのマウント用にディレクトリを作成する。
