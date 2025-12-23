@@ -60,9 +60,10 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 入出金明細データとの比較のため町内会会計を含める（2025-08-01）
         # ---------------------------------------------------------------------
         qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True)
-        # 月次収支報告の支出合計（相殺項目、資金移動、集計フラグがFalseの費目を除外する）
+        # 月次収支報告の支出リスト（相殺項目を除外する）
         qs_mr = qs_mr.exclude(is_netting=True)
-        total_mr = ReportTransaction.total_calc_flg(qs_mr)
+        # 月次収支報告の支出合計（集計フラグがFalseの費目を除外する）
+        total_mr = ReportTransaction.total_calc_flg(qs_mr.exclude(himoku__aggregate_flag=False))
 
         # ---------------------------------------------------------------------
         # 入出金明細の支出データ
