@@ -12,7 +12,7 @@ from passbook.forms import KuraselTranslatorForm
 logger = logging.getLogger(__name__)
 
 
-class BillingIntakeView(PermissionRequiredMixin, FormView):
+class BillingTransformView(PermissionRequiredMixin, FormView):
     """請求合計金額内訳データの取込み"""
 
     template_name = "kurasel_translator/billing_form.html"

@@ -70,7 +70,7 @@ def check_data_kind(data_list):
     return data_type, data_list
 
 
-class MonthlyBalanceView(PermissionRequiredMixin, FormView):
+class IncomeExpenseTransformView(PermissionRequiredMixin, FormView):
     """月次収支データの取り込み
     - 年月を指定して取り込む。
     - 取り込みはget_or_create()を使う。

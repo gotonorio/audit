@@ -22,7 +22,7 @@ from record.models import (
 logger = logging.getLogger(__name__)
 
 
-class DepositWithdrawalView(PermissionRequiredMixin, FormView):
+class DepositWithdrawalTransformView(PermissionRequiredMixin, FormView):
     """入出金明細データの取込み
     - 取り込みはget_or_create()を使う。
     - 摘要欄等に加筆した場合、重複読み込みされるのでデータチェックは必要。

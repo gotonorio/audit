@@ -27,7 +27,7 @@ def list_to_dict(data_list):
     return bs_dict
 
 
-class BalanceSheetTranslateView(PermissionRequiredMixin, FormView):
+class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
     """貸借対照表データの取り込み
     - 年月を指定して取り込む。
     - 取り込みはget_or_create()を使う。
