@@ -71,23 +71,8 @@ function createBudgetActualChart(data){
             tooltip: {
                 enabled: true,
                 mode: 'index',
-                intersect: false,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 padding: 12,
-                callbacks: {
-                    // ★修正: V4の引数は context 一つのみ
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        // indexAxis: 'y' の場合、値は context.parsed.x に入る
-                        if (context.parsed.x !== null) {
-                            label += context.parsed.x.toLocaleString() + ' 円';
-                        }
-                        return label;
-                    }
-                }
             },
         },
         scales: {
