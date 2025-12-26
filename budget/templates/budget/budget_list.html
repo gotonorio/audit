@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 {% load humanize %} {# 3桁区切りのため追加 #}
-{% load static %} {# {% static  を使うため必要 #}
+{% load static %} {# static  を使うため必要 #}
 {% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
-月次報告の支出
+予算実績対比表
 {% endblock title %}
 
 {% block head %}
 {# javascriptファイルを取り込む #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'budget/budget_chart.js' %}"></script>
+<link href="{% static 'mycss/graph.css' %}" rel="stylesheet">
 {% endblock head %}
 
 {% block navbar %}
 <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【予算実績対比表】</a>
     <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -117,5 +120,28 @@
   </div>
   {% endif %}
   <br>
+  {# グラフ表示エリア #}
+  <div class="graph_container">
+    <canvas id="stage"></canvas>
+  </div>
+
+  {# 以下でグラフ作成用のデータを生成する #}
+  <script type="text/javascript">
+    var graph_data = [];
+  </script>
+  {% for data in expense_budget %}
+  <script type="text/javascript">
+    var list = [];
+    list.push("{{data.0}}");
+    list.push("{{data.1}}");
+    list.push("{{data.2}}");
+    graph_data.push(list);
+  </script>
+  {% endfor %}
+  <script type="text/javascript">
+    console.log(graph_data);
+    createBudgetActualChart(graph_data);
+  </script>
+
 </div>
 {% endblock %}
