@@ -16,6 +16,7 @@ from .inconsistency_check_views import (
     IncosistencyCheckView,
 )
 
+# 外部からimport可能にするための定義（無くても動くが、あると便利）
 __all__ = [
     # Approval、BillingAmount
     "ApprovalExpenseCheckView",
