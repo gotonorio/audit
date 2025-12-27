@@ -1,73 +1,75 @@
 from django.urls import path
 
-from .views import balance_sheet_views, data_views, etcetera_views, list_views
+from monthly_report import views
+
+from .views import balance_sheet_views, data_views, etcetera_views
 
 app_name = "monthly_report"
 urlpatterns = [
     # ------------------------------------------------------------------------
     # データ表示
     # ------------------------------------------------------------------------
-    path("expenslist/", list_views.MonthlyReportExpenseListView.as_view(), name="expenselist"),
-    path("incomelist/", list_views.MonthlyReportIncomeListView.as_view(), name="incomelist"),
+    path("expenslist/", views.MonthlyReportExpenseListView.as_view(), name="expenselist"),
+    path("incomelist/", views.MonthlyReportIncomeListView.as_view(), name="incomelist"),
     # 年間月別支出リスト
     path(
         "year_expenselist/",
-        list_views.YearExpenseListView.as_view(),
+        views.YearExpenseListView.as_view(),
         name="year_expenselist",
     ),
     path(
         "year_expenselist/<int:year>/<int:ac_class>/",
-        list_views.YearExpenseListView.as_view(),
+        views.YearExpenseListView.as_view(),
         name="year_expenselist",
     ),
     # 年間月別収入リスト
     path(
         "year_incomelist/",
-        list_views.YearIncomeListView.as_view(),
+        views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
     path(
         "year_incomelist/<int:year>/<int:ac_class>/",
-        list_views.YearIncomeListView.as_view(),
+        views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
     # 年間月別収支リスト
     path(
         "year_income_expenselist/",
-        list_views.YearIncomeExpenseListView.as_view(),
+        views.YearIncomeExpenseListView.as_view(),
         name="year_income_expenselist",
     ),
     path(
         "year_income_expenselist/<int:year>/<int:ac_class>/",
-        list_views.YearIncomeExpenseListView.as_view(),
+        views.YearIncomeExpenseListView.as_view(),
         name="year_income_expenselist",
     ),
     # update後に元の画面に戻る処理
     path(
         "expenslist/<int:year>/<int:month>/<int:ac_class>/",
-        list_views.MonthlyReportExpenseListView.as_view(),
+        views.MonthlyReportExpenseListView.as_view(),
         name="expenselist",
     ),
     path(
         "incomelist/<int:year>/<int:month>/<int:ac_class>/",
-        list_views.MonthlyReportIncomeListView.as_view(),
+        views.MonthlyReportIncomeListView.as_view(),
         name="incomelist",
     ),
     path(
         "year_incomelist/<int:year>/<int:ac_class>/",
-        list_views.YearIncomeListView.as_view(),
+        views.YearIncomeListView.as_view(),
         name="year_incomelist",
     ),
-    path("unpaid_list/", etcetera_views.UnpaidBalanceListView.as_view(), name="unpaid_list"),
+    path("unpaid_list/", views.etcetera_views.UnpaidBalanceListView.as_view(), name="unpaid_list"),
     # 長期修繕計画シミュレーション用データ
     path(
         "simulation_data_list/",
-        etcetera_views.SimulatonDataListView.as_view(),
+        views.etcetera_views.SimulatonDataListView.as_view(),
         name="simulation_data_list",
     ),
     path(
         "simulation_data_list/<int:year>/<int:month>/",
-        etcetera_views.SimulatonDataListView.as_view(),
+        views.etcetera_views.SimulatonDataListView.as_view(),
         name="simulation_data_list",
     ),
     # 貸借対照表

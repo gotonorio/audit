@@ -35,12 +35,12 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
         # update後に元のviewに戻る。(get_success_url()のrevers_lazyで遷移する場合)
         if kwargs:
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
-            year = self.kwargs.get("year")
-            month = self.kwargs.get("month")
+            year = int(self.kwargs.get("year"))
+            month = int(self.kwargs.get("month"))
             ac_class = self.kwargs.get("ac_class")
         else:
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
-            month = self.request.GET.get("month", localtime(timezone.now()).month)
+            year = int(self.request.GET.get("year", localtime(timezone.now()).year))
+            month = int(self.request.GET.get("month", localtime(timezone.now()).month))
             ac_class = self.request.GET.get("accounting_class", 1)
 
         # 会計区分名(ac_class)
@@ -121,7 +121,7 @@ class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
             context["ac_class"] = ac_class
             return context
 
-        context["title"] = f"{year}年 {month}月 {ac_class_name}"
+        context["title"] = f"第{year - settings.FIRST_PERIOD_YEAR}期 {month}月 {ac_class_name}"
         context["bs_list"] = balance_list
         context["form"] = form
         context["year"] = year

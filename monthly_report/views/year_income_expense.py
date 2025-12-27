@@ -1,0 +1,67 @@
+import logging
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.utils import timezone
+from django.utils.timezone import localtime
+from django.views import generic
+from monthly_report.forms import MonthlyReportViewForm
+from monthly_report.models import ReportTransaction
+from monthly_report.services import monthly_report_services
+from passbook.utils import select_period
+
+logger = logging.getLogger(__name__)
+
+
+class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
+    """収支リスト 年間表示"""
+
+    template_name = "monthly_report/year_income_expenselist.html"
+    permission_required = ("budget.view_expensebudget",)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if kwargs:
+            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
+            year = str(self.kwargs.get("year"))
+            ac_class = str(self.kwargs.get("ac_class"))
+        else:
+            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
+            year = self.request.GET.get("year", localtime(timezone.now()).year)
+            ac_class = self.request.GET.get("accounting_class", "0")
+            # ac_classが「空」の場合の処理
+            if ac_class == "":
+                ac_class = "0"
+
+        # 抽出期間（monthが"all"なら1年分）
+        tstart, tend = select_period(year, 0)
+
+        # 収入
+        qs_income = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+        # 月次報告収入の月別合計を計算。
+        mr_income_total = monthly_report_services.monthly_total(qs_income, int(year), "amount")
+        # 年間合計を計算してmr_income_totalに追加する。
+        mr_income_total["income_year_total"] = sum(mr_income_total.values())
+        context["mr_income_total"] = mr_income_total
+
+        # 支出
+        qs_expense = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
+        mr_expense_total = monthly_report_services.monthly_total(qs_expense, int(year), "amount")
+        # 年間合計を計算してmr_totalに追加する。
+        mr_expense_total["expense_year_total"] = sum(mr_expense_total.values())
+        context["mr_expense_total"] = mr_expense_total
+
+        # form 初期値を設定
+        form = MonthlyReportViewForm(
+            initial={
+                "year": year,
+                "accounting_class": ac_class,
+            }
+        )
+        context["form"] = form
+        context["year"] = year
+        # 会計区分が''だった場合の処理
+        if ac_class == "":
+            ac_class = "0"
+        context["ac"] = ac_class
+        return context

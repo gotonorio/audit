@@ -193,7 +193,8 @@ MISHUU_SHUUZEN = 57000
 MISHUU_PARKING = 165560
 # Kurasel監査のスタート前月の前受金
 MAEUKE_INITIAL = 17000
-
+# 第1期の西暦
+FIRST_PERIOD_YEAR = 1999
 # Kuraselデータ取り込み時のチェック用。無くてもエラーチェックしないだけのはず。
 KANRI_INCOME = ["収入", "管理費会計", "管理費", "緑地維持管理費"]
 KANRI_PAYMENT = ["支出", "管理費会計", "管理委託業務費", "管理手数料"]

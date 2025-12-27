@@ -1,0 +1,32 @@
+from django.conf import settings
+from monthly_report.models import ReportTransaction
+from passbook.utils import select_period
+from record.models import AccountingClass
+
+from .base import MonthlyReportBaseView
+
+
+class MonthlyReportExpenseListView(MonthlyReportBaseView):
+    template_name = "monthly_report/monthly_report_expense.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        year, month, ac_class = self.get_year_month_ac(kwargs)
+
+        tstart, tend = select_period(year, month)
+
+        ac_obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
+
+        is_chonaikai = ac_obj.pk == int(ac_class)
+        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", is_chonaikai)
+
+        context["transaction_list"] = qs.order_by(
+            "himoku__accounting_class",
+            "himoku__code",
+            "calc_flg",
+            "transaction_date",
+        )
+        context["total_withdrawals"] = ReportTransaction.total_calc_flg(qs)
+        context["yyyymm"] = f"第{year - settings.FIRST_PERIOD_YEAR}期{month}月"
+
+        return self.base_context(context, year, month, ac_class)
