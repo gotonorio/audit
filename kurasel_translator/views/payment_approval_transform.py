@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class PaymentApprovalTransformView(PermissionRequiredMixin, FormView):
-    """支払承認済みデータの読み込み
+    """クラセルの支払承認済みデータの読み込み用FormView
     - 支払い承認データの取り込みでは、基本的に費目名をデフォルト費目名（不明）とする。
     """
 

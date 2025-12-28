@@ -28,10 +28,13 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">振込依頼人コードの登録/修正</div>
-    <div class="is-size-6">（入出金明細データ取込み時の費目推定用）</div>
-
-    <form method='POST' enctype='multipart/form-data' id='form_style_center'>
+    <div class="is-size-5 has-text-weight-bold">振込依頼人コードの登録/修正</div>
+    <ul>
+      <li>入出金明細データ取込み時の費目推定用</li>
+    </ul>
+    <br>
+    {% comment %} <form method='POST' enctype='multipart/form-data' id='form_style_center'> {% endcomment %}
+    <form method='POST' enctype='multipart/form-data' id='form_style'>
       {{ form.non_field_errors }}
       {% for field in form %}
         <div class='field'>
@@ -56,7 +59,7 @@
   </div>
   <br>
   <div class="table-container">
-    <table class="table table_center_nowrap is-narrow is-striped">
+    <table class="table table_nowrap is-narrow is-striped">
       <thead>
         <tr>
           <th class="has-text-centered">振込依頼者名</th>

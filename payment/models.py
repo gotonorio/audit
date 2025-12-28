@@ -28,7 +28,7 @@ class Payment(models.Model):
 
     @classmethod
     def payment_from_kurasel(cls, data):
-        """kurasel_translatorから承認済み支払いデータを読み込む。
+        """クラセルの承認済み支払いデータを読み込む
         - 承認済みデータなので、金額の修正は無しとして「支払先、支払い金額、支払日, 摘要」でget_or_createする。
         - 費目はdefault費目をセットする。
         """
@@ -80,7 +80,10 @@ class PaymentCategory(models.Model):
 
 
 class PaymentMethod(models.Model):
-    """支払い方法"""
+    """入出金明細データ取り込み時に費目名を推定する為のマスタ（支払い方法と費目名の対応データ）
+    - 支払い方法ごとに費目名を設定する。
+    - 銀行手数料など特定の支払い方法に対して特定の費目名を設定するために使用する。
+    """
 
     ac_class = models.ForeignKey(
         AccountingClass,

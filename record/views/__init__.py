@@ -1,4 +1,5 @@
 # viewsファイル分割する場合に必須
+from .approval import ApprovalTextCreateView, ApprovalTextUpdateView
 from .checks import CheckMaeukeDataView
 from .claims import ClaimDataListView
 from .himoku import HimokuCreateView, HimokuCsvReadView, HimokuListView, HimokuUpdateView
@@ -8,6 +9,8 @@ from .transaction_offset import TransactionDivideCreateView, TransactionOffsetCr
 from .transactions import TransactionListView, TransactionOriginalListView
 
 __all__ = [
+    "ApprovalTextCreateView",
+    "ApprovalTextUpdateView",
     "CheckMaeukeDataView",
     "ClaimDataListView",
     "ClaimdataUpdateView",

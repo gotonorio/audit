@@ -101,18 +101,6 @@ class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
             kwargs={"year": year, "month": month},
         )
 
-    # def form_valid(self, form):
-    #     # commitを停止する。
-    #     # self.object = form.save(commit=False)
-    #     # authorをセット。
-    #     # self.object.authorizer = self.request.user
-    #     # 入力した日時をセット。
-    #     # self.object.approval_date = timezone.now()
-    #     # データを保存。
-    #     self.object.save()
-    #     # messages.success(self.request, "保存しました。")
-    #     return super().form_valid(form)
-
 
 class DeletePaymentView(PermissionRequiredMixin, generic.DeleteView):
     """支払データの削除処理"""
@@ -124,7 +112,9 @@ class DeletePaymentView(PermissionRequiredMixin, generic.DeleteView):
 
 
 class PaymentMethodCreateView(PermissionRequiredMixin, generic.CreateView):
-    """支払い方法の作成処理"""
+    """支払い方法の作成処理
+    支払い方法の一覧表示も同じ画面で行う。
+    """
 
     model = PaymentMethod
     form_class = PaymentMethodCreateForm

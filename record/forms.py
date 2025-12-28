@@ -394,7 +394,7 @@ class HimokuCsvFileSelectForm(forms.Form):
     # fieldにcssを設定するためのclassを設定する。
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["file"].widget.attrs["class"] = "filefield is-size-6"
+        self.fields["file"].widget.attrs["class"] = "filefield is-size-7"
 
 
 class HimokuListForm(forms.Form):

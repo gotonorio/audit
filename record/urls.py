@@ -79,4 +79,19 @@ urlpatterns = [
         views.ClaimDataListView.as_view(),
         name="claim_list",
     ),
+    # -------------------------------------------------------------------------
+    # データ管理・マスターデータ管理
+    # -------------------------------------------------------------------------
+    # 入出金データの適用欄のテキストで支払い承認が必要かどうかを判定するためのデータを登録
+    path(
+        "approval_text_create/",
+        views.ApprovalTextCreateView.as_view(),
+        name="approval_text_create",
+    ),
+    # 入出金データの適用欄のテキストで支払い承認が必要かどうかを判定するためのデータ編集
+    path(
+        "approval_text_update/<int:pk>",
+        views.ApprovalTextUpdateView.as_view(),
+        name="approval_text_update",
+    ),
 ]
