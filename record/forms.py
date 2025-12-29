@@ -164,18 +164,6 @@ class TransactionCreateForm(forms.ModelForm):
             raise forms.ValidationError("未来の日付です！")
         return td
 
-    # 前受金フラグを追加したため、コメントアウトする。2024-11-19
-    # def clean_calc_flg(self):
-    #     """費目が前受金の場合calc_flgはFalseでなければならない"""
-    #     himoku = self.cleaned_data.get("himoku")
-    #     calc_flag = self.cleaned_data.get("calc_flg")
-    #     if himoku.himoku_name in [
-    #         settings.MAEUKE,
-    #     ]:
-    #         if calc_flag:
-    #             raise forms.ValidationError("費目が「前受金」、の場合、計算フラグのチェックは外してください")
-    #     return calc_flag
-
 
 class HimokuForm(forms.ModelForm):
     """費目マスタデータ登録/修正用Form"""
@@ -283,57 +271,17 @@ class RequesterForm(forms.ModelForm):
 
 class TransactionOffsetForm(TransactionCreateForm):
     """取引明細データの相殺処理用Form
-    - 残高(balance)はformフィールドに設定する必要があるが、表示しない。
+    - 不要なformフィールドは表示しない。
     - forms.HiddenInput()を使うため、TransactionCreateFormを継承。
     """
 
-    class Meta:
-        model = Transaction
-        fields = [
-            "account",
-            "is_income",
-            "is_manualinput",
-            "transaction_date",
-            "amount",
-            "balance",
-            "himoku",
-            "requesters_name",
-            "description",
-            "calc_flg",
-        ]
+    class Meta(TransactionCreateForm.Meta):
         widgets = {
-            "account": forms.Select(
-                attrs={
-                    "class": "select-css",
-                    "readonly": True,
-                }
-            ),
-            "transaction_date": forms.DateInput(
-                attrs={
-                    "type": "date",
-                    "class": "is-size-6",
-                }
-            ),
-            "himoku": forms.Select(
-                attrs={
-                    "class": "select-css",
-                    "readonly": True,
-                }
-            ),
-            "amount": forms.NumberInput(
-                attrs={
-                    "class": "input",
-                }
-            ),
             # form画面で非表示にする。
             "is_income": forms.HiddenInput(),
             "balance": forms.HiddenInput(),
             "is_manualinput": forms.HiddenInput(),
             "calc_flg": forms.HiddenInput(),
-        }
-        help_texts = {
-            "is_manualinput": "※ 相殺、前受金等の補正データではチェックする。",
-            "calc_flg": "※ 前受金の場合はチェックしない。",
         }
 
 

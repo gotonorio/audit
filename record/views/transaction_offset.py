@@ -2,13 +2,18 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.views import generic
 
 from record.forms import (
     TransactionDivideFormSet,
     TransactionOffsetForm,
 )
-from record.models import Himoku, Transaction
+from record.models import Transaction
+from record.services.transaction import (
+    create_divided_transactions,
+    create_offset_transaction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +36,7 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
             # 相殺する元データを読み込む
             qs = Transaction.objects.get(pk=pk)
             # formに初期値をセット
+            # form = TransactionCreateForm(
             form = TransactionOffsetForm(
                 initial={
                     "account": qs.account,
@@ -50,16 +56,15 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
 
     def post(self, request, *args, **kwargs):
         """登録ボタンが押された時の処理"""
-        form = TransactionOffsetForm(request.POST)
-        if form.is_valid():
-            # formオブジェクトから年、月を読み込む。
-            # year = form.cleaned_data["transaction_date"].year
-            # month = form.cleaned_data["transaction_date"].month
-            # 新しく保存されたオブジェクトのpkはsave関数の戻り値で得られる。
-            offset_pk = form.save()
-            return redirect("record:transaction_divide", pk=offset_pk.pk)
-        else:
-            return self.render_to_response({"form": form})
+        base = Transaction.objects.get(pk=self.kwargs["pk"])
+
+        offset = create_offset_transaction(
+            base_transaction=base,
+            user=request.user,
+        )
+
+        # 新しく保存されたオブジェクトのpkはsave関数の戻り値で得られる。
+        return redirect("record:transaction_divide", pk=offset.pk)
 
 
 class TransactionDivideCreateView(PermissionRequiredMixin, generic.FormView):
@@ -71,8 +76,12 @@ class TransactionDivideCreateView(PermissionRequiredMixin, generic.FormView):
 
     template_name = "record/transaction_divide_form.html"
     permission_required = "record.add_transaction"
+
     # 分割したレコード（データ）を複数同時に入力・保存するためFormSetを使う。
-    form_class = TransactionDivideFormSet
+    # FormSetを使う場合、form_classではなくget_form_classをオーバーライドする。
+    def get_form_class(self):
+        # 実行時にFormSetクラスを返す
+        return TransactionDivideFormSet
 
     def get_context_data(self, **kwargs):
         """相殺処理されたレコードを表示する"""
@@ -85,78 +94,20 @@ class TransactionDivideCreateView(PermissionRequiredMixin, generic.FormView):
         return context
 
     def form_valid(self, form):
-        """分割設定したレコードを保存する。
-        - 金額0は保存しない。
-        """
-        error_list = []
-        # 分割元のデータpk
-        pk = self.kwargs.get("pk")
-        # デフォルト値の設定
-        qs = Transaction.objects.get(pk=pk)
-        transaction_date = qs.transaction_date
-        balance = qs.balance
-        # 分割する金額
-        base_amount = -qs.amount
-        # 分割した場合、費目はデフォルト費目とする
-        default_himoku = Himoku.get_default_himoku()
-        # 入金・出金フラグ
-        is_income = qs.is_income
+        base = Transaction.objects.get(pk=self.kwargs["pk"])
 
-        # 分割したデータの合計金額をチェックする。
-        total_divide_amount = 0
-        for subform in form:
-            if subform.cleaned_data.get("amount") is not None:
-                total_divide_amount += subform.cleaned_data.get("amount")
-        if total_divide_amount != base_amount:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                f"{total_divide_amount:,} != {base_amount:,} 合計の不一致",
+        try:
+            create_divided_transactions(
+                base_transaction=base,
+                divide_forms=form,
+                user=self.request.user,
             )
+        except ValueError as e:
+            messages.error(self.request, str(e))
             return self.render_to_response(self.get_context_data(form=form))
 
-        # formにはformsetがセットされているので、繰り返し処理する。
-        for subform in form:
-            amount = subform.cleaned_data.get("amount")
-            if amount is not None and int(amount) > 0:
-                # 振込依頼人はFormから受け取る
-                requesters_name = subform.cleaned_data.get("requesters_name")
-                # 摘要はFormから受け取る
-                description = subform.cleaned_data.get("description")
-                # 保存処理
-                try:
-                    # instanceを作成
-                    divide = Transaction()
-                    # 登録されている口座は「管理会計口座」の1件だけ。
-                    divide.account = Account.objects.all().first()
-                    # 取引日は相殺データの日付に決め打ち
-                    divide.transaction_date = transaction_date
-                    # 残高
-                    divide.balance = balance
-                    # 登録するのは出金データのみ
-                    divide.is_income = is_income
-                    # 費目名は「不明」に決め打ち
-                    divide.himoku = default_himoku
-                    # 金額、、振込依頼人、摘要はFormから受け取る
-                    divide.amount = amount
-                    divide.requesters_name = requesters_name
-                    divide.description = description
-                    # divide.author = user.objects.get(id=user_id)
-                    divide.author = self.request.user
-                    divide.is_manualinput = True
-                    divide.calc_flg = True
-                    # ログを記録
-                    msg = f"{transaction_date} : 金額:{amount:,}を作成。by {self.request.user}"
-                    logger.info(msg)
-                    divide.save()
-                except Exception as e:
-                    logger.error(e)
-                    error_list.append(amount)
-                    return self.render_to_response(self.get_context_data(form=form))
-
-        # 保存が成功したら入出金明細にredirectする。
-        year = transaction_date.year
-        month = transaction_date.month
+        year = base.transaction_date.year
+        month = base.transaction_date.month
         return redirect("record:transaction_list", year=year, month=month, list_order=0, himoku_id=0)
 
     def form_invalid(self, form):
