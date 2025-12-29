@@ -241,7 +241,10 @@ class TransferRequester(models.Model):
     comment = models.CharField(verbose_name="備考", max_length=64, blank=True, null=True)
 
     def __str__(self):
-        return self.requester
+        if self.requester:
+            return self.requester
+        else:
+            return ""
 
     @staticmethod
     def get_requester_obj():
@@ -284,7 +287,9 @@ class Transaction(models.Model):
     is_miharai = models.BooleanField(verbose_name="未払金支払い", default=False)
 
     def __str__(self):
-        return self.himoku.himoku_name
+        if self.himoku:
+            return self.himoku.himoku_name
+        return ""
 
     @staticmethod
     def get_maeuke(year, month):
@@ -387,7 +392,7 @@ class Transaction(models.Model):
         requester_list,
         default_himoku,
         banking_fee_himoku,
-    ) -> int:
+    ):
         """kurasel_translatorからDeposits and withdrawals（入出金明細データ）を読み込む
         - 戻り値：取り込んだ「月」(int型)。エラーの場合は0を返す。
         - 種類、日付、金額、振り込み依頼人でget_or_createする。
@@ -460,18 +465,36 @@ class Transaction(models.Model):
         """摘要欄文字列で支払い承認が必要かどうかのフラグを設定する
         - ToDo 今の所「費目」で支払い承認不要としていてもチェックをする。
         """
-        qs = ApprovalCheckData.objects.filter(alive=True)
-        # 入出金明細データでループ
-        for qs_data in qs_transaction:
-            description = qs_data.description
-            # チェック用テキストで支払い承認不要のフラグをセットする。
-            for i in qs:
-                check_obj = re.search(i.atext, description)
-                if check_obj:
-                    pk = qs_data.id
-                    obj = Transaction.objects.get(pk=pk)
-                    obj.is_approval = False
-                    obj.save()
+        qs_check = ApprovalCheckData.objects.filter(alive=True)
+        if not qs_check:
+            return None
+
+        updated_objs = []  # 更新対象を貯めるリスト
+
+        for transaction_obj in qs_transaction:
+            description = transaction_obj.description
+            if not description:
+                continue
+
+            # 承認不要条件に合致するかチェック
+            is_match = False
+            for chk_text in qs_check:
+                # str()でラップして警告を回避
+                if re.search(str(chk_text.atext), str(description)):
+                    is_match = True
+                    break
+
+            # 条件に合致し、かつ現在の値がTrue（承認必要）なら変更
+            if is_match and transaction_obj.is_approval:
+                transaction_obj.is_approval = False
+                updated_objs.append(transaction_obj)
+
+        # 最後にまとめて一括更新（1回のSQLで済む）
+        # 第一引数には更新対象のobjectのリスト、fieldsには更新したいカラムを指定する。
+        # この時、fieldsに設定しないカラムは更新されない。
+        if updated_objs:
+            cls.objects.bulk_update(updated_objs, ["is_approval"])
+
         return None
 
     @classmethod
