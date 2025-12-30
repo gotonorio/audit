@@ -79,6 +79,7 @@ urlpatterns = [
         views.ClaimDataListView.as_view(),
         name="claim_list",
     ),
+    path("claim_update/<int:pk>", views.ClaimdataUpdateView.as_view(), name="claim_update"),
     # -------------------------------------------------------------------------
     # データ管理・マスターデータ管理
     # -------------------------------------------------------------------------

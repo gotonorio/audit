@@ -2,12 +2,13 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
 from passbook.utils import select_period
 
-from record.forms import ClaimListForm
+from record.forms import ClaimListForm, ClaimUpdateForm
 from record.models import ClaimData
 
 logger = logging.getLogger(__name__)
@@ -48,3 +49,25 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         context["title"] = title
         context["yyyymm"] = str(year) + "年" + str(month) + "月"
         return context
+
+
+class ClaimdataUpdateView(PermissionRequiredMixin, generic.UpdateView):
+    """請求時点データのUpdateView"""
+
+    model = ClaimData
+    form_class = ClaimUpdateForm
+    template_name = "record/claim_update_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    success_url = reverse_lazy("record:claim_list")
+
+    # 保存が成功した場合に遷移するurl
+    def get_success_url(self):
+        qs = ClaimData.objects.filter(pk=self.object.pk).values("claim_date", "claim_type")
+        year = qs[0]["claim_date"].year
+        month = qs[0]["claim_date"].month
+        claim_type = qs[0]["claim_type"]
+        return reverse_lazy(
+            "record:claim_list",
+            kwargs={"year": year, "month": month, "claim_type": claim_type},
+        )

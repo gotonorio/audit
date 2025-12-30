@@ -13,16 +13,30 @@ class BillingListView(PermissionRequiredMixin, TemplateView):
 
     template_name = "billing/billing_list.html"
     permission_required = ("record.view_transaction",)
+    # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
+    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
-            year = str(self.kwargs.get("year"))
-            month = str(self.kwargs.get("month"))
-        else:
+
+        # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
+        year = self.kwargs.get("year")
+        month = self.kwargs.get("month")
+
+        if year is None or month is None:
             year = self.request.GET.get("year", localtime(timezone.now()).year)
             month = self.request.GET.get("month", localtime(timezone.now()).month)
+
+        # year = str(year)
+        # month = str(month)
+
+        # if kwargs:
+        #     # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
+        #     year = str(self.kwargs.get("year"))
+        #     month = str(self.kwargs.get("month"))
+        # else:
+        #     year = self.request.GET.get("year", localtime(timezone.now()).year)
+        #     month = self.request.GET.get("month", localtime(timezone.now()).month)
 
         # 抽出期間
         tstart, tend = select_period(year, month)

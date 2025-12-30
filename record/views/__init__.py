@@ -1,7 +1,7 @@
 # viewsファイル分割する場合に必須
 from .approval import ApprovalTextCreateView, ApprovalTextUpdateView
 from .checks import CheckMaeukeDataView
-from .claims import ClaimDataListView
+from .claims import ClaimDataListView, ClaimdataUpdateView
 from .himoku import HimokuCreateView, HimokuCsvReadView, HimokuListView, HimokuUpdateView
 from .requester import TransferRequesterCreateView, TransferRequesterUpdateView
 from .transaction_crud import TransactionCreateView, TransactionDeleteView, TransactionUpdateView
