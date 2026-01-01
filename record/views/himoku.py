@@ -21,6 +21,38 @@ logger = logging.getLogger(__name__)
 user = get_user_model()
 
 
+class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
+    """費目データ一覧表示"""
+
+    model = Himoku
+    template_name = "record/himoku_list.html"
+    permission_required = "record.add_transaction"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        ac_class_id = self.kwargs.get("accounting_class") or self.request.GET.get("accounting_class")
+
+        # request.GET を渡すことで、選択した値がフォームに保持（バインド）される
+        # 何も選ばれていない場合は、initial が適用される
+        # form = HimokuListForm(self.request.GET or None)
+        # Formに初期値を設定する
+        form = HimokuListForm(initial={"accounting_class": ac_class_id})
+
+        # フィルタリング条件の判定
+        # "0" を明示的に ALL としている場合も含めて判定
+        if not ac_class_id or ac_class_id == "0":
+            # ac_class_id が None, "", 0, "0" のいずれかなら全件取得
+            qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
+        else:
+            # ID（数値）が入っている場合のみフィルタリング
+            qs = Himoku.objects.all().filter(accounting_class=ac_class_id).order_by("-alive", "code")
+
+        context["himoku_list"] = qs
+        context["form"] = form
+        return context
+
+
 class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
     """費目マスタ CreateView"""
 
@@ -55,34 +87,6 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
         logger.info(msg)
         self.object.save()
         return super().form_valid(form)
-
-
-class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
-    """費目データ一覧表示"""
-
-    model = Himoku
-    template_name = "record/himoku_list.html"
-    permission_required = "record.add_transaction"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
-            ac_class = self.kwargs.get("accounting_class")
-        else:
-            ac_class = self.request.GET.get("accounting_class")
-        form = HimokuListForm(
-            initial={
-                "accounting_class": ac_class,
-            }
-        )
-        if ac_class is None:
-            qs = Himoku.objects.all().order_by("-alive", "-is_default", "code")
-        else:
-            qs = Himoku.objects.all().filter(accounting_class=ac_class).order_by("-alive", "code")
-        context["himoku_list"] = qs
-        context["form"] = form
-        return context
 
 
 class HimokuUpdateView(PermissionRequiredMixin, generic.UpdateView):

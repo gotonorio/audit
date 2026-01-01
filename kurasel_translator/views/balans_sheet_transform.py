@@ -3,13 +3,16 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import BalanceSheetTranslateForm
 from monthly_report.models import BalanceSheet
-from passbook.utils import redirect_with_param
-from record.models import AccountingClass
+
+# from passbook.utils import redirect_with_param
+# from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +44,18 @@ class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        now = localtime(timezone.now())
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        year = int(year)
+        month = int(month)
+
         # 年月既定値
         form = BalanceSheetTranslateForm(
             initial={
-                "year": localtime(timezone.now()).year,
-                "month": localtime(timezone.now()).month,
+                "year": year,
+                "month": month,
             }
         )
         context["form"] = form
@@ -104,12 +114,18 @@ class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
                 msg = f"{year}年{month}月度の貸借対照表の取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
-                ac_pk = AccountingClass.objects.get(accounting_name=accounting_class).pk
-                url = redirect_with_param(
-                    "monthly_report:bs_table",
-                    dict(year=year, month=str(month).zfill(2), ac_class=ac_pk),
+                # 1. ベースとなるURLを取得 (path('transaction_list/', ...))
+                base_url = reverse("record:transaction_list")
+                # 2. GETパラメータを辞書形式で定義
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": month,
+                        "accounting_class": accounting_class,
+                    }
                 )
-                return redirect(url)
+                # 3. 連結してリダイレクト
+                return redirect(f"{base_url}?{params}")
             else:
                 # msg = f'月次収支データの取り込みに失敗しました。費目名 ＝ {error_list[0]}'
                 for i in error_list:

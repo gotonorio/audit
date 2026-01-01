@@ -13,11 +13,6 @@ app_name = "kurasel_translator"
 urlpatterns = [
     path("create_monthly/", inc_exp_transform.IncomeExpenseTransformView.as_view(), name="create_monthly"),
     path(
-        "create_monthly/<int:year>/<str:month>/",
-        inc_exp_transform.IncomeExpenseTransformView.as_view(),
-        name="create_monthly",
-    ),
-    path(
         "create_deposit/", cashflow_transform.DepositWithdrawalTransformView.as_view(), name="create_deposit"
     ),
     path(

@@ -2,10 +2,12 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views import generic
+
 from monthly_report.forms import (
     BalanceSheetForm,
     BalanceSheetItemForm,
@@ -106,20 +108,18 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, generic.UpdateView)
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        # qs = ReportTransaction.objects.filter(pk=self.object.pk).values_list('transaction_date', flat=True)
-        # year = qs[0].year
-        # month = qs[0].month
-        # return reverse_lazy('monthly_report:incomelist', kwargs={'year': year, 'month': month})
-        qs = ReportTransaction.objects.filter(pk=self.object.pk).values(
-            "transaction_date", "accounting_class"
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("monthly_report:incomelist")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "accounting_class": self.object.himoku.accounting_class.id,
+            }
         )
-        year = qs[0]["transaction_date"].year
-        month = qs[0]["transaction_date"].month
-        ac_class = qs[0]["accounting_class"]
-        return reverse_lazy(
-            "monthly_report:incomelist",
-            kwargs={"year": year, "month": month, "ac_class": ac_class},
-        )
+        return f"{base_url}?{params}"
 
     def form_valid(self, form):
         # commitを停止する。
@@ -150,16 +150,18 @@ class MonthlyReportExpenseUpdateView(MonthlyReportIncomeUpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = ReportTransaction.objects.filter(pk=self.object.pk).values(
-            "transaction_date", "accounting_class"
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("monthly_report:expenselist")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "accounting_class": self.object.himoku.accounting_class.id,
+            }
         )
-        year = qs[0]["transaction_date"].year
-        month = qs[0]["transaction_date"].month
-        ac_class = qs[0]["accounting_class"]
-        return reverse_lazy(
-            "monthly_report:expenselist",
-            kwargs={"year": year, "month": month, "ac_class": ac_class},
-        )
+        return f"{base_url}?{params}"
 
     def form_valid(self, form):
         # commitを停止する。

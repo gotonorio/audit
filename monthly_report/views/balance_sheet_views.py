@@ -5,10 +5,13 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from monthly_report.forms import MonthlyReportViewForm
-from monthly_report.models import BalanceSheet, ReportTransaction
 from passbook.utils import append_list, get_lastmonth, select_period
 from record.models import AccountingClass
+
+from monthly_report.forms import MonthlyReportViewForm
+from monthly_report.models import BalanceSheet, ReportTransaction
+
+from .base import MonthlyReportBaseView
 
 logger = logging.getLogger(__name__)
 
@@ -16,38 +19,20 @@ logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 # 貸借対照表表示用View
 # -----------------------------------------------------------------------------
-class BalanceSheetTableView(PermissionRequiredMixin, generic.TemplateView):
+class BalanceSheetTableView(MonthlyReportBaseView):
     """貸借対照表の表示"""
 
     permission_required = ("budget.view_expensebudget",)
-
-    # templateファイルの切り替え
-    def get_template_names(self):
-        """templateファイルを切り替える"""
-        if self.request.user_agent_flag == "mobile":
-            template_name = "monthly_report/bs_table_mobile.html"
-        else:
-            template_name = "monthly_report/bs_table.html"
-        return [template_name]
+    template_name = "monthly_report/bs_table.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # update後に元のviewに戻る。(get_success_url()のrevers_lazyで遷移する場合)
-        if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
-            year = int(self.kwargs.get("year"))
-            month = int(self.kwargs.get("month"))
-            ac_class = self.kwargs.get("ac_class")
-        else:
-            year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-            month = int(self.request.GET.get("month", localtime(timezone.now()).month))
-            ac_class = self.request.GET.get("accounting_class", 1)
+        year, month, ac_class = self.get_year_month_ac(kwargs)
 
         # 会計区分名(ac_class)
         # Noneならばdefault値だが、''の場合は、自分で処理しなければならない。
-        if ac_class == "":
+        if ac_class == 0:
             ac_class_name = "合算会計（町内会費会計含む）"
-            ac_class = 0
         else:
             ac_class = int(ac_class)
             ac_class_name = AccountingClass.get_accountingclass_name(ac_class)
@@ -292,6 +277,7 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         if kwargs:
             # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
             year = self.kwargs.get("year")

@@ -4,9 +4,10 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
+from passbook.utils import select_period
+
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.services import monthly_report_services
-from passbook.utils import select_period
 
 logger = logging.getLogger(__name__)
 
@@ -19,17 +20,12 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(self.kwargs.get("year"))
-            ac_class = str(self.kwargs.get("ac_class"))
-        else:
-            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
-            ac_class = self.request.GET.get("accounting_class", "0")
-            # ac_classが「空」の場合の処理
-            if ac_class == "":
-                ac_class = "0"
+
+        # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
+        year = self.request.GET.get("year", localtime(timezone.now()).year)
+        ac_class = self.request.GET.get("accounting_class") or 0
+        year = int(year)
+        ac_class = int(ac_class)
 
         # 抽出期間（monthが"all"なら1年分）
         tstart, tend = select_period(year, 0)

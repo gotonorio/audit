@@ -21,11 +21,18 @@ class BillingTransformView(PermissionRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        now = localtime(timezone.now())
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        year = int(year)
+        month = int(month)
+
         # 年月既定値
         form = KuraselTranslatorForm(
             initial={
-                "year": localtime(timezone.now()).year,
-                "month": localtime(timezone.now()).month,
+                "year": year,
+                "month": month,
             }
         )
         context["form"] = form

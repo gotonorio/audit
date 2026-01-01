@@ -52,6 +52,9 @@
 <div class="container is-fluid">
   <div class="content">
     <div class="is-size-5">{{title}}</div>
+    {% if "町内会" in class_name %}
+    <div class="has-text-danger">※ 町内会会計は管理組合予算では管理しない。</div>
+    {% endif %}
   </div>
   <div class="table-container">
     <table class="table table_nowrap is-narrow is-striped">

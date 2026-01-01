@@ -4,11 +4,12 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
+from passbook.utils import select_period
+from record.models import AccountingClass
+
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import ReportTransaction
 from monthly_report.services import monthly_report_services
-from passbook.utils import select_period
-from record.models import AccountingClass
 
 
 class CalcFlgCheckList(PermissionRequiredMixin, generic.TemplateView):
@@ -119,12 +120,8 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            # 年間収入画面から遷移した場合、kwargsにデータが渡される。(typeはint)
-            year = str(self.kwargs.get("year"))
-        else:
-            # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
+
+        year = self.request.GET.get("year") or localtime(timezone.now()).year
 
         # 抽出期間（年間）
         tstart, tend = select_period(year, 0)
@@ -134,12 +131,12 @@ class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
 
         # 修繕積立金会計「その他収入」リスト
         qs_others_income, others_income_total = monthly_report_services.qs_year_income(
-            tstart, tend, ac_shuuzen, True
+            tstart, tend, ac_shuuzen.pk, True
         )
         context["others_income_total"] = others_income_total
 
         # 駐車場会計
-        qs_parking, parking_total = monthly_report_services.qs_year_income(tstart, tend, ac_parking, False)
+        qs_parking, parking_total = monthly_report_services.qs_year_income(tstart, tend, ac_parking.pk, False)
         context["parking_total"] = parking_total
 
         # form 初期値を設定

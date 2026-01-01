@@ -29,17 +29,17 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # 入出金データの「読込み・修正」が成功した場合にDepositWithdrawalVie()でwkwargsがセットされる。
-        if kwargs:
-            year = self.kwargs["year"]
-            month = self.kwargs["month"]
-            list_order = str(self.kwargs["list_order"])
-            himoku_id = self.kwargs["himoku_id"]
-        else:
-            local_now = localtime(timezone.now())
-            year = self.request.GET.get("year", local_now.year)
-            month = self.request.GET.get("month", local_now.month)
-            list_order = self.request.GET.get("list_order", "0")
-            himoku_id = self.request.GET.get("himoku_id", 0)
+
+        now = localtime(timezone.now())
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        list_order = self.request.GET.get("list_order") or 0
+        himoku_id = self.request.GET.get("himoku_id") or 0
+
+        year = int(year)
+        month = int(month)
+        list_order = int(list_order)
+        himoku_id = int(himoku_id)
 
         # 抽出期間
         tstart, tend = select_period(year, month)
@@ -50,7 +50,7 @@ class TransactionListView(PermissionRequiredMixin, generic.TemplateView):
             qs = qs.filter(himoku=himoku_id)
 
         # 表示順序
-        if list_order == "0":
+        if list_order == 0:
             qs = qs.order_by(
                 "-transaction_date",
                 "himoku__himoku_name",

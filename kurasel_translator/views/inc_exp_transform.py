@@ -5,12 +5,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import MonthlyBalanceForm
 from monthly_report.models import ReportTransaction
-from passbook.utils import redirect_with_param, select_period
+from passbook.utils import select_period
 from record.models import Himoku
 
 logger = logging.getLogger(__name__)
@@ -86,25 +88,19 @@ class IncomeExpenseTransformView(PermissionRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if kwargs:
-            # 遷移で表示された時。（kwargsにデータが渡される）
-            year = str(self.kwargs.get("year"))
-            month = str(self.kwargs.get("month"))
-            # 年月既定値
-            form = MonthlyBalanceForm(
-                initial={
-                    "year": year,
-                    "month": month,
-                }
-            )
-        else:
-            # 年月既定値
-            form = MonthlyBalanceForm(
-                initial={
-                    "year": localtime(timezone.now()).year,
-                    "month": localtime(timezone.now()).month,
-                }
-            )
+        now = localtime(timezone.now())
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        year = int(year)
+        month = int(month)
+
+        # 年月既定値
+        form = MonthlyBalanceForm(
+            initial={
+                "year": year,
+                "month": month,
+            }
+        )
         context["form"] = form
         return context
 
@@ -185,24 +181,23 @@ class IncomeExpenseTransformView(PermissionRequiredMixin, FormView):
             if rtn:
                 msg = "月次収支データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
-                # formを初期化して同じ取り込み画面に戻す。
-                param = dict(year=year, month=month)
-                url = redirect_with_param("kurasel_translator:create_monthly", param)
-                return redirect(url)
+                # 1. ベースとなるURLを取得 (path('transaction_list/', ...))
+                base_url = reverse("kurasel_translator:create_monthly")
+                # 2. GETパラメータを辞書形式で定義
+                logger.debug(f"rtn={rtn}, year={year}, month={month}")
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": month,
+                    }
+                )
+                # 3. 連結してリダイレクト
+                return redirect(f"{base_url}?{params}")
 
-            # 以下は取り込み成功した場合に、年月のパラメータを持って一覧表示させる。（使い勝手の問題でコメントアウト）
-            ## 保存成功後に遷移する場合のパラメータ。受け取りはkwargs.get["year"]とする。
-            # ac_pk = AccountingClass.objects.get(accounting_name=accounting_class).pk
-            # param = dict(year=year, month=str(month).zfill(2), ac_class=ac_pk)
-            ## 取り込みに成功したら、一覧表表示する。
-            # if kind == "収入":
-            #    # 収入データの取り込みに成功したら、一覧表表示する。
-            #    url = redirect_with_param("monthly_report:incomelist", param)
-            #    return redirect(url)
-            # else:
-            #    # 支出データの取り込みに成功したら、一覧表表示する。
-            #    url = redirect_with_param("monthly_report:expenselist", param)
-            #    return redirect(url)
+                # # formを初期化して同じ取り込み画面に戻す。
+                # param = dict(year=year, month=month)
+                # url = redirect_with_param("kurasel_translator:create_monthly", param)
+                # return redirect(url)
             else:
                 # msg = f'月次収支データの取り込みに失敗しました。費目名 ＝ {error_list[0]}'
                 for i in error_list:

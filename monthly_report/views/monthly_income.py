@@ -1,9 +1,14 @@
+import logging
+
 from django.conf import settings
-from monthly_report.models import ReportTransaction
 from passbook.utils import select_period
 from record.models import AccountingClass
 
+from monthly_report.models import ReportTransaction
+
 from .base import MonthlyReportBaseView
+
+logger = logging.getLogger(__name__)
 
 
 class MonthlyReportIncomeListView(MonthlyReportBaseView):

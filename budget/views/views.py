@@ -1,8 +1,6 @@
 import calendar
 import logging
 
-from budget.forms import Budget_listForm
-from budget.models import ExpenseBudget
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.aggregates import Max, Sum
 from django.utils import timezone
@@ -10,6 +8,9 @@ from django.utils.timezone import localtime
 from django.views.generic import TemplateView
 from monthly_report.models import ReportTransaction
 from record.models import AccountingClass, Transaction
+
+from budget.forms import Budget_listForm
+from budget.models import ExpenseBudget
 
 logger = logging.getLogger(__name__)
 
@@ -90,29 +91,25 @@ def near_month(qs):
 
 
 class BudgetListView(LoginRequiredMixin, TemplateView):
-    """会計支出の予算・実績対比表"""
+    """会計支出の予算・実績対比表
+    予算実績対比表はログインユーザが閲覧可能とする。
+    """
 
     model = ExpenseBudget
-    # 予算実績対比表はログインユーザが閲覧可能とするため下記をコメントアウト。
-    # permission_required = ("record.view_transaction",)
-
-    # templateファイルの切り替え
-    def get_template_names(self):
-        """templateファイルを切り替える"""
-        if self.request.user_agent_flag == "mobile":
-            template_name = "budget/budget_list_mobile.html"
-        else:
-            template_name = "budget/budget_list.html"
-        return [template_name]
+    template_name = "budget/budget_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-        month = int(self.request.GET.get("month", localtime(timezone.now()).month))
-        ac_class = self.request.GET.get("ac_class", 1)
+        now = localtime(timezone.now())
+        year = int(self.request.GET.get("year", now.year))
+        month = int(self.request.GET.get("month", now.month))
         # 会計区分が指定されていなければ、管理会計を選択する。
-        if ac_class == "":
-            ac_class = 1
+        ac_class = self.request.GET.get("ac_class") or 1
+
+        year = int(year)
+        month = int(month)
+        ac_class = int(ac_class)
+
         # 月次報告データ(0)、入出金明細データ(1)の選択
         kind = int(self.request.GET.get("kind", 0))
         day = calendar.monthrange(year, month)[1]

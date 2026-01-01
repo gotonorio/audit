@@ -22,16 +22,17 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            year = self.kwargs["year"]
-            month = self.kwargs["month"]
-            claim_type = str(self.kwargs["claim_type"])
-        else:
-            local_now = localtime(timezone.now())
-            year = self.request.GET.get("year", local_now.year)
-            month = self.request.GET.get("month", local_now.month)
-            # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
-            claim_type = self.request.GET.get("claim_type", settings.RECIVABLE)
+
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+        # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
+        claim_type = self.kwargs.get("claim_type") or self.request.GET.get("claim_type") or settings.RECIVABLE
+
+        year = int(year)
+        month = int(month)
+        claim_type = str(claim_type)
+
         # claim_list.htmlのタイトル
         if claim_type in (settings.RECIVABLE, settings.MAEUKE):
             title = "「請求時点」の" + claim_type

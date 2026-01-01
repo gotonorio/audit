@@ -21,12 +21,14 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            year = self.kwargs.get("year")
-            month = self.kwargs.get("month")
-        else:
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
-            month = self.request.GET.get("month", localtime(timezone.now()).month)
+
+        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+
+        year = int(year)
+        month = int(month)
 
         # Kuraselによる会計処理は2023年4月以降。それ以前は表示しない。
         year, month = check_period(year, month)
@@ -43,7 +45,7 @@ class IncosistencyCheckView(PermissionRequiredMixin, generic.TemplateView):
         # 月次報告データ
         # 入出金明細は町内会会計を含むため町内会費を除外しない。
         # ---------------------------------------------------------------------
-        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True).order_by(
+        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "expense", True).order_by(
             "is_netting", "himoku__himoku_name"
         )
         # 月次収支の支出合計（口座振替手数料を除く）

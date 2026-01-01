@@ -23,9 +23,7 @@
       </form>
     </div>
     <div class="navbar-end">
-      {% with year_with=year month_with=month ac_with=ac_class %}
-        <a href="{% url 'monthly_report:bs_table' year_with month_with ac_with %}" class="navbar-item">戻る</a>
-      {% endwith %}
+      <a href="{% url 'monthly_report:bs_table'%}?year={{year}}&month={{month}}&accounting_class={{ac_class}}" class="navbar-item">戻る</a>
     </div>
   </div>
 </nav>

@@ -6,11 +6,11 @@ app_name = "payment"
 urlpatterns = [
     # 支払い承認リスト
     path("payment_list/", views.PaymentListView.as_view(), name="payment_list"),
-    path(
-        "payment_list/<int:year>/<str:month>/",
-        views.PaymentListView.as_view(),
-        name="payment_list",
-    ),
+    # path(
+    #     "payment_list/<int:year>/<str:month>/",
+    #     views.PaymentListView.as_view(),
+    #     name="payment_list",
+    # ),
     # 支払い承認データの編集
     path(
         "update_payment/<int:pk>/",

@@ -25,9 +25,7 @@
       </form>
     </div>
     <div class="navbar-end">
-      {% with year_with=year month_with=month %}
-        <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check' year_with month_with %}">【戻る】</a>
-      {% endwith %}
+      <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check'%}?year={{year}}&month={{month}}">【戻る】</a>
     </div>
   </div>
 </nav>

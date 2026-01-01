@@ -4,7 +4,6 @@ from billing import views
 
 app_name = "billing"
 urlpatterns = [
-    # データ表示
+    # 請求合計金額内訳リスト
     path("billing_list/", views.BillingListView.as_view(), name="billing_list"),
-    path("billing_list/<int:year>/<int:month>/", views.BillingListView.as_view(), name="billing_list"),
 ]

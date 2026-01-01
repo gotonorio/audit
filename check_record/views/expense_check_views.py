@@ -19,23 +19,16 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
     template_name = "check_record/kurasel_mr_expense_check.html"
     permission_required = ("record.view_transaction",)
 
-    # templateファイルの切り替え
-    def get_template_names(self):
-        """templateファイルを切り替える"""
-        if self.request.user_agent_flag == "mobile":
-            template_name = "check_record/mobile/mobile_mr_expense_check.html"
-        else:
-            template_name = "check_record/kurasel_mr_expense_check.html"
-        return [template_name]
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            year = self.kwargs.get("year")
-            month = self.kwargs.get("month")
-        else:
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
-            month = self.request.GET.get("month", localtime(timezone.now()).month)
+
+        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+
+        year = int(year)
+        month = int(month)
 
         # 前月の年月
         lastyear, lastmonth = get_lastmonth(year, month)
@@ -59,7 +52,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateVie
         # 月次収支の支出データ
         # 入出金明細データとの比較のため町内会会計を含める（2025-08-01）
         # ---------------------------------------------------------------------
-        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, "0", "expense", True)
+        qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "expense", True)
         # 月次収支報告の支出リスト（相殺項目を除外する）
         qs_mr = qs_mr.exclude(is_netting=True)
         # 月次収支報告の支出合計（集計フラグがFalseの費目を除外する）
@@ -115,10 +108,7 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            year = self.kwargs.get("year")
-        else:
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
+        year = self.request.GET.get("year") or localtime(timezone.now()).year
 
         # formの初期値を設定する。
         form = YearMonthForm(

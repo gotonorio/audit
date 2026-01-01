@@ -27,36 +27,34 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if kwargs:
-            # 遷移で表示された時。（kwargsにデータが渡される）
-            year = str(kwargs.get("year"))
-            month = str(self.kwargs.get("month"))
-            day = self.request.GET.get("day", "00")
-            # 表示順は入力されないので、日付順をデフォルトとして設定する。
-            list_order = "0"
-        else:
-            # 画面が表示された時、年月を指定して表示した時。
-            local_now = localtime(timezone.now())
-            year = self.request.GET.get("year", str(local_now.year))
-            month = self.request.GET.get("month", str(local_now.month))
-            day = self.request.GET.get("day", "00")
-            list_order = self.request.GET.get("list_order", "0")
+        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        # .get() で None が返ることを利用して 'or' で繋ぐ
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+        day = self.kwargs.get("day") or self.request.GET.get("day") or "0"
+        list_order = self.request.GET.get("list_order") or "0"
+
+        year = int(year)
+        month = int(month)
+        day = int(day)
+        list_order = int(list_order)
+
         # querysetの作成。
         tstart, tend = select_period(year, month)
-        if day == "00":
+        if day == 0:
             qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
-        elif month == "0":
+        elif month == 0:
             qs = (
                 Payment.objects.select_related("himoku")
                 .filter(payment_date__range=[tstart, tend])
                 .filter(payment_date__day=day)
             )
         else:
-            date_str = str(year) + str(month) + day
-            payment_day = datetime.datetime.strptime(date_str, "%Y%m%d")
+            payment_day = datetime.datetime(year, month, day)
             qs = Payment.objects.all().select_related("himoku").filter(payment_date=payment_day)
         # 表示順序
-        if list_order == "0":
+        if list_order == 0:
             qs = qs.order_by("payment_date", "himoku__code")
         else:
             qs = qs.order_by("himoku__code", "payment_date")

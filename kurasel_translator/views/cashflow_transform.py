@@ -6,7 +6,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import (
@@ -34,10 +36,15 @@ class DepositWithdrawalTransformView(PermissionRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        now = localtime(timezone.now())
+        year = self.request.GET.get("year") or now.year
+        year = int(year)
+
         # 年月既定値
         form = DepositWithdrawalForm(
             initial={
-                "year": localtime(timezone.now()).year,
+                "year": year,
             }
         )
         context["form"] = form
@@ -116,8 +123,20 @@ class DepositWithdrawalTransformView(PermissionRequiredMixin, FormView):
             if rtn > 0:
                 msg = "データの取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
-                # 取り込みに成功したら、一覧表表示する。
-                return redirect("record:transaction_list", year=year, month=rtn, list_order=0, himoku_id=0)
+                # 1. ベースとなるURLを取得 (path('transaction_list/', ...))
+                base_url = reverse("record:transaction_list")
+                # 2. GETパラメータを辞書形式で定義
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": rtn,
+                        "list_order": 0,
+                        "himoku_id": 0,
+                    }
+                )
+                # 3. 連結してリダイレクト
+                return redirect(f"{base_url}?{params}")
+                # return redirect("record:transaction_list", year=year, month=rtn, list_order=0, himoku_id=0)
             else:
                 for i in error_list:
                     msg = f"データの取り込みに失敗しています。{i}"

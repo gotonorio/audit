@@ -1,23 +1,25 @@
 import logging
 
-from budget.forms import Budget_listForm, BudgetExpenseForm, DuplicateBudgetForm
-from budget.models import ExpenseBudget
 from control.models import ControlRecord
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models.aggregates import Sum
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views import generic
 from record.models import AccountingClass
+
+from budget.forms import Budget_listForm, BudgetExpenseForm, DuplicateBudgetForm
+from budget.models import ExpenseBudget
 
 logger = logging.getLogger(__name__)
 
 
 class CreateKanriBudgetView(PermissionRequiredMixin, generic.CreateView):
-    """支出予算の登録用View"""
+    """管理会計支出予算の登録用View"""
 
     model = ExpenseBudget
     form_class = BudgetExpenseForm
@@ -90,35 +92,68 @@ class CreateParkingBudgetView(CreateKanriBudgetView):
 
 
 class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
-    """支出予算のアップデートView"""
+    """支出予算のアップデートView (GETパラメータ版）"""
 
     model = ExpenseBudget
     form_class = BudgetExpenseForm
     template_name = "budget/budget_form.html"
     permission_required = "record.add_transaction"
 
-    # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        return reverse_lazy(
-            "budget:budget_update_list",
-            kwargs={
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("budget:budget_update_list")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
                 "year": self.object.year,
                 "ac_class": self.object.himoku.accounting_class.id,
-            },
+            }
         )
 
-    def get_form_kwargs(self, *args, **kwargs):
-        """Formで必要なため、kwargsに「accounting_class名」を渡す
-        - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
-        - https://itc.tokyo/django/get-form-kwargs/
-        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
-        """
-        kwargs = super().get_form_kwargs(*args, **kwargs)
-        # 会計区分名をkwargsに追加する。
-        pk = self.kwargs.get("pk")
-        ac_class_name = ExpenseBudget.objects.get(pk=pk).himoku.accounting_class
-        kwargs["ac_class"] = ac_class_name
+        return f"{base_url}?{params}"
+
+    def get_form_kwargs(self):
+        """Formの初期化時に必要なデータを渡す"""
+        kwargs = super().get_form_kwargs()
+
+        # self.object は UpdateView が自動的に取得したモデルインスタンスです
+        # 改めて DB から取得し直す必要はありません
+        kwargs["ac_class"] = self.object.himoku.accounting_class
+
         return kwargs
+
+
+# class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
+#     """支出予算のアップデートView（kwargs版）"""
+
+#     model = ExpenseBudget
+#     form_class = BudgetExpenseForm
+#     template_name = "budget/budget_form.html"
+#     permission_required = "record.add_transaction"
+
+#     # 保存が成功した場合に遷移するurl
+#     def get_success_url(self):
+#         return reverse_lazy(
+#             "budget:budget_update_list",
+#             kwargs={
+#                 "year": self.object.year,
+#                 "ac_class": self.object.himoku.accounting_class.id,
+#             },
+#         )
+
+#     def get_form_kwargs(self, *args, **kwargs):
+#         """Formで必要なため、kwargsに「accounting_class名」を渡す
+#         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
+#         - https://itc.tokyo/django/get-form-kwargs/
+#         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+#         """
+#         kwargs = super().get_form_kwargs(*args, **kwargs)
+#         # 会計区分名をkwargsに追加する。
+#         pk = self.kwargs.get("pk")
+#         ac_class_name = ExpenseBudget.objects.get(pk=pk).himoku.accounting_class
+#         kwargs["ac_class"] = ac_class_name
+#         return kwargs
 
 
 class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
@@ -130,12 +165,14 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.kwargs.get("year"):
-            year = self.kwargs.get("year")
-            ac_class = self.kwargs.get("ac_class")
-        else:
-            year = int(self.request.GET.get("year", localtime(timezone.now()).year))
-            ac_class = self.request.GET.get("ac_class", 1)
+
+        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        ac_class = self.kwargs.get("ac_class") or self.request.GET.get("ac_class") or "1"
+        year = int(year)
+        ac_class = int(ac_class)
+
         # 支出予算
         qs = ExpenseBudget.objects.filter(year=year).filter(himoku__alive=True)
         qs = qs.filter(himoku__accounting_class=ac_class).order_by("himoku__code")
@@ -167,10 +204,11 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
             }
         )
         ki = year - 1998
-        context["title"] = f"{year}年 第{ki}期 管理会計予算"
+        context["title"] = f"{year}年 第{ki}期 {class_name} 予算"
         context["form"] = form
         context["budget"] = qs
         context["total"] = total_budget
+        context["class_name"] = class_name
         return context
 
 

@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
+
 from monthly_report.forms import MonthlyReportViewForm
 
 
@@ -10,18 +11,17 @@ class MonthlyReportBaseView(PermissionRequiredMixin, generic.TemplateView):
     permission_required = ("budget.view_expensebudget",)
 
     def get_year_month_ac(self, kwargs):
-        if kwargs:
-            year = int(self.kwargs.get("year"))
-            month = int(self.kwargs.get("month", 0))
-            ac_class = self.kwargs.get("ac_class", "0")
-        else:
-            now = localtime(timezone.now())
-            year = int(self.request.GET.get("year", now.year))
-            month = int(self.request.GET.get("month", now.month))
-            ac_class = self.request.GET.get("accounting_class", "0")
+        # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
+        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        # .get() で None が返ることを利用して 'or' で繋ぐ
+        now = localtime(timezone.now())
+        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
+        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+        ac_class = self.kwargs.get("ac_class") or self.request.GET.get("accounting_class") or "0"
 
-        if ac_class == "":
-            ac_class = "0"
+        year = int(year)
+        month = int(month)
+        ac_class = int(ac_class)
 
         return year, month, ac_class
 
