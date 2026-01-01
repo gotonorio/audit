@@ -100,15 +100,6 @@ class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
         )
 
 
-class DeletePaymentView(PermissionRequiredMixin, generic.DeleteView):
-    """支払データの削除処理"""
-
-    model = Payment
-    template_name = "payment/delete_confirm.html"
-    success_url = reverse_lazy("payment:payment_list")
-    permission_required = "record.add_transaction"
-
-
 class PaymentMethodCreateView(PermissionRequiredMixin, generic.CreateView):
     """支払い方法の作成処理
     支払い方法の一覧表示も同じ画面で行う。

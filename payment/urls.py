@@ -17,12 +17,6 @@ urlpatterns = [
         views.UpdatePaymentView.as_view(),
         name="update_payment",
     ),
-    # 支払い承認データの削除（Kuraselデータを削除していいのか？ 削除リンクを非表示にする）
-    # path(
-    #     "delete_payment/<int:pk>/",
-    #     views.DeletePaymentView.as_view(),
-    #     name="delete_payment",
-    # ),
     path(
         "create_paymentmethod/",
         views.PaymentMethodCreateView.as_view(),

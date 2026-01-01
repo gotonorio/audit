@@ -20,11 +20,6 @@ urlpatterns = [
     path("chk_maeuke/", views.CheckMaeukeDataView.as_view(), name="chk_maeuke"),
     # マスタデータ関係
     path("himoku_list/", views.HimokuListView.as_view(), name="himoku_list"),
-    path(
-        "transaction_divide/<int:pk>",
-        views.TransactionDivideCreateView.as_view(),
-        name="transaction_divide",
-    ),
     path("read_himoku_csv/", views.HimokuCsvReadView.as_view(), name="read_himoku_csv"),
     path("claim_update/<int:pk>", views.ClaimdataUpdateView.as_view(), name="claim_update"),
     # ------------------------------------------------------------------------
@@ -49,5 +44,9 @@ urlpatterns = [
         "transaction_offset_create/<int:pk>/",
         views.TransactionOffsetCreateView.as_view(),
         name="transaction_offset_create",
+    ),
+    # 分割した出金レコードの保存
+    path(
+        "transaction_divide/<int:pk>", views.TransactionDivideCreateView.as_view(), name="transaction_divide"
     ),
 ]
