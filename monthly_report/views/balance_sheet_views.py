@@ -1,10 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.utils import timezone
-from django.utils.timezone import localtime
-from django.views import generic
 from passbook.utils import append_list, get_lastmonth, select_period
 from record.models import AccountingClass
 
@@ -269,7 +265,8 @@ class BalanceSheetTableView(MonthlyReportBaseView):
 # -----------------------------------------------------------------------------
 # 貸借対照表リスト表示用View
 # -----------------------------------------------------------------------------
-class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
+# class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
+class BalanceSheetListView(MonthlyReportBaseView):
     """貸借対照表の修正用リスト表示View"""
 
     template_name = "monthly_report/bs_list.html"
@@ -278,15 +275,8 @@ class BalanceSheetListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if kwargs:
-            # update後にget_success_url()で遷移する場合、kwargsにデータが渡される)
-            year = self.kwargs.get("year")
-            month = self.kwargs.get("month")
-            ac_class = self.kwargs.get("ac_class", 1)
-        else:
-            year = self.request.GET.get("year", localtime(timezone.now()).year)
-            month = self.request.GET.get("month", localtime(timezone.now()).month)
-            ac_class = self.request.GET.get("accounting_class", 0)
+        year, month, ac_class = self.get_year_month_ac(kwargs)
+
         # bs_table.htmlのリンクから飛んできた場合、 ac_class==""となる。
         if ac_class == "":
             ac_class = 0

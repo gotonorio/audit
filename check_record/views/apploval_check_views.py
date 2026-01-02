@@ -26,10 +26,10 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        # GETパラメータ(self.request.GET)
         now = localtime(timezone.now())
-        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
-        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
 
         year = int(year)
         month = int(month)

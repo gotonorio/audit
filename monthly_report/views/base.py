@@ -11,13 +11,12 @@ class MonthlyReportBaseView(PermissionRequiredMixin, generic.TemplateView):
     permission_required = ("budget.view_expensebudget",)
 
     def get_year_month_ac(self, kwargs):
-        # update後にget_success_url()で遷移する場合、kwargsにデータが渡される。typeはint)
-        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
-        # .get() で None が返ることを利用して 'or' で繋ぐ
+        # GETパラメータ(self.request.GET)
+
         now = localtime(timezone.now())
-        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
-        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
-        ac_class = self.kwargs.get("ac_class") or self.request.GET.get("accounting_class") or "0"
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        ac_class = self.request.GET.get("accounting_class") or "0"
 
         year = int(year)
         month = int(month)

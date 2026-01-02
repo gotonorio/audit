@@ -124,38 +124,6 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
         return kwargs
 
 
-# class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
-#     """支出予算のアップデートView（kwargs版）"""
-
-#     model = ExpenseBudget
-#     form_class = BudgetExpenseForm
-#     template_name = "budget/budget_form.html"
-#     permission_required = "record.add_transaction"
-
-#     # 保存が成功した場合に遷移するurl
-#     def get_success_url(self):
-#         return reverse_lazy(
-#             "budget:budget_update_list",
-#             kwargs={
-#                 "year": self.object.year,
-#                 "ac_class": self.object.himoku.accounting_class.id,
-#             },
-#         )
-
-#     def get_form_kwargs(self, *args, **kwargs):
-#         """Formで必要なため、kwargsに「accounting_class名」を渡す
-#         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
-#         - https://itc.tokyo/django/get-form-kwargs/
-#         - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
-#         """
-#         kwargs = super().get_form_kwargs(*args, **kwargs)
-#         # 会計区分名をkwargsに追加する。
-#         pk = self.kwargs.get("pk")
-#         ac_class_name = ExpenseBudget.objects.get(pk=pk).himoku.accounting_class
-#         kwargs["ac_class"] = ac_class_name
-#         return kwargs
-
-
 class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
     """管理会計予算の修正用リスト表示処理"""
 
@@ -166,10 +134,10 @@ class UpdateBudgetListView(PermissionRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        # GETパラメータ(self.request.GET)
         now = localtime(timezone.now())
-        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
-        ac_class = self.kwargs.get("ac_class") or self.request.GET.get("ac_class") or "1"
+        year = self.request.GET.get("year") or now.year
+        ac_class = self.request.GET.get("ac_class") or "1"
         year = int(year)
         ac_class = int(ac_class)
 
