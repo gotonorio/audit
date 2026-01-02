@@ -95,7 +95,7 @@
             <td class="has-text-right">{{record.amount|intcomma}}</td>
             <td class="has-text-left is-size-7">{{record.description|truncatechars:40|markdown_to_html}}</td>
           {% endif %}
-          {% if delete_flg %}
+          {% if perms.record.add_transaction %}
             <td class="has-text-centered">
               <a href="{% url 'monthly_report:delete_expense' record.pk %}">削除</a>
             </td>

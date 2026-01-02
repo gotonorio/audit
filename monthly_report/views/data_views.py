@@ -193,15 +193,17 @@ class DeleteIncomeView(PermissionRequiredMixin, generic.DeleteView):
     # success_url = reverse_lazy('register:mypage')
 
     def get_success_url(self):
-        obj = self.object
-        qs = ReportTransaction.objects.filter(pk=obj.pk).values("transaction_date", "accounting_class")
-        year = qs[0]["transaction_date"].year
-        month = qs[0]["transaction_date"].month
-        ac_class = qs[0]["accounting_class"]
-        return reverse_lazy(
-            "monthly_report:incomelist",
-            kwargs={"year": year, "month": month, "ac_class": ac_class},
+        base_url = reverse("monthly_report:incomelist")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "accounting_class": self.object.himoku.accounting_class.id,
+            }
         )
+        return f"{base_url}?{params}"
 
     def form_valid(self, form):
         """djang 4.0で、delete()で行う処理はform_valid()を使うようになったみたい。
@@ -223,16 +225,17 @@ class DeleteExpenseView(DeleteIncomeView):
     """月次報告支出データ削除View"""
 
     def get_success_url(self):
-        qs = ReportTransaction.objects.filter(pk=self.object.pk).values(
-            "transaction_date", "accounting_class"
+        base_url = reverse("monthly_report:expenselist")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "accounting_class": self.object.himoku.accounting_class.id,
+            }
         )
-        year = qs[0]["transaction_date"].year
-        month = qs[0]["transaction_date"].month
-        ac_class = qs[0]["accounting_class"]
-        return reverse_lazy(
-            "monthly_report:expenselist",
-            kwargs={"year": year, "month": month, "ac_class": ac_class},
-        )
+        return f"{base_url}?{params}"
 
 
 class BalanceSheetCreateView(PermissionRequiredMixin, generic.CreateView):
@@ -268,16 +271,19 @@ class BalanceSheetUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        # 取り込みに成功したら、貸借対照表を表示する。
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("monthly_report:bs_table")
+        # クエリパラメータを辞書形式で定義
         qs = BalanceSheet.objects.filter(pk=self.object.pk).first()
-        year = qs.monthly_date.year
-        month = qs.monthly_date.month
-        ac_class = qs.item_name.ac_class.pk
-
-        return reverse_lazy(
-            "monthly_report:bs_table",
-            kwargs={"year": year, "month": month, "ac_class": ac_class},
+        params = urlencode(
+            {
+                "year": qs.monthly_date.year,
+                "month": qs.monthly_date.month,
+                "ac_class": qs.item_name.ac_class.pk,
+            }
         )
+
+        return f"{base_url}?{params}"
 
 
 class BalanceSheetDeleteView(PermissionRequiredMixin, generic.DeleteView):

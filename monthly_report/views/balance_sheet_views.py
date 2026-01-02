@@ -23,10 +23,10 @@ class BalanceSheetTableView(MonthlyReportBaseView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # GETパラメータの取得
         year, month, ac_class = self.get_year_month_ac(kwargs)
 
         # 会計区分名(ac_class)
-        # Noneならばdefault値だが、''の場合は、自分で処理しなければならない。
         if ac_class == 0:
             ac_class_name = "合算会計（町内会費会計含む）"
         else:
@@ -102,7 +102,7 @@ class BalanceSheetTableView(MonthlyReportBaseView):
             context["ac_class"] = ac_class
             return context
 
-        context["title"] = f"第{year - settings.FIRST_PERIOD_YEAR}期 {month}月 {ac_class_name}"
+        context["title"] = f"第{year - settings.FIRST_PERIOD_YEAR + 1}期 {month}月 {ac_class_name}"
         context["bs_list"] = balance_list
         context["form"] = form
         context["year"] = year
@@ -275,11 +275,8 @@ class BalanceSheetListView(MonthlyReportBaseView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # GETパラメータの取得
         year, month, ac_class = self.get_year_month_ac(kwargs)
-
-        # bs_table.htmlのリンクから飛んできた場合、 ac_class==""となる。
-        if ac_class == "":
-            ac_class = 0
 
         # 抽出期間
         tstart, tend = select_period(str(year), str(month))
