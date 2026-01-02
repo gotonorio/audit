@@ -22,6 +22,9 @@ class TransactionOffsetCreateView(PermissionRequiredMixin, generic.TemplateView)
     """入出金明細データの相殺レコード作成（入出金明細データ一覧で「ソウゴウフリコミBIZ」を分解する時に呼ばれる）
     - 相殺データを作成した後、作成したレコードのpkをTransactionDivideCreateView()へ送るためにTemplateViewを使う。
     - templateは不要な項目を表示しないように新規に作成。
+    1. GETリクエスト時：相殺データの初期値をセットしたフォームを表示（kwargsでpkを受け取る）
+    2. POSTリクエスト時：相殺データを保存し、分割画面へリダイレクト
+    参考：https://docs.djangoproject.com/en/4.2/topics/class-based-views/generic-display/#templateview
     """
 
     template_name = "record/transaction_offset_form.html"

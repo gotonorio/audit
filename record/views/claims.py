@@ -24,10 +24,10 @@ class ClaimDataListView(PermissionRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         now = localtime(timezone.now())
-        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
-        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
         # 最初に表示された時はNoneなので、デフォルト値として"未収金"を設定する
-        claim_type = self.kwargs.get("claim_type") or self.request.GET.get("claim_type") or settings.RECIVABLE
+        claim_type = self.request.GET.get("claim_type") or settings.RECIVABLE
 
         year = int(year)
         month = int(month)

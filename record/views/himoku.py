@@ -31,7 +31,7 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        ac_class_id = self.kwargs.get("accounting_class") or self.request.GET.get("accounting_class")
+        ac_class_id = self.request.GET.get("accounting_class")
 
         # request.GET を渡すことで、選択した値がフォームに保持（バインド）される
         # 何も選ばれていない場合は、initial が適用される

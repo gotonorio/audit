@@ -35,13 +35,7 @@ class Logout(LoginRequiredMixin, LogoutView):
 class MypageView(LoginRequiredMixin, generic.TemplateView):
     """mobileとPCでトップ画面を分ける -> 2023-08-04 mobile対応は停止"""
 
-    def get_template_names(self):
-        """templateファイルを切り替える"""
-        if self.request.user_agent_flag == "mobile":
-            template_name = "register/mypage_mobile.html"
-        else:
-            template_name = "register/mypage_pc.html"
-        return [template_name]
+    template_name = "register/mypage_pc.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

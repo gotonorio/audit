@@ -27,12 +27,12 @@ class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # URL引数(self.kwargs) or 2. GETパラメータ(self.request.GET) or 3. デフォルト
+        # GETパラメータ(self.request.GET)
         # .get() で None が返ることを利用して 'or' で繋ぐ
         now = localtime(timezone.now())
-        year = self.kwargs.get("year") or self.request.GET.get("year") or now.year
-        month = self.kwargs.get("month") or self.request.GET.get("month") or now.month
-        day = self.kwargs.get("day") or self.request.GET.get("day") or "0"
+        year = self.request.GET.get("year") or now.year
+        month = self.request.GET.get("month") or now.month
+        day = self.request.GET.get("day") or "0"
         list_order = self.request.GET.get("list_order") or "0"
 
         year = int(year)
