@@ -47,8 +47,9 @@
 
   <div class="content">
     <div class="is-size-5">Kurasel入出金明細データの取込み</div>
-    <ul class="narrow_spacing">
-      <li class="has-text-danger">「入出金明細」のデータ部分だけをコピペしてください。</li>
+    <ul class="narrow_spacing has-text-danger">
+      <li>「入出金明細」のデータ部分だけをコピペしてください。</li>
+      <li>「西暦」を確認してから「登録」してください。</li>
     </ul>
   </div>
   <form action="" method='POST' enctype="multipart/form-data">
@@ -101,8 +102,8 @@
   <br>
   {# 結果表示 #}
   <div class="content">
-    <ul class="has-text-danger">
-      <li>日付を確認してから「登録」してください。</li>
+    <ul class="has-text-danger is-size-5 narrow_spacing">
+      <li>{{year}}年のデータを「登録」します。</li>
     </ul> 
   </div>
   <div class="table-container">

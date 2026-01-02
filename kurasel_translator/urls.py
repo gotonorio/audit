@@ -3,18 +3,18 @@ from django.urls import path
 from .views import (
     balans_sheet_transform,
     billing_transform,
-    cashflow_transform,
     claim_transform,
-    inc_exp_transform,
+    monthly_report_transform,
     payment_approval_transform,
+    transaction_transform,
 )
 
 app_name = "kurasel_translator"
 urlpatterns = [
-    path("create_monthly/", inc_exp_transform.IncomeExpenseTransformView.as_view(), name="create_monthly"),
     path(
-        "create_deposit/", cashflow_transform.DepositWithdrawalTransformView.as_view(), name="create_deposit"
+        "create_monthly/", monthly_report_transform.MonthlyReportImportView.as_view(), name="create_monthly"
     ),
+    path("create_deposit/", transaction_transform.TransactionImportView.as_view(), name="create_deposit"),
     path(
         "create_payment/",
         payment_approval_transform.PaymentApprovalTransformView.as_view(),

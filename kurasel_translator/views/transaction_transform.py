@@ -24,13 +24,13 @@ from record.models import (
 logger = logging.getLogger(__name__)
 
 
-class DepositWithdrawalTransformView(PermissionRequiredMixin, FormView):
+class TransactionImportView(PermissionRequiredMixin, FormView):
     """入出金明細データの取込み
     - 取り込みはget_or_create()を使う。
     - 摘要欄等に加筆した場合、重複読み込みされるのでデータチェックは必要。
     """
 
-    template_name = "kurasel_translator/depositwithdrawal_form.html"
+    template_name = "kurasel_translator/transaction_form.html"
     form_class = DepositWithdrawalForm
     permission_required = "record.add_transaction"
 
