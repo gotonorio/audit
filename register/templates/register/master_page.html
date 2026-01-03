@@ -56,6 +56,7 @@
           <a class="navbar-item" href="{% url 'budget:duplicate' %}">管理会計予算の複製</a>
         </div>
       </div>
+      {% comment %}データの手動登録は廃止したのでコメントアウト。データはクラセルから取り込むこと。
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">手動登録</a>
         <div class="navbar-dropdown">
@@ -66,6 +67,7 @@
           <hr class="navbar-divider">
         </div>
       </div>
+      {% endcomment %}
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>

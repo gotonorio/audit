@@ -38,6 +38,8 @@ class ReportTransaction(models.Model):
     is_manualinput = models.BooleanField(default=False)
 
     def __str__(self):
+        if self.himoku is None:
+            return ""
         return self.himoku.himoku_name
 
     # def delete(self):
@@ -249,11 +251,15 @@ class BalanceSheet(models.Model):
         return self.amounts
 
     def __str__(self):
+        if self.item_name is None:
+            return ""
         return self.item_name.item_name
 
     @classmethod
     def get_bs(cls, tstart, tend, ac_class, is_asset):
-        """期間と資産・負債フラグで貸借対照表データ抽出する。"""
+        """期間と資産・負債フラグで貸借対照表データを抽出するquerysetを返す
+        - ac_classが0の場合、全会計区分で集約する。
+        """
         qs_bs = cls.objects.all().select_related("item_name").filter(item_name__is_asset=is_asset)
         # 期間でfiler
         qs_bs = qs_bs.filter(monthly_date__range=[tstart, tend])

@@ -69,12 +69,12 @@ class AccountingClass(models.Model):
         return qs
 
     @classmethod
-    def get_accountingclass_name(cls, ac_pk):
+    def get_accountingclass_name(cls, ac_pk) -> str:
         try:
             qs = cls.objects.get(pk=ac_pk)
             ac_name = qs.accounting_name
         except AccountingClass.DoesNotExist:
-            ac_name = None
+            ac_name = ""
 
         return ac_name
 
