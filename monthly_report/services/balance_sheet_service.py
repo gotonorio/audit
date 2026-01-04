@@ -62,7 +62,9 @@ def make_balancesheet(asset, debt):
 
 
 def merge_balancesheet(asset_list, debt_list, total_bs):
-    """資産・負債を結合"""
+    """資産・負債を結合
+    - 摘要は空欄で結合
+    """
     balance_list = append_list(asset_list, debt_list, "")
     balance_list.append(
         [

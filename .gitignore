@@ -6,6 +6,7 @@ __pycache__/
 *.ico
 *.png
 *.sqlite3
+0fuyou_*
 .DS_Store
 .env
 .vscode/

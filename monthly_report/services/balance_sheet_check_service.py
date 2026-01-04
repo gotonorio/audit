@@ -1,8 +1,12 @@
 # monthly_report/services/balance_sheet_check_service.py
 
+import logging
+
 from django.conf import settings
 from monthly_report.models import BalanceSheet, ReportTransaction
 from passbook.utils import get_lastmonth, select_period
+
+logger = logging.getLogger(__name__)
 
 
 def check_balancesheet(year, month, ac_class):
@@ -10,20 +14,24 @@ def check_balancesheet(year, month, ac_class):
     previous = {}
     current = {}
 
+    # 「前月」と「当月」の日付範囲を取得
     lastyear, lastmonth = get_lastmonth(year, month)
     last_tstart, last_tend = select_period(lastyear, lastmonth)
     tstart, tend = select_period(year, month)
 
+    # 「前月」の貸借対照表データ取得
     prev_asset = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, True).values_list(
         "item_name__item_name", "amounts"
     )
     prev_debt = BalanceSheet.get_bs(last_tstart, last_tend, ac_class, False).values_list(
         "item_name__item_name", "amounts"
     )
-
+    # 前月データが存在しない場合はチェック不可
     if not prev_asset:
         return None, None
 
+    # 貸借対照表抽出querysetから「key」で指定した名称の値を取り出して返す。
+    # 見つからない場合は 0 を返す。
     def pick(qs, key):
         return next((v for k, v in qs if key in k), 0)
 
