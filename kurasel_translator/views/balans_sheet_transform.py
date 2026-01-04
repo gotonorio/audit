@@ -11,9 +11,6 @@ from django.views.generic.edit import FormView
 from kurasel_translator.forms import BalanceSheetTranslateForm
 from monthly_report.models import BalanceSheet
 
-# from passbook.utils import redirect_with_param
-# from record.models import AccountingClass
-
 logger = logging.getLogger(__name__)
 
 
@@ -111,17 +108,17 @@ class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
             # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
             rtn, error_list = BalanceSheet.bs_from_kurasel(accounting_class, context)
             if rtn:
-                msg = f"{year}年{month}月度の貸借対照表の取り込みが完了しました。"
+                msg = f"{year}年{month}月度の「{accounting_class}」貸借対照表の取り込みが完了しました。"
                 messages.add_message(self.request, messages.ERROR, msg)
                 # 取り込みに成功したら、一覧表表示する。
-                # 1. ベースとなるURLを取得 (path('transaction_list/', ...))
-                base_url = reverse("record:transaction_list")
-                # 2. GETパラメータを辞書形式で定義
+                # ベースとなるURLを取得（貸借対照表データ取り込み画面に戻る）
+                base_url = reverse("kurasel_translator:create_bs")
+                # GETパラメータを辞書形式で定義
                 params = urlencode(
                     {
                         "year": year,
                         "month": month,
-                        "accounting_class": accounting_class,
+                        "accounting_class": accounting_class.pk,
                     }
                 )
                 # 3. 連結してリダイレクト

@@ -36,23 +36,16 @@ class BalanceSheetTableView(MonthlyReportBaseView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ---------------------------------------------------------------------
-        # 1. パラメータ取得（base.view）
-        # ---------------------------------------------------------------------
+        # パラメータ取得（base.view）
         year, month, ac_class = self.get_year_month_ac(kwargs)
 
-        # 表示用 会計区分名
+        # 表示用 会計区分名（balance_sheet_service.py）
         ac_class_name = get_accounting_class_name(ac_class)
 
-        # ---------------------------------------------------------------------
-        # 2. 対象期間の算出
-        # ---------------------------------------------------------------------
+        # 対象期間の算出（passbook/services.py）
         tstart, tend = select_period(year, month)
 
-        # ---------------------------------------------------------------------
-        # 3. 貸借対照表データ取得
-        #    next関数で銀行残高を取り出し、計算現金残高との差分を算出
-        # ---------------------------------------------------------------------
+        # 貸借対照表データ取得（next関数で銀行残高を取り出し、計算現金残高との差分を算出）
         if ac_class > 0:
             # 会計区分別に取得
             asset_list, debt_list = fetch_balancesheet_by_class(tstart, tend, ac_class)
@@ -71,9 +64,7 @@ class BalanceSheetTableView(MonthlyReportBaseView):
             # 全会計区分（町内会会計含む）取得
             asset_list, debt_list = fetch_balancesheet_all(tstart, tend)
 
-        # ---------------------------------------------------------------------
-        # 4. 表構造の整形
-        # ---------------------------------------------------------------------
+        # 表構造の整形
         if not asset_list or not debt_list:
             # データなし（空画面）
             context.update(
@@ -95,9 +86,7 @@ class BalanceSheetTableView(MonthlyReportBaseView):
         # 資産・負債を横並びに結合
         balance_list = merge_balancesheet(asset_list, debt_list, total_bs)
 
-        # ---------------------------------------------------------------------
-        # 5. Context 設定
-        # ---------------------------------------------------------------------
+        # Context 設定
         context.update(
             {
                 "title": self._build_title(year, month, ac_class_name),
