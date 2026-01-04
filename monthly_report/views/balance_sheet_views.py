@@ -2,7 +2,7 @@
 import logging
 
 from django.conf import settings
-from passbook.utils import select_period
+from passbook.services import select_period
 
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import BalanceSheet

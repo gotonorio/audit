@@ -2,7 +2,7 @@
 import logging
 
 from monthly_report.models import BalanceSheet
-from passbook.utils import append_list
+from passbook.services import append_list
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)

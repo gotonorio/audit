@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import PaymentAuditForm
-from passbook.utils import redirect_with_param
+from passbook.services import redirect_with_param
 from payment.models import Payment
 from record.models import Himoku
 

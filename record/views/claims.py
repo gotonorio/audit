@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from passbook.utils import select_period
+from passbook.services import select_period
 
 from record.forms import ClaimListForm, ClaimUpdateForm
 from record.models import ClaimData

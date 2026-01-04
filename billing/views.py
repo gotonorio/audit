@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView
 from passbook.forms import YearMonthForm
-from passbook.utils import select_period
+from passbook.services import select_period
 
 from .models import Billing
 

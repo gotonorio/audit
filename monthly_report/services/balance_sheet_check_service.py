@@ -4,7 +4,7 @@ import logging
 
 from django.conf import settings
 from monthly_report.models import BalanceSheet, ReportTransaction
-from passbook.utils import get_lastmonth, select_period
+from passbook.services import get_lastmonth, select_period
 
 logger = logging.getLogger(__name__)
 
