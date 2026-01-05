@@ -188,11 +188,15 @@ class Himoku(models.Model):
             return None
 
     @classmethod
-    def get_himoku_list(cls):
+    def get_himoku_list(cls, ac_class_name=None):
         """有効な費目名をリストで返す"""
         himoku_list = []
-        himoku_list = cls.objects.filter(alive=True).values_list("himoku_name", flat=True)
-        return himoku_list
+        himoku_list = (
+            cls.objects.filter(accounting_class__accounting_name=ac_class_name)
+            # .filter(alive=True)
+            .values_list("himoku_name", flat=True)
+        )
+        return list(himoku_list)
 
     @classmethod
     def get_without_community(cls):
