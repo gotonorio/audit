@@ -2,160 +2,55 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import PaymentAuditForm
-from passbook.utils import redirect_with_param
-from payment.models import Payment
-from record.models import Himoku
+from kurasel_translator.services.approval_service import execute_payment_approval_import
 
 logger = logging.getLogger(__name__)
 
 
 class PaymentApprovalTransformView(PermissionRequiredMixin, FormView):
-    """クラセルの支払承認済みデータの読み込み用FormView
-    - 支払い承認データの取り込みでは、基本的に費目名をデフォルト費目名（不明）とする。
-    """
-
-    # テンプレート名の設定
     template_name = "kurasel_translator/payment_audit_form.html"
-    # フォームの設定
     form_class = PaymentAuditForm
     permission_required = "record.add_transaction"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+    def get_initial(self):
         now = localtime(timezone.now())
-        year = self.request.GET.get("year") or now.year
-        month = self.request.GET.get("month") or now.month
-        year = int(year)
-        month = int(month)
-
-        # 年月既定値
-        form = PaymentAuditForm(
-            initial={
-                "year": year,
-                "month": month,
-            }
-        )
-        context["form"] = form
-        return context
-
-    def form_invalid(self, form):
-        """フォームデータに間違いがあった場合に呼ばれる"""
-        year = form.cleaned_data["year"]
-        month = form.cleaned_data["month"]
-        mode = form.cleaned_data["mode"]
-        return render(
-            self.request,
-            self.template_name,
-            {"form": form, "year": year, "month": month, "mode": mode},
-        )
+        return {
+            "year": self.request.GET.get("year", now.year),
+            "month": self.request.GET.get("month", now.month),
+        }
 
     def form_valid(self, form):
-        """フォームデータが正常な場合に呼ばれる"""
-        year = form.cleaned_data["year"]
-        month = form.cleaned_data["month"]
-        day = form.cleaned_data["day"]
-        mode = form.cleaned_data["mode"]
-        note = form.cleaned_data["note"]
-        # msgを’\r\n'で区切ってリストを作成する。
-        tmp_list = note.splitlines()
-        # tmp_listから空の要素を削除する。
-        msg_list = [a for a in tmp_list if a != ""]
-        # 支払管理の場合、4行で1レコード。(状況、摘要、支払先、支払い金額)
-        data_list = self.translate_payment(msg_list, 4)
-        context = {
-            "form": form,
-            "data_list": data_list,
-            "year": year,
-            "month": month,
-            "day": day,
-            "mode": mode,
-            "author": self.request.user.pk,
-        }
-        # Himokuマスターから費目名のListを作成
-        himoku_list = list(Himoku.get_himoku_list())
-        # 取り込んだデータに費目名を追加
-        data_list = self.set_himoku(data_list, himoku_list)
-        if data_list is None:
-            return render(self.request, self.template_name, context)
-        # ここで取り込んだKuraselのデータの1行目の3列目が数字かどうかで、ヘッダーかどうかチェックする。
-        if data_list[0][3].isdigit() is False:
-            msg = "ヘッダーが含まれています。ヘッダーを除いてコピーしてください"
-            messages.add_message(self.request, messages.ERROR, msg)
-        if "確認" in mode:
-            # 合計を計算
-            total = 0
-            for data in data_list:
-                total += int(data[3])
-            context["total"] = total
-            # 確認モードの場合、表示のみを行う。
-            return render(self.request, self.template_name, context)
-        else:
-            # 登録モードの場合、ReportTransactionモデルクラス関数でデータ保存する
-            rtn, error_list = Payment.payment_from_kurasel(context)
-            if rtn:
-                msg = f"{year}-{month}-{day}の承認済み支払いデータの取り込みが完了しました。"
-                messages.add_message(self.request, messages.ERROR, msg)
-                # 保存成功後に遷移する場合のパラメータ
-                param = dict(year=year, month=month)
-                # 取り込みに成功したら、一覧表表示する。
-                url = redirect_with_param("payment:payment_list", param)
-                return redirect(url)
-                # return redirect('payment:payment_list')
-            else:
-                for i in error_list:
-                    msg = f"データの取り込みに失敗しました。{i}"
-                    messages.add_message(self.request, messages.ERROR, msg)
-                # 取り込みに失敗したら、取り込み画面に戻る。
-                return render(self.request, self.template_name, context)
+        # Serviceの呼び出し
+        success, result_ctx, errors = execute_payment_approval_import(self.request.user, form.cleaned_data)
 
-    def translate_payment(self, msg_list, row):
-        """Kuraselの表示をコピペで取り込む
-        - "¥"マーク、","の2つを削除。
-        - strip()は最後に行う。
-        """
-        cnt = 0
-        record_list = []
-        line_list = []
-        for line in msg_list:
-            line_list.append(line.replace("¥", "").replace(",", "").strip())
-            cnt += 1
-            if cnt == row:
-                record_list.append(line_list)
-                cnt = 0
-                line_list = []
-        return record_list
+        if not success:
+            for msg in errors:
+                messages.error(self.request, msg)
+            return self.render_to_response(self.get_context_data(form=form, **result_ctx))
 
-    def set_himoku(self, data_list, himoku_list):
-        """支払い承認データに費目名を追加する
-        - 摘要欄に費目名が含まれていたら、費目名を追加する。
-        - 上記でない場合、default費目名（”不明”）を追加する。
-        """
-        new_data_list = []
-        # default費目名を求める。
-        default_himoku = Himoku.get_default_himoku()
-        if default_himoku:
-            default_himoku_name = default_himoku.himoku_name
-        else:
-            messages.info(
-                self.request,
-                "defaultの費目名が設定されていません。管理者に連絡してください",
-            )
-            return None
-        for data in data_list:
-            chk = True
-            for himoku in himoku_list:
-                if himoku in data[1]:
-                    data.append(himoku)
-                    chk = False
-                    break
-            # 費目名が推定できなければ、デフォルト費目名（不明）をリストに追加
-            if chk:
-                data.append(default_himoku_name)
-            new_data_list.append(data)
-        return new_data_list
+        if "確認" in result_ctx["mode"]:
+            return self.render_to_response(self.get_context_data(form=form, **result_ctx))
+
+        # 登録成功時
+        messages.success(
+            self.request,
+            f"{result_ctx['year']}-{result_ctx['month']}-{result_ctx['day']}の承認済みデータの取り込みが完了しました。",
+        )
+
+        # GETパラメータでリダイレクト
+        params = urlencode(
+            {
+                "year": result_ctx["year"],
+                "month": result_ctx["month"],
+                "day": 10,
+                "list_order": 0,
+            }
+        )
+        return redirect(f"{reverse('payment:payment_list')}?{params}")

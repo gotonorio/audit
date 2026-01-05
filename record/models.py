@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.utils import timezone
-from passbook.utils import select_period
+from passbook.services import select_period
 
 user = get_user_model()
 logger = logging.getLogger(__name__)
@@ -69,12 +69,12 @@ class AccountingClass(models.Model):
         return qs
 
     @classmethod
-    def get_accountingclass_name(cls, ac_pk):
+    def get_accountingclass_name(cls, ac_pk) -> str:
         try:
             qs = cls.objects.get(pk=ac_pk)
             ac_name = qs.accounting_name
         except AccountingClass.DoesNotExist:
-            ac_name = None
+            ac_name = ""
 
         return ac_name
 
@@ -188,11 +188,15 @@ class Himoku(models.Model):
             return None
 
     @classmethod
-    def get_himoku_list(cls):
+    def get_himoku_list(cls, ac_class_name=None):
         """有効な費目名をリストで返す"""
         himoku_list = []
-        himoku_list = cls.objects.filter(alive=True).values_list("himoku_name", flat=True)
-        return himoku_list
+        himoku_list = (
+            cls.objects.filter(accounting_class__accounting_name=ac_class_name)
+            # .filter(alive=True)
+            .values_list("himoku_name", flat=True)
+        )
+        return list(himoku_list)
 
     @classmethod
     def get_without_community(cls):

@@ -102,73 +102,75 @@
     </table>
   </div>
   <br>
-  {% if perms.record.view_transaction %}
-  <div class="has-text-weight-bold">貸借対照表のチェック</div>
-  <div class="table-container">
-    <table class="table table_nowrap is-bordered">
-      <tbody>
-        <tr>
-          <td class="has-text-left">前月の銀行残高</td>
-          <td class="has-text-right">{{prev_dict.三菱UFJ銀行普通預金|intcomma}}</td>
-          <td class="has-text-left">計算上の当月の銀行残高</td>
-          <td class="has-text-right">{{curr_dict.計算現金残高|intcomma}}</td>
-          <td class="has-text-right has-text-danger">誤差：{{difference|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left"></td>
-          <td class="has-text-right"></td>
-          <td class="has-text-left">当月の収入</td>
-          <td class="has-text-right">{{curr_dict.当月収入|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left"></td>
-          <td class="has-text-right"></td>
-          <td class="has-text-left">当月の支出</td>
-          <td class="has-text-right">{{curr_dict.当月支出|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left">前月の未収金</td>
-          <td class="has-text-right">{{prev_dict.未収金|intcomma}}</td>
-          <td class="has-text-left">当月の未収金</td>
-          <td class="has-text-right">{{curr_dict.未収金|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left">前月の未払金</td>
-          <td class="has-text-right">{{prev_dict.未払金|intcomma}}</td>
-          <td class="has-text-left">当月の未払金</td>
-          <td class="has-text-right">{{curr_dict.未払金|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left">前月の前受金</td>
-          <td class="has-text-right">{{prev_dict.前受金|intcomma}}</td>
-          <td class="has-text-left">当月の前受金</td>
-          <td class="has-text-right">{{curr_dict.前受金|intcomma}}</td>
-        </tr>
-        <tr>
-          <td class="has-text-left">前月の前払金</td>
-          <td class="has-text-right">{{prev_dict.前払金|intcomma}}</td>
-          <td class="has-text-left">当月の前払金</td>
-          <td class="has-text-right">{{curr_dict.前払金|intcomma}}</td>
-        </tr>
-      </tbody>
-    </table>
+  {% if ac_class > 0 %}
+    {% if perms.record.view_transaction %}
+    <div class="has-text-weight-bold">貸借対照表のチェック</div>
+    <div class="table-container">
+      <table class="table table_nowrap is-bordered">
+        <tbody>
+          <tr>
+            <td class="has-text-left">前月の銀行残高</td>
+            <td class="has-text-right">{{prev_dict.三菱UFJ銀行普通預金|intcomma}}</td>
+            <td class="has-text-left">計算上の当月の銀行残高</td>
+            <td class="has-text-right">{{curr_dict.計算現金残高|intcomma}}</td>
+            <td class="has-text-right has-text-danger">誤差：{{difference|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left"></td>
+            <td class="has-text-right"></td>
+            <td class="has-text-left">当月の収入</td>
+            <td class="has-text-right">{{curr_dict.当月収入|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left"></td>
+            <td class="has-text-right"></td>
+            <td class="has-text-left">当月の支出</td>
+            <td class="has-text-right">{{curr_dict.当月支出|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left">前月の未収金</td>
+            <td class="has-text-right">{{prev_dict.未収金|intcomma}}</td>
+            <td class="has-text-left">当月の未収金</td>
+            <td class="has-text-right">{{curr_dict.未収金|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left">前月の未払金</td>
+            <td class="has-text-right">{{prev_dict.未払金|intcomma}}</td>
+            <td class="has-text-left">当月の未払金</td>
+            <td class="has-text-right">{{curr_dict.未払金|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left">前月の前受金</td>
+            <td class="has-text-right">{{prev_dict.前受金|intcomma}}</td>
+            <td class="has-text-left">当月の前受金</td>
+            <td class="has-text-right">{{curr_dict.前受金|intcomma}}</td>
+          </tr>
+          <tr>
+            <td class="has-text-left">前月の前払金</td>
+            <td class="has-text-right">{{prev_dict.前払金|intcomma}}</td>
+            <td class="has-text-left">当月の前払金</td>
+            <td class="has-text-right">{{curr_dict.前払金|intcomma}}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="is-size-7">
-      前月の銀行残高	：前月の貸借対照表における銀行（三菱UFJ銀行普通預金）残高<br>
-      前月の未収金	：前月の貸借対照表における未収金<br>
-      前月の未払金	：前月の貸借対照表における未払金<br>
-      前月の前受金	：前月の貸借対照表における前受金<br>
-      前月の前払金	：前月の貸借対照表における前払金<br>
-      <br>
-      当月の収入		：当月の月次報告収入データ<br>
-      当月の支出		：当月の月次報告支出データ（口座振替手数料を含む）<br>
-      当月の未収金	：当月の貸借対照表における未収金<br>
-      当月の未払金	：当月の貸借対照表における未払金<br>
-      当月の前受金	：当月の貸借対照表における前受金<br>
-      当月の前払金	：当月の貸借対照表における前払金<br>
+      <div class="is-size-7">
+        前月の銀行残高	：前月の貸借対照表における銀行（三菱UFJ銀行普通預金）残高<br>
+        前月の未収金	：前月の貸借対照表における未収金<br>
+        前月の未払金	：前月の貸借対照表における未払金<br>
+        前月の前受金	：前月の貸借対照表における前受金<br>
+        前月の前払金	：前月の貸借対照表における前払金<br>
+        <br>
+        当月の収入		：当月の月次報告収入データ<br>
+        当月の支出		：当月の月次報告支出データ（口座振替手数料を含む）<br>
+        当月の未収金	：当月の貸借対照表における未収金<br>
+        当月の未払金	：当月の貸借対照表における未払金<br>
+        当月の前受金	：当月の貸借対照表における前受金<br>
+        当月の前払金	：当月の貸借対照表における前払金<br>
+      </div>
+      <div class="is-size-7">今月末現金残高 = 前月末現金残高 + 今月収入 - 今月支出 +（未払金増加＋前受金増加）−（未収金増加＋前払金増加）</div>
     </div>
-    <div class="is-size-7">今月末現金残高 = 前月末現金残高 + 今月収入 - 今月支出 +（未払金増加＋前受金増加）−（未収金増加＋前払金増加）</div>
-  </div>
+    {% endif %}
   {% endif %}
   <br>
 </div>

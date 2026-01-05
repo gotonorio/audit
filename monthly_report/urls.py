@@ -35,16 +35,12 @@ urlpatterns = [
     # データ編集
     # ------------------------------------------------------------------------
     # create
-    path(
-        "create_income/",
-        data_views.MonthlyReportIncomeCreateView.as_view(),
-        name="create_income",
-    ),
-    path(
-        "create_expense/",
-        data_views.MonthlyReportExpenseCreateView.as_view(),
-        name="create_expense",
-    ),
+    # path("create_income/", views.MonthlyReportIncomeCreateView.as_view(), name="create_income"),
+    # path(
+    #     "create_expense/",
+    #     data_views.MonthlyReportExpenseCreateView.as_view(),
+    #     name="create_expense",
+    # ),
     path("create_bs/", data_views.BalanceSheetCreateView.as_view(), name="create_bs"),
     path(
         "create_bs_item/",
@@ -52,14 +48,10 @@ urlpatterns = [
         name="create_bs_item",
     ),
     # update
-    path(
-        "update_income/<int:pk>/",
-        data_views.MonthlyReportIncomeUpdateView.as_view(),
-        name="update_income",
-    ),
+    path("update_income/<int:pk>/", views.MonthlyReportIncomeUpdateView.as_view(), name="update_income"),
     path(
         "update_expense/<int:pk>/",
-        data_views.MonthlyReportExpenseUpdateView.as_view(),
+        views.MonthlyReportExpenseUpdateView.as_view(),
         name="update_expense",
     ),
     path(
@@ -73,14 +65,10 @@ urlpatterns = [
         name="update_bs_item",
     ),
     # delete
-    path(
-        "delete_income/<int:pk>/",
-        data_views.DeleteIncomeView.as_view(),
-        name="delete_income",
-    ),
+    path("delete_income/<int:pk>/", views.DeleteIncomeView.as_view(), name="delete_income"),
     path(
         "delete_expense/<int:pk>/",
-        data_views.DeleteExpenseView.as_view(),
+        views.DeleteExpenseView.as_view(),
         name="delete_expense",
     ),
     path(
