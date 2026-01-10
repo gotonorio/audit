@@ -3,7 +3,7 @@ import logging
 from control.models import ControlRecord
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models.aggregates import Sum
+from django.db.models import Sum
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone

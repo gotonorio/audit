@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models.aggregates import Sum
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic

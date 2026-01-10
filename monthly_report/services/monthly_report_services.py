@@ -1,7 +1,7 @@
 import calendar
 
 from django.conf import settings
-from django.db.models.aggregates import Case, Sum, When
+from django.db.models import Case, Sum, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime

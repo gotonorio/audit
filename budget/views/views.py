@@ -2,7 +2,7 @@ import calendar
 import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models.aggregates import Max, Sum
+from django.db.models import Max, Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views.generic import TemplateView

@@ -5,8 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q
-from django.db.models.aggregates import Sum
+from django.db.models import Q, Sum
 from django.utils import timezone
 from record.models import Account, AccountingClass, Himoku
 
