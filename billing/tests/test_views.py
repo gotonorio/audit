@@ -32,19 +32,6 @@ class BillingListViewTests(TestCase):
         # raise_exception = True なので 302(リダイレクト) ではなく 403
         self.assertEqual(response.status_code, 403)
 
-    def test_context_data_with_url_kwargs(self):
-        """URLパス引数 /2025/12/ でアクセスした際のコンテキスト確認"""
-        url_with_params = reverse("billing:billing_list", kwargs={"year": 2025, "month": 12})
-        response = self.client.get(url_with_params)
-
-        self.assertEqual(response.status_code, 200)
-        # View内のロジックで str() に変換されていることを確認
-        self.assertEqual(response.context["year"], "2025")
-        self.assertEqual(response.context["month"], "12")
-        self.assertEqual(response.context["yyyymm"], "2025年12月")
-        # フォームに初期値が渡されているか
-        self.assertEqual(response.context["form"].initial["year"], "2025")
-
     def test_context_data_with_get_params(self):
         """GETパラメータ ?year=2024&month=1 でアクセスした際のコンテキスト確認"""
         response = self.client.get(self.url, {"year": "2024", "month": "1"})

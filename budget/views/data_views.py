@@ -34,7 +34,7 @@ class CreateKanriBudgetView(PermissionRequiredMixin, generic.CreateView):
         """Formクラスへ値(accounting_class名)を渡す
         - https://hideharaaws.hatenablog.com/entry/2017/02/05/021111
         - https://itc.tokyo/django/get-form-kwargs/
-        - 管理費会計、修繕積立金会計、駐車場会計、町内会会計
+        - 管理費会計に関する「支出費目名」だけを表示させる
         """
         kwargs = super().get_form_kwargs(*args, **kwargs)
         # 管理会計区分名をkwargsに追加する。
