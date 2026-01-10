@@ -30,9 +30,7 @@
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'record:transaction_list' %}?year={{year}}&month={{month}}&day=0&list_order=0 ">入出金明細の一覧</a>
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
-      </div>
+      <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>
 </nav>

@@ -31,9 +31,7 @@
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'monthly_report:year_expenselist'%}?year={{year}}&accounting_class={{ac}}">年間支出</a>
       <a class="navbar-item" href="{% url 'monthly_report:year_incomelist'%}?year={{year}}&accounting_class={{ac}}">年間収入</a>
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
-      </div>
+      <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>
 </nav>

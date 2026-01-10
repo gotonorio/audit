@@ -56,27 +56,11 @@
           <a class="navbar-item" href="{% url 'budget:duplicate' %}">管理会計予算の複製</a>
         </div>
       </div>
-      {% comment %}データの手動登録は廃止したのでコメントアウト。データはクラセルから取り込むこと。
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">手動登録</a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'monthly_report:create_income' %}">月次報告収入登録</a>
-          <a class="navbar-item" href="{% url 'monthly_report:create_expense' %}">月次報告支出登録</a>
-          <hr class="navbar-divider">
-          <a class="navbar-item" href="{% url 'record:transaction_create' %}">入出金明細登録</a>
-          <hr class="navbar-divider">
-        </div>
-      </div>
-      {% endcomment %}
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'control:backupDB' %}" >DBバックアップ</a>
-      </div>
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:mypage' %}" >戻る</a>
-      </div>
+      <a class="navbar-item" href="{% url 'control:backupDB' %}" >DBバックアップ</a>
+      <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>
 </nav>

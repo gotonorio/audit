@@ -27,9 +27,7 @@
       {% if perms.record.add_transaction and qs.pk %}
         <a class="navbar-item" href="{% url 'explanation:description_update' qs.pk %}">修正</a>
       {% endif %}
-      <div class="navbar-item">
-        <a class="button is-light is-size-7 has-text-weight-bold" href="{% url 'register:master_page' %}" >戻る</a>
-      </div>
+      <a class="navbar-item" href="{% url 'register:master_page' %}" >戻る</a>
     </div>
   </div>
 </nav>
