@@ -137,11 +137,8 @@
             {{total_last_mishuu|subtract:check_last_mishuu|intcomma}}円）</div>
         {% endif %}
       </div>
-
-
-
-
     </div>
+
     <div class='column is-half'>
       <div class="content">
         <div class="is-size-5">通帳 収入データ</div>
@@ -201,6 +198,45 @@
           </tbody>
         </table>
       </div>
+      <br>
+
+      <!-- ################################################## -->
+      {% if total_maeuke_bs > 0 %}
+      <div class="content">
+        <div class="is-size-5">貸借対照表による当月の前払金</div>
+      </div>
+      <div class="table-container">
+        <table class="table table_nowrap is-narrow is-striped">
+          <thead>
+            <tr>
+              <th class="has-text-centered">年月</th>
+              <th class="has-text-centered">項目名</th>
+              <th class="has-text-centered">金額</th>
+              <th class="has-text-centered">備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in this_maeuke_bs %}
+            <tr>
+              <td class="has-text-ledt">
+                <a href="{% url 'monthly_report:update_bs' record.pk %}">{{record.monthly_date|date:'m-d'}}</a>
+              </td>
+              <td class="has-text-ledt">{{record.item_name.ac_class}}</td>
+              <td class="has-text-right">{{record.amounts|intcomma}}</td>
+              <td class="has-text-ledt is-size-7">{{record.comment|default_if_none:''}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td class="has-text-right">合計</td>
+              <td class="has-text-right">{{total_maeuke_bs|intcomma}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+      <!-- ################################################## -->
+
       <br>
       <div class="content">
         <div class="is-size-5">貸借対照表による当月の未収金</div>

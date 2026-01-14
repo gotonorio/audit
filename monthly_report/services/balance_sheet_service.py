@@ -29,19 +29,20 @@ def fetch_balancesheet_by_class(tstart, tend, ac_class):
 def fetch_balancesheet_all(tstart, tend):
     """全会計区分（町内会含む）の貸借対照表"""
     asset_list = []
-    debt_list = []
+    liabilities_list = []
 
+    # 資産
     for item in BalanceSheet.get_bs(tstart, tend, ac_class=False, is_asset=True):
         tmp = list(item.values())
         tmp.append("")
         asset_list.append(tmp)
-
+    # 負債
     for item in BalanceSheet.get_bs(tstart, tend, ac_class=False, is_asset=False):
         tmp = list(item.values())
         tmp.append("")
-        debt_list.append(tmp)
+        liabilities_list.append(tmp)
 
-    return asset_list, debt_list
+    return asset_list, liabilities_list
 
 
 def make_balancesheet(asset, debt):
@@ -77,3 +78,7 @@ def merge_balancesheet(asset_list, debt_list, total_bs):
         ]
     )
     return balance_list
+
+
+def get_maeuke_amount(year, month):
+    """指定された年月の前払金を返す"""

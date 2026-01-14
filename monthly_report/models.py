@@ -307,7 +307,7 @@ class BalanceSheet(models.Model):
             .filter(item_name__item_name__contains=settings.RECIVABLE)
             .order_by("item_name")
         )
-        # 貸借対照表上の前月の未収金合計
+        # 貸借対照表上の未収金合計
         total_mishuu = 0
         for d in qs_mishuu_bs:
             total_mishuu += d.amounts
@@ -335,9 +335,9 @@ class BalanceSheet(models.Model):
             .filter(item_name__item_name__contains=settings.MAEUKE)
             .order_by("item_name")
         )
-        # 貸借対照表上の前月の未収金合計
+        # 貸借対照表上の未収金合計
         total_maeuke = 0
         for d in qs_maeuke_bs:
             total_maeuke += d.amounts
 
-        return total_maeuke
+        return qs_maeuke_bs, total_maeuke
