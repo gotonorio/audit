@@ -9,7 +9,7 @@ from passbook.services import select_period
 from record.models import Transaction
 
 from check_record.mixins import IncomeCheckParamMixin
-from check_record.services import calculate_netting_total, get_monthly_income_check_data
+from check_record.services.income_check_service import calculate_netting_total, get_monthly_income_check_data
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,8 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, IncomeCheckParamMixi
         # 計算ロジック（差額など）を整理
         total_mr_final = data["total_mr"] + data["total_mishuu_claim"]
         total_pb_final = data["total_pb"] + data["netting_total"]
-        total_diff = (total_pb_final + data["total_last_maeuke"]) - total_mr_final
+
+        total_diff = (total_pb_final + data["total_last_maeuke_claim"]) - total_mr_final
 
         context.update(
             {
@@ -42,13 +43,12 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, IncomeCheckParamMixi
                 "total_mishuu_bs": data["total_mishuu_bs"],
                 "last_mishuu_bs": data["last_mishuu_bs"],
                 "total_mishuu_claim": data["total_mishuu_claim"],
-                "total_last_mishuu": data["total_last_mishuu"],
-                "total_last_maeuke": data["total_last_maeuke"],
+                "total_last_mishuu_bs": data["total_last_mishuu_bs"],
+                "total_last_maeuke_claim": data["total_last_maeuke_claim"],
                 "total_comment": data["total_comment"],
                 "total_mr": total_mr_final,
                 "total_pb": total_pb_final,
                 "total_diff": total_diff,
-                "check_last_mishuu": data["total_mishuu_claim"] - data["total_last_maeuke"],
                 "form": YearMonthForm(initial={"year": data["year"], "month": data["month"]}),
                 "this_maeuke_bs": data["this_maeuke_bs"],
                 "total_maeuke_bs": data["total_maeuke_bs"],

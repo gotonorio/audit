@@ -128,14 +128,10 @@
             <tr>
               <td></td>
               <td class="has-text-right">合計</td>
-              <td class="has-text-right">{{total_last_mishuu|intcomma}}</td>
+              <td class="has-text-right">{{total_last_mishuu_bs|intcomma}}</td>
             </tr>
           </tbody>
         </table>
-        {% if total_last_mishuu != check_last_mishuu %}
-          <div class="has-text-centered has-text-danger">※ 請求時点の未収金額と前月の貸借対照表の未収金額が不一致（
-            {{total_last_mishuu|subtract:check_last_mishuu|intcomma}}円）</div>
-        {% endif %}
       </div>
     </div>
 
@@ -181,11 +177,11 @@
               <td class="has-text-right">{{total_pb|intcomma}}</td>
               <td class="has-text-ledt is-size-7">相殺処理分を考慮</td>
             </tr>
-            {% if total_last_maeuke %}
+            {% if total_last_maeuke_claim %}
             <tr>
               <td></td>
-              <td class="has-text-right">使用する前受金</td>
-              <td class="has-text-right">{{total_last_maeuke|intcomma}}</td>
+              <td class="has-text-right">使用する前月の前受金</td>
+              <td class="has-text-right">{{total_last_maeuke_claim|intcomma}}</td>
               <td class="has-text-left is-size-7">{{total_comment}}</td>
             </tr>
             {% endif %}
@@ -203,7 +199,7 @@
       <!-- ################################################## -->
       {% if total_maeuke_bs > 0 %}
       <div class="content">
-        <div class="is-size-5">貸借対照表による当月の前払金</div>
+        <div class="is-size-5">貸借対照表による当月の前受金</div>
       </div>
       <div class="table-container">
         <table class="table table_nowrap is-narrow is-striped">

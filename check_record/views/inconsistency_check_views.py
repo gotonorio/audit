@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from passbook.forms import YearMonthForm
 
 from check_record.mixins import IncomeCheckParamMixin
-from check_record.services import get_expense_inconsistency_summary
+from check_record.services.services import get_expense_inconsistency_summary
 
 
 class IncosistencyCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):

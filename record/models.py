@@ -639,7 +639,7 @@ class ClaimData(models.Model):
         return total, maeuke_dict, comment
 
     @classmethod
-    def get_mishuu(cls, year, month):
+    def get_mishuu_claim(cls, year, month):
         """指定された年月の請求時未収金dictのリストを返す"""
         date_str = str(year) + str(month).zfill(2) + "01"
         claim_date = datetime.datetime.strptime(date_str, "%Y%m%d")
