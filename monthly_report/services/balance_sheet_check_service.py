@@ -60,13 +60,13 @@ def check_balancesheet(year, month, ac_class):
     current[settings.MAEUKE] = pick(curr_debt, settings.MAEUKE)
 
     current["計算現金残高"] = (
-        previous[settings.BANK_NAME]
+        previous[settings.BANK_NAME]  # 前月銀行残高
         + current["当月収入"]
+        + (current[settings.PAYABLE] - previous[settings.PAYABLE])  # 未払金の増分を足しこむ
+        + (current[settings.MAEUKE] - previous[settings.MAEUKE])  # 前受金の増分を足しこむ
         - current["当月支出"]
-        - (current[settings.RECIVABLE] - previous[settings.RECIVABLE])
-        + (current[settings.PAYABLE] - previous[settings.PAYABLE])
-        + (current[settings.MAEUKE] - previous[settings.MAEUKE])
-        - (current[settings.MAEBARAI] - previous[settings.MAEBARAI])
+        - (current[settings.RECIVABLE] - previous[settings.RECIVABLE])  # 未収金の増分を差し引く
+        - (current[settings.MAEBARAI] - previous[settings.MAEBARAI])  # 前払金の増分を差し引く
     )
 
     return previous, current

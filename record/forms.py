@@ -450,7 +450,7 @@ class ClaimUpdateForm(forms.ModelForm):
 
     comment = forms.CharField(
         label="摘要",
-        required=True,
+        required=False,
         widget=forms.TextInput(
             attrs={
                 "class": "input",

@@ -2,8 +2,9 @@ import datetime
 import logging
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views import generic
 from passbook.services import select_period
@@ -89,15 +90,18 @@ class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
     # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
     raise_exception = True
 
-    # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = Payment.objects.filter(pk=self.object.pk).values("payment_date")
-        year = qs[0]["payment_date"].year
-        month = qs[0]["payment_date"].month
-        return reverse_lazy(
-            "payment:payment_list",
-            kwargs={"year": year, "month": month},
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("payment:payment_list")
+
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.payment_date.year,
+                "month": self.object.payment_date.month,
+            }
         )
+        return f"{base_url}?{params}"
 
 
 class PaymentMethodCreateView(PermissionRequiredMixin, generic.CreateView):

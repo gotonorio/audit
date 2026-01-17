@@ -280,12 +280,11 @@ class BalanceSheetUpdateView(PermissionRequiredMixin, generic.UpdateView):
         """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
         base_url = reverse("monthly_report:bs_table")
         # クエリパラメータを辞書形式で定義
-        qs = BalanceSheet.objects.filter(pk=self.object.pk).first()
         params = urlencode(
             {
-                "year": qs.monthly_date.year,
-                "month": qs.monthly_date.month,
-                "ac_class": qs.item_name.ac_class.pk,
+                "year": self.object.monthly_date.year,
+                "month": self.object.monthly_date.month,
+                "accounting_class": self.object.item_name.ac_class.pk,
             }
         )
 

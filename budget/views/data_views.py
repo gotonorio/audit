@@ -102,7 +102,6 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
         base_url = reverse("budget:budget_update_list")
-
         # クエリパラメータを辞書形式で定義
         params = urlencode(
             {
@@ -110,7 +109,6 @@ class UpdateBudgetView(PermissionRequiredMixin, generic.UpdateView):
                 "ac_class": self.object.himoku.accounting_class.id,
             }
         )
-
         return f"{base_url}?{params}"
 
     def get_form_kwargs(self):
@@ -246,13 +244,15 @@ class DeleteBudgetView(PermissionRequiredMixin, generic.DeleteView):
 
     # success_url = reverse_lazy("budget:budget_update_list")
     def get_success_url(self):
-        return reverse_lazy(
-            "budget:budget_update_list",
-            kwargs={
+        base_url = reverse("budget:budget_update_list")
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
                 "year": self.object.year,
                 "ac_class": self.object.himoku.accounting_class.id,
-            },
+            }
         )
+        return f"{base_url}?{params}"
 
     # 削除処理をログ出力する。
     # # 4.0以降delete()をオーバライドするのではなく、form_valid()をオーバライドするようだ。

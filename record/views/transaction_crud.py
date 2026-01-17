@@ -3,8 +3,9 @@ import logging
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.views import generic
 
 from record.forms import TransactionCreateForm
@@ -62,16 +63,18 @@ class TransactionUpdateView(PermissionRequiredMixin, generic.UpdateView):
     template_name = "record/transaction_form.html"
     permission_required = "record.add_transaction"
 
-    # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
-        year = qs[0].year
-        month = qs[0].month
-        # UPDATE後に表示する時の「year」「month」「list_order」「himoku_id」をkwargsに設定。
-        return reverse_lazy(
-            "record:transaction_list",
-            kwargs={"year": year, "month": month, "list_order": 0, "himoku_id": 0},
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("record:transaction_list")
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "himoku_id": self.object.himoku.id,
+            }
         )
+        return f"{base_url}?{params}"
 
     def get_context_data(self, **kwargs):
         """templateファイルに変数を渡す"""
@@ -108,13 +111,17 @@ class TransactionDeleteView(PermissionRequiredMixin, generic.DeleteView):
 
     # 削除が成功した場合の遷移処理
     def get_success_url(self):
-        qs = Transaction.objects.filter(pk=self.object.pk).values_list("transaction_date", flat=True)
-        year = qs[0].year
-        month = qs[0].month
-        return reverse_lazy(
-            "record:transaction_list",
-            kwargs={"year": year, "month": month, "list_order": 0, "himoku_id": 0},
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("record:transaction_list")
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.transaction_date.year,
+                "month": self.object.transaction_date.month,
+                "himoku_id": self.object.himoku.id,
+            }
         )
+        return f"{base_url}?{params}"
 
     def form_valid(self, form):
         """djang 4.0で、delete()で行う処理はform_valid()を使うようになったみたい。

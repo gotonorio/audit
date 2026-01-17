@@ -2,8 +2,9 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views import generic
 from passbook.services import select_period
@@ -64,11 +65,14 @@ class ClaimdataUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
     # 保存が成功した場合に遷移するurl
     def get_success_url(self):
-        qs = ClaimData.objects.filter(pk=self.object.pk).values("claim_date", "claim_type")
-        year = qs[0]["claim_date"].year
-        month = qs[0]["claim_date"].month
-        claim_type = qs[0]["claim_type"]
-        return reverse_lazy(
-            "record:claim_list",
-            kwargs={"year": year, "month": month, "claim_type": claim_type},
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("record:claim_list")
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.claim_date.year,
+                "month": self.object.claim_date.month,
+                "claim_type": self.object.claim_type,
+            }
         )
+        return f"{base_url}?{params}"
