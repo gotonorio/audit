@@ -12,7 +12,9 @@ from check_record.services.expense_check_service import (
 
 
 class MonthlyReportExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
-    """月次収支の支出データと口座支出データの月別比較リスト"""
+    """月次収支の支出データと口座支出データの月別比較リスト
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "check_record/kurasel_mr_expense_check.html"
     permission_required = ("record.view_transaction",)
@@ -47,7 +49,9 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, T
 
 
 class YearReportExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
-    """月次報告の年間支出データと口座支出データの比較リスト"""
+    """月次報告の年間支出データと口座支出データの比較リスト
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "check_record/year_expense_check.html"
     permission_required = ("record.view_transaction",)

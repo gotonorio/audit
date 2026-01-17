@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 class ApprovalExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     """支払い承認データと入出金明細データの月別比較リスト
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
     - 入出金データの合計では、承認不要費目（資金移動、共用部電気料等）を除外する。
     - 未払金（貸借対照表データ）の表示。
     """

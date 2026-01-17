@@ -1,5 +1,6 @@
 import logging
 
+from common.mixins import PeriodParamMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
@@ -11,8 +12,6 @@ from payment.forms import (
 )
 from payment.models import Payment, PaymentMethod
 from payment.services.service import get_payment_summary
-
-from .mixins import PaymentParamMixin
 
 logger = logging.getLogger(__name__)
 
@@ -28,26 +27,39 @@ class PaymentAdminBase:
     success_url = reverse_lazy("payment:create_paymentmethod")
 
 
-class PaymentListView(PermissionRequiredMixin, PaymentParamMixin, generic.TemplateView):
-    """年月別の承認済み支払いの表示"""
+class PaymentListView(PermissionRequiredMixin, PeriodParamMixin, generic.TemplateView):
+    """年月別の承認済み支払いの表示
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "payment/approval_payment_list.html"
     permission_required = ("record.view_transaction",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        p = self.get_payment_params()
+        # common/mixins
+        year, month = self.get_year_month_params()
+        day = int(self.request.GET.get("day") or 0)
+        list_order = int(self.request.GET.get("list_order") or 0)
 
         # Serviceからデータを取得
-        qs, total = get_payment_summary(p["year"], p["month"], p["day"], p["list_order"])
+        qs, total = get_payment_summary(year, month, day, list_order)
 
         context.update(
             {
                 "approval_list": qs,
                 "total": total,
-                "year": p["year"],
-                "month": p["month"],
-                "form": ApprovalPaymentListForm(initial=p),
+                "year": year,
+                "month": month,
+                "form": ApprovalPaymentListForm(
+                    initial={
+                        "year": year,
+                        "month": month,
+                        "day": day,
+                        "list_order": list_order,
+                    }
+                ),
+                # "form": ApprovalPaymentListForm(initial=p),
             }
         )
         return context

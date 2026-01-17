@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class BillingAmountCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
-    """請求金額内訳データと月次報告比較リスト"""
+    """請求金額内訳データと月次報告比較リスト
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "check_record/billing_income_check.html"
     permission_required = ("record.view_transaction",)

@@ -7,7 +7,9 @@ from check_record.services.services import get_expense_inconsistency_summary
 
 
 class IncosistencyCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
-    """月次支出報告と通帳支払いデータの「不整合チェック」"""
+    """月次支出報告と通帳支払いデータの「不整合チェック
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "check_record/expense_check.html"
     permission_required = ("record.view_transaction",)

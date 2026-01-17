@@ -8,7 +8,9 @@ from .models import Billing
 
 
 class BillingListView(PeriodParamMixin, PermissionRequiredMixin, TemplateView):
-    """請求合計金額内訳リスト"""
+    """請求合計金額内訳リスト
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
 
     template_name = "billing/billing_list.html"
     permission_required = ("record.view_transaction",)

@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class MonthlyReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
+    """
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
+
     template_name = "check_record/kurasel_mr_income_check.html"
     permission_required = ("record.view_transaction",)
 
@@ -58,6 +62,10 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, Te
 
 
 class YearReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
+    """
+    - PeriodParamMixinを継承してget_year_month_params()を呼び出す。
+    """
+
     template_name = "check_record/year_income_check.html"
     permission_required = ("record.view_transaction",)
 
