@@ -1,16 +1,16 @@
 import logging
 
+from common.mixins import PeriodParamMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
 from passbook.forms import YearMonthForm
 
-from check_record.mixins import IncomeCheckParamMixin
 from check_record.services.services import get_apploval_check_service
 
 logger = logging.getLogger(__name__)
 
 
-class ApprovalExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):
+class ApprovalExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     """支払い承認データと入出金明細データの月別比較リスト
     - 入出金データの合計では、承認不要費目（資金移動、共用部電気料等）を除外する。
     - 未払金（貸借対照表データ）の表示。
@@ -22,7 +22,8 @@ class ApprovalExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, T
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        year, month = self.get_params()
+        # common/mixins
+        year, month = self.get_year_month_params()
 
         # Service層からクリーンなデータを取得
         summary = get_apploval_check_service(year, month)

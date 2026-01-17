@@ -63,16 +63,16 @@
       <tbody>
         {% for record in expense_budget %}
         <tr>
-          <td class="has-text-left">{{record.0}}</td>
-          <td class="has-text-right">{{record.1|intcomma}}</td>
-          <td class="has-text-right">{{record.2|intcomma}}</td>
-          {% if record.3 < 0 %}
-          <td class="has-text-right has-text-danger">{{record.3|intcomma}}</td>
+          <td class="has-text-left">{{record.himoku}}</td>
+          <td class="has-text-right">{{record.budget|intcomma}}</td>
+          <td class="has-text-right">{{record.actual|intcomma}}</td>
+          {% if record.balance < 0 %}
+          <td class="has-text-right has-text-danger">{{record.balance|intcomma}}</td>
           {% else %}
-          <td class="has-text-right">{{record.3|intcomma}}</td>
+          <td class="has-text-right">{{record.balance|intcomma}}</td>
           {% endif %}
-          <td class="has-text-right">{{record.4|stringformat:'.1f'}}</td>
-          <td class="has-text-left is-size-7">{{record.5|default_if_none:''}}</td>
+          <td class="has-text-right">{{record.ratio|stringformat:'.1f'}}</td>
+          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''}}</td>
         </tr>
         {% endfor %}
         <tr>
@@ -130,9 +130,9 @@
   {% for data in expense_budget %}
   <script type="text/javascript">
     var list = [];
-    list.push("{{data.0}}");
-    list.push("{{data.1}}");
-    list.push("{{data.2}}");
+    list.push("{{data.himoku}}");
+    list.push("{{data.budget}}");
+    list.push("{{data.actual}}");
     graph_data.push(list);
   </script>
   {% endfor %}

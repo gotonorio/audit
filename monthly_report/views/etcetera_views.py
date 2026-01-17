@@ -1,10 +1,10 @@
+from common.services import select_period
 from control.models import ControlRecord
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from passbook.services import select_period
 from record.models import AccountingClass
 
 from monthly_report.forms import MonthlyReportViewForm

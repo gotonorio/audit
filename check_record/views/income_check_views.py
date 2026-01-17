@@ -1,26 +1,26 @@
 import datetime
 import logging
 
+from common.mixins import PeriodParamMixin
+from common.services import select_period
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
 from monthly_report.models import BalanceSheet, ReportTransaction
 from passbook.forms import YearMonthForm
-from passbook.services import select_period
 from record.models import Transaction
 
-from check_record.mixins import IncomeCheckParamMixin
 from check_record.services.income_check_service import calculate_netting_total, get_monthly_income_check_data
 
 logger = logging.getLogger(__name__)
 
 
-class MonthlyReportIncomeCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):
+class MonthlyReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     template_name = "check_record/kurasel_mr_income_check.html"
     permission_required = ("record.view_transaction",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year, month = self.get_params()
+        year, month = self.get_year_month_params()
 
         # Service層で一括集計
         data = get_monthly_income_check_data(year, month)
@@ -57,13 +57,13 @@ class MonthlyReportIncomeCheckView(PermissionRequiredMixin, IncomeCheckParamMixi
         return context
 
 
-class YearReportIncomeCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):
+class YearReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     template_name = "check_record/year_income_check.html"
     permission_required = ("record.view_transaction",)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year, _ = self.get_params()
+        year, _ = self.get_year_month_params()
         tstart, tend = select_period(year, 0)
 
         # 1. 月次報告年間合計 (Service化推奨だが、ここでは整理のみ)

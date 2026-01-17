@@ -1,8 +1,8 @@
 # monthly_report/services/balance_sheet_services.py
 import logging
 
+from common.services import append_list
 from monthly_report.models import BalanceSheet
-from passbook.services import append_list
 from record.models import AccountingClass
 
 logger = logging.getLogger(__name__)

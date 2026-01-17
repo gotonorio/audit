@@ -1,5 +1,6 @@
 import logging
 
+from common.services import select_period
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse, reverse_lazy
@@ -7,7 +8,6 @@ from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views import generic
-from passbook.services import select_period
 
 from record.forms import ClaimListForm, ClaimUpdateForm
 from record.models import ClaimData

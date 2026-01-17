@@ -1,14 +1,13 @@
+from common.mixins import PeriodParamMixin
+from common.services import select_period
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.utils import timezone
-from django.utils.timezone import localtime
 from django.views.generic import TemplateView
 from passbook.forms import YearMonthForm
-from passbook.services import select_period
 
 from .models import Billing
 
 
-class BillingListView(PermissionRequiredMixin, TemplateView):
+class BillingListView(PeriodParamMixin, PermissionRequiredMixin, TemplateView):
     """請求合計金額内訳リスト"""
 
     template_name = "billing/billing_list.html"
@@ -20,11 +19,7 @@ class BillingListView(PermissionRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         # GETパラメータ(self.request.GET)
-        now = localtime(timezone.now())
-        year = self.request.GET.get("year") or now.year
-        month = self.request.GET.get("month") or now.month
-        year = int(year)
-        month = int(month)
+        year, month = self.get_year_month_params()
 
         # 抽出期間
         tstart, tend = select_period(year, month)

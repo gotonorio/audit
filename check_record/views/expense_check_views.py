@@ -1,17 +1,17 @@
 # check_record/views.py
 
+from common.mixins import PeriodParamMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
 from passbook.forms import YearMonthForm
 
-from check_record.mixins import IncomeCheckParamMixin
 from check_record.services.expense_check_service import (
     get_monthly_expense_check_data,
     get_yearly_expense_check_data,
 )
 
 
-class MonthlyReportExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):
+class MonthlyReportExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     """月次収支の支出データと口座支出データの月別比較リスト"""
 
     template_name = "check_record/kurasel_mr_expense_check.html"
@@ -19,7 +19,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMix
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year, month = self.get_params()
+        year, month = self.get_year_month_params()
 
         # Service層で集計
         data = get_monthly_expense_check_data(year, month)
@@ -46,7 +46,7 @@ class MonthlyReportExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMix
         return context
 
 
-class YearReportExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMixin, TemplateView):
+class YearReportExpenseCheckView(PermissionRequiredMixin, PeriodParamMixin, TemplateView):
     """月次報告の年間支出データと口座支出データの比較リスト"""
 
     template_name = "check_record/year_expense_check.html"
@@ -54,7 +54,7 @@ class YearReportExpenseCheckView(PermissionRequiredMixin, IncomeCheckParamMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        year, _ = self.get_params()
+        year, _ = self.get_year_month_params()
 
         # Service層で集計
         summary = get_yearly_expense_check_data(year)

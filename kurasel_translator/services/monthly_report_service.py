@@ -1,9 +1,9 @@
 import logging
 
+from common.services import select_period
 from control.models import ControlRecord
 from django.conf import settings
 from monthly_report.models import ReportTransaction
-from passbook.services import select_period
 from record.models import Himoku
 
 logger = logging.getLogger(__name__)

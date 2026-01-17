@@ -2,9 +2,9 @@
 
 import logging
 
+from common.services import get_lastmonth, select_period
 from django.conf import settings
 from monthly_report.models import BalanceSheet, ReportTransaction
-from passbook.services import get_lastmonth, select_period
 
 logger = logging.getLogger(__name__)
 

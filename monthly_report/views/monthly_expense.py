@@ -1,5 +1,6 @@
 import logging
 
+from common.services import select_period
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -7,7 +8,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
 from django.views.generic import DeleteView, UpdateView
-from passbook.services import select_period
 from record.models import AccountingClass
 
 from monthly_report.forms import MonthlyReportExpenseForm

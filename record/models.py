@@ -2,12 +2,12 @@ import datetime
 import logging
 import re
 
+from common.services import select_period
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
-from passbook.services import select_period
 
 user = get_user_model()
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 # views/balance_sheet_views.py
 import logging
 
+from common.services import select_period
 from django.conf import settings
-from passbook.services import select_period
 
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import BalanceSheet

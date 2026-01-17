@@ -1,10 +1,10 @@
 import logging
 
+from common.services import select_period
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
-from passbook.services import select_period
 
 from monthly_report.forms import MonthlyReportViewForm
 from monthly_report.models import ReportTransaction
