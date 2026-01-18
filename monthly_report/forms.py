@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils import timezone
 from passbook.forms import YearMonthForm
 from record.models import AccountingClass, Himoku
@@ -15,6 +16,18 @@ class MonthlyReportViewForm(YearMonthForm):
     月次報告の年間一覧表示用Form
     貸借対照表の表示用Form
     """
+
+    month = forms.ChoiceField(
+        label="月",
+        widget=forms.Select(
+            attrs={
+                "class": "select-css is-size-7",
+                "style": "width:10ch",
+            }
+        ),
+        choices=settings.MONTH_ALL,
+        required=True,
+    )
 
     accounting_class = forms.ModelChoiceField(
         label="会計区分",
