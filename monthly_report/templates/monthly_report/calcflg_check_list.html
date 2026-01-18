@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "common/base.html" %}
 {% load humanize %} {# 3桁区切りのため追加 #}
 {% load static %} {# {% static  を使うため必要 #}
-{% load my_templatetags %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+{% load my_extras %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
 
 {% block title %}
 計算対象フラグリスト

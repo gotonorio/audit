@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "common",
     "register.apps.RegisterConfig",
     "record.apps.RecordConfig",
     "monthly_report.apps.MonthlyReportConfig",
@@ -83,9 +84,10 @@ ROOT_URLCONF = "passbook.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(BASE_DIR, "templates"),
-        ],
+        "DIRS": [],
+        # "DIRS": [
+        #     os.path.join(BASE_DIR, "templates"),
+        # ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -97,7 +99,7 @@ TEMPLATES = [
                 "passbook.context_processors.is_debug",
             ],
             "libraries": {
-                "my_templatetags": "templatetags.my_extras",
+                # "my_extras": "common/templatetags.my_extras",
             },
         },
     },
