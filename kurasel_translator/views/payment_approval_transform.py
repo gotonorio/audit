@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class PaymentApprovalTransformView(PermissionRequiredMixin, FormView):
+    """支払い承認データの取り込み"""
+
     template_name = "kurasel_translator/payment_audit_form.html"
     form_class = PaymentAuditForm
     permission_required = "record.add_transaction"
@@ -53,4 +55,4 @@ class PaymentApprovalTransformView(PermissionRequiredMixin, FormView):
                 "list_order": 0,
             }
         )
-        return redirect(f"{reverse('payment:payment_list')}?{params}")
+        return redirect(f"{reverse('kurasel_translator:create_payment')}?{params}")

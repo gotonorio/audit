@@ -40,6 +40,10 @@ class BillingTransformView(PermissionRequiredMixin, FormView):
             return self.render_to_response(self.get_context_data(form=form, **result_ctx))
 
         # 登録成功時
+        messages.success(
+            self.request,
+            f"{result_ctx['year']}年{result_ctx['month']}月度の, 請求合計金額内訳データの取り込みが完了しました。",
+        )
         # GETパラメータを付与してリダイレクト
         params = urlencode(
             {
@@ -47,5 +51,4 @@ class BillingTransformView(PermissionRequiredMixin, FormView):
                 "month": result_ctx["month"],
             }
         )
-        messages.success(self.request, "請求合計金額内訳データの取り込みが完了しました。")
         return redirect(f"{reverse('billing:billing_list')}?{params}")

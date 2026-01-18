@@ -51,7 +51,6 @@ class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
             self.request,
             f"{result_ctx['year']}年{result_ctx['month']}月度の「{result_ctx['accounting_class']}」貸借対照表を取り込みました。",
         )
-
         # GETパラメータを付与してリダイレクト
         params = urlencode(
             {

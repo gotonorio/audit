@@ -3,7 +3,9 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
 from kurasel_translator.forms import ClaimTranslateForm
@@ -37,7 +39,13 @@ class ClaimTransformView(PermissionRequiredMixin, FormView):
             return self.render_to_response(self.get_context_data(form=form, **result_ctx))
 
         # 登録成功時
-        msg = f"{result_ctx['year']}-{result_ctx['month']}-{result_ctx['claim_type']} のデータ取り込みが完了しました。"
+        msg = f"{result_ctx['year']}年{result_ctx['month']}月度の{result_ctx['claim_type']} のデータ取り込みが完了しました。"
         messages.success(self.request, msg)
-
-        return redirect("register:master_page")
+        # GETパラメータを付与してリダイレクト
+        params = urlencode(
+            {
+                "year": result_ctx["year"],
+                "month": result_ctx["month"],
+            }
+        )
+        return redirect(f"{reverse('kurasel_translator:create_claim')}?{params}")
