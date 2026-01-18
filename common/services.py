@@ -1,5 +1,10 @@
 import calendar
 import datetime
+
+# common/services.py (または register/services.py)
+import os
+import shutil
+from pathlib import Path
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -90,3 +95,46 @@ def check_period(year, month):
         month = int(settings.START_KURASEL["month"])
 
     return year, month
+
+
+def run_database_backup(user_name):
+    """
+    SQLite3データベースのバックアップを実行し、古いファイルを削除する。
+    戻り値: (成功フラグ, メッセージ)
+    """
+    # 1. バックアップ元DBの確認
+    db_path = Path(settings.DATABASES["default"]["NAME"])
+    if db_path.suffix != ".sqlite3":
+        return False, "バックアップはsqlite3形式のみ対応しています。"
+
+    # 2. バックアップ先ディレクトリの準備
+    # settings.BASE_DIR / "backupDB" のように設定から取得するのが安全です
+    backup_dir = Path(settings.BASE_DIR) / "backupDB"
+    backup_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリがなければ作成
+
+    # 3. バックアップファイル名の生成
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M")
+    backup_filename = f"{timestamp}-({user_name})_{db_path.name}"
+    target_path = backup_dir / backup_filename
+
+    # 4. コピー実行
+    try:
+        shutil.copy2(db_path, target_path)  # copy2はメタデータ（更新日時など）も保持する
+    except Exception as e:
+        return False, f"コピー失敗: {str(e)}"
+
+    # 5. 古いバックアップの削除 (ローテーション)
+    try:
+        # ディレクトリ内のファイルをリスト化し、作成日時順に並べる
+        backup_files = sorted(list(backup_dir.glob(f"*_{db_path.name}")), key=os.path.getmtime)
+
+        backup_limit = getattr(settings, "BACKUP_NUM", 20)
+        while len(backup_files) > backup_limit:
+            old_file = backup_files.pop(0)  # 一番古いファイルを取り出す
+            old_file.unlink()  # 削除
+    except Exception as e:
+        # 削除失敗はログに残すが、バックアップ自体は成功したとみなす
+        return True, f"バックアップ完了（古いファイルの削除に一部失敗: {str(e)}）"
+
+    return True, f"DBをバックアップしました。ファイル名: {backup_filename}"

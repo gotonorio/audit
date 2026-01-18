@@ -1,9 +1,7 @@
-import datetime
 import logging
-import os
-import shutil
 
-from django.conf import settings
+# register/views.py
+from common.services import run_database_backup
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
@@ -39,41 +37,15 @@ class ControlRecordUpdateView(PermissionRequiredMixin, generic.UpdateView):
 
 
 def backupDB(request):
-    """DBのバックアップ処理
-    静的ページに戻さざるを得ない？
-    """
-    # バックアップ元のDB
-    db_name = settings.DATABASES["default"]["NAME"]
-    _, file_ext = os.path.splitext(db_name)
-    if file_ext != ".sqlite3":
-        messages.info(request, "バックアップはsqlite3だけです。")
-        return redirect("register:master_page")
-    # バックアップ先のDB
-    now = datetime.datetime.now()
-    # フルパスからファイル名だけを取り出す。
-    db_basename = os.path.basename(db_name)
-    backup_db_name = (
-        f"{now.year}-{now.month}-{now.day}-{now.hour}-{now.minute}-({request.user})_{db_basename}"
-    )
-    backup_path = f"./backupDB/{backup_db_name}"
+    """DBのバックアップ処理（View層）"""
 
-    # バックアップ処理
-    try:
-        shutil.copy(db_name, backup_path)
-        # https://docs.djangoproject.com/en/4.0/ref/contrib/messages/
-        messages.info(request, f"DBをバックアップしました。 ファイル名:{backup_db_name}")
-    except Exception as e:
-        messages.error(request, f"{e} バックアップに失敗しました。")
+    # サービス実行
+    success, message = run_database_backup(request.user.username)
 
-    # backupファイルが20を超えたら古いバックアップを削除する。
-    # backupファイルのリスト
-    try:
-        file_list = os.listdir("./backupDB")
-    except OSError:
-        return redirect("register:master_page")
-    if len(file_list) >= settings.BACKUP_NUM:
-        file_list.sort()
-        # ソートした結果の最初（古い）ファイルを削除する。
-        os.remove("./backupDB/" + file_list[0])
+    # メッセージの振り分け
+    if success:
+        messages.info(request, message)
+    else:
+        messages.error(request, message)
 
     return redirect("register:master_page")
