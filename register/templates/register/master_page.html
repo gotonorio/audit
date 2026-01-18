@@ -17,19 +17,21 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">マスタデータ</a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'record:himoku_list' %}">費目マスタ一覧</a>
-          <a class="navbar-item" href="{% url 'record:himoku_create' %}">費目マスタの登録/修正</a>
-          <a class="navbar-item" href="{% url 'record:read_himoku_csv' %}">費目マスタのCSV読込み</a>
-          <a class="navbar-item" href="{% url 'monthly_report:create_bs_item' %}">貸借対照表科目の登録/修正</a>
-          <hr class="dropdown-divider">
-          <a class="navbar-item" href="{% url 'record:requester_create' %}">振込依頼者マスタの登録/修正</a>
-          <a class="navbar-item" href="{% url 'payment:create_paymentmethod' %}">支払方法の登録/修正</a>
-          <a class="navbar-item" href="{% url 'record:approval_text_create' %}">支払い承認判定用文字列の登録/修正</a>
+      {% if perms.register.add_user %}
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">マスタデータ</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="{% url 'record:himoku_list' %}">費目マスタ一覧</a>
+            <a class="navbar-item" href="{% url 'record:himoku_create' %}">費目マスタの登録/修正</a>
+            <a class="navbar-item" href="{% url 'record:read_himoku_csv' %}">費目マスタのCSV読込み</a>
+            <a class="navbar-item" href="{% url 'monthly_report:create_bs_item' %}">貸借対照表科目の登録/修正</a>
+            <hr class="dropdown-divider">
+            <a class="navbar-item" href="{% url 'record:requester_create' %}">振込依頼者マスタの登録/修正</a>
+            <a class="navbar-item" href="{% url 'payment:create_paymentmethod' %}">支払方法の登録/修正</a>
+            <a class="navbar-item" href="{% url 'record:approval_text_create' %}">支払い承認判定用文字列の登録/修正</a>
+          </div>
         </div>
-      </div>
+      {% endif %}
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">Kuraselデータ取込み</a>

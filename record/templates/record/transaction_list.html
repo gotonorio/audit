@@ -124,7 +124,7 @@
           {% else %}
             <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
           {% endif %}
-          {% if perms.record.add_transaction %}
+          {% if perms.register.add_user %}
             {% if record.is_manualinput %}
               <td class="has-text-centered">
                 <a href="{% url 'record:transaction_delete' record.pk %}">削除</a>

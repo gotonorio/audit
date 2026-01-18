@@ -91,7 +91,7 @@
             <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
             <td class="has-text-left has-text-danger is-hidden-mobile">(計算除外金) {{record.description}}</td>
           {% endif %}
-          {% if perms.record.add_transaction %}
+          {% if perms.register.add_user %}
               <td class="has-text-centered">
                 <a href="{% url 'monthly_report:delete_income' record.pk %}">削除</a>
               </td>
