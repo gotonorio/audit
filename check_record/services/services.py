@@ -1,5 +1,6 @@
 # check_record/services.py
 import logging
+import re
 
 from billing.models import Billing
 from common.services import check_period, get_lastmonth, select_period
@@ -7,7 +8,7 @@ from django.conf import settings
 from django.db.models import Sum
 from monthly_report.models import BalanceSheet, ReportTransaction
 from payment.models import Payment
-from record.models import ClaimData, Transaction
+from record.models import ApprovalCheckData, ClaimData, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -139,8 +140,8 @@ def get_apploval_check_service(year, month):
     # 入出金明細データの取得
     qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True, False)
     qs_pb = qs_pb.order_by("transaction_date", "himoku__code")
-    # step1 摘要欄コメントで支払い承認の有無をチェック。
-    _ = Transaction.set_is_approval_text(qs_pb)
+    # step1 摘要欄コメントで支払い承認の有無をチェックしてアップデートする。
+    _ = update_transaction_approval_status(qs_pb)
     # step2 費目で支払い承認の有無をチェック。
     _ = Transaction.set_is_approval_himoku(qs_pb)
 
@@ -175,3 +176,35 @@ def get_apploval_check_service(year, month):
         "year": year,
         "month": month,
     }
+
+
+def update_transaction_approval_status(transaction_queryset):
+    """
+    摘要欄のテキストを解析し、承認が必要かどうかを一括更新する
+    """
+    # 承認不要条件の取得
+    check_criteria = ApprovalCheckData.objects.filter(alive=True)
+    if not check_criteria:
+        return
+
+    # 正規表現パターンのリストを事前に作成（ループ内の処理を高速化）
+    patterns = [re.compile(str(c.atext)) for c in check_criteria if c.atext]
+
+    updated_objs = []
+
+    for obj in transaction_queryset:
+        description = str(obj.description or "")
+        if not description:
+            continue
+
+        # いずれかのパターンにマッチするか確認
+        is_match = any(p.search(description) for p in patterns)
+
+        # 承認不要に該当し、かつ現在「承認必要」ならリストに追加
+        if is_match and obj.is_approval:
+            obj.is_approval = False
+            updated_objs.append(obj)
+
+    # まとめて更新
+    if updated_objs:
+        Transaction.objects.bulk_update(updated_objs, ["is_approval"])

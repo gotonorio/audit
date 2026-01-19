@@ -252,6 +252,7 @@ class TransferRequester(models.Model):
 
     @staticmethod
     def get_requester_obj():
+        """請求者リストを返す"""
         qs = TransferRequester.objects.all()
         obj_list = [obj for obj in qs]
         return obj_list
@@ -387,119 +388,6 @@ class Transaction(models.Model):
         if calc_flg:
             qs_pb = qs_pb.filter(calc_flg=calc_flg)
         return qs_pb
-
-    @classmethod
-    def dwd_from_kurasel(
-        cls,
-        data,
-        paymentmethod_list,
-        requester_list,
-        default_himoku,
-        banking_fee_himoku,
-    ):
-        """kurasel_translatorからDeposits and withdrawals（入出金明細データ）を読み込む
-        - 戻り値：取り込んだ「月」(int型)。エラーの場合は0を返す。
-        - 種類、日付、金額、振り込み依頼人でget_or_createする。
-        - 口座は管理会計に決め打ち(id=3)。
-        - 費目はdefaultの費目オブジェクト。
-        - 勘定科目・費目は手入力となる。
-        """
-        data_list = data["data_list"]
-        # 記録者
-        author_obj = user.objects.get(id=data["author"])
-        # error flag
-        error_list = []
-        # rtnのデフォルト値（最初のデータの「月」）
-        rtn = data_list[0][1].month
-        # 取り込んだデータの保存処理。
-        for item in data_list:
-            income = False
-            himoku_chk = True
-            # 入金の場合、入金フラグをTrue。費目はdefault費目とする。
-            if item[0] == "入金":
-                income = True
-                himoku_obj = default_himoku
-            # 出金の場合、振込依頼者、摘要で費目を特定する。
-            else:
-                # 最初に費目をdefault費目にセットする。
-                himoku_obj = default_himoku
-                # (1)「振込依頼人」で費目を推定する。
-                for requester in requester_list:
-                    if item[4] == requester.requester:
-                        himoku_obj = requester.himoku
-                        himoku_chk = False
-                        break
-                # (2)「振込依頼人」で推定できない場合「支払い方法」で費目を推定する。
-                if himoku_chk:
-                    for paymentmethod in paymentmethod_list:
-                        if item[5] == paymentmethod.account_description:
-                            himoku_obj = paymentmethod.himoku_name
-                            break
-                # (3) 最後に「摘要欄」で費目を推定する。ToDo アドホック対応のため見直すこと。
-                if himoku_chk:
-                    if item[5] in ("892トリアツカイリヨウ", "893フリコミテスウリヨウ"):
-                        himoku_obj = banking_fee_himoku
-
-            # 保存処理（日付、金額、振込依頼人名が一致する場合、上書き保存しない）
-            try:
-                cls.objects.get_or_create(
-                    transaction_date=item[1],
-                    amount=item[2],
-                    requesters_name=item[4],
-                    defaults={
-                        "account": Account.objects.all().first(),
-                        "is_income": income,
-                        "transaction_date": item[1],
-                        "himoku": himoku_obj,
-                        "amount": int(item[2]),
-                        "balance": item[3],
-                        "requesters_name": item[4],
-                        "description": item[5],
-                        "author": author_obj,
-                    },
-                )
-            except Exception as e:
-                logger.error(e)
-                error_list.append(item[4])
-                rtn = 0
-        return rtn, error_list
-
-    @classmethod
-    def set_is_approval_text(cls, qs_transaction):
-        """摘要欄文字列で支払い承認が必要かどうかのフラグを設定する
-        - ToDo 今の所「費目」で支払い承認不要としていてもチェックをする。
-        """
-        qs_check = ApprovalCheckData.objects.filter(alive=True)
-        if not qs_check:
-            return None
-
-        updated_objs = []  # 更新対象を貯めるリスト
-
-        for transaction_obj in qs_transaction:
-            description = transaction_obj.description
-            if not description:
-                continue
-
-            # 承認不要条件に合致するかチェック
-            is_match = False
-            for chk_text in qs_check:
-                # str()でラップして警告を回避
-                if re.search(str(chk_text.atext), str(description)):
-                    is_match = True
-                    break
-
-            # 条件に合致し、かつ現在の値がTrue（承認必要）なら変更
-            if is_match and transaction_obj.is_approval:
-                transaction_obj.is_approval = False
-                updated_objs.append(transaction_obj)
-
-        # 最後にまとめて一括更新（1回のSQLで済む）
-        # 第一引数には更新対象のobjectのリスト、fieldsには更新したいカラムを指定する。
-        # この時、fieldsに設定しないカラムは更新されない。
-        if updated_objs:
-            cls.objects.bulk_update(updated_objs, ["is_approval"])
-
-        return None
 
     @classmethod
     def set_is_approval_himoku(cls, qs_transaction):
