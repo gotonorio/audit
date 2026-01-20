@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from passbook.forms import KuraselTranslatorForm
+from passbook.forms import YearMonthForm
 from record.models import AccountingClass
 
 KIND = (
@@ -11,6 +11,34 @@ DATE_PAYMENT = (
     ("25", "25日払い"),
     ("10", "10日払い"),
 )
+
+
+class KuraselTranslatorForm(YearMonthForm):
+    """クラセルデータ取り込み用ベースForm"""
+
+    mode = forms.ChoiceField(
+        widget=forms.Select(attrs={"class": "select-css"}),
+        label="モード",
+        choices=(
+            ("確認", "確認"),
+            ("登録", "登録"),
+        ),
+    )
+    note = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": "ヘッダー部を除いてコピーしてください。",
+                "class": "textarea",
+                "rows": 10,
+            }
+        ),
+        label="内容",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["year"].widget.attrs["class"] = "input"
+        self.fields["month"].widget.attrs["class"] = "select-css"
 
 
 class MonthlyBalanceForm(KuraselTranslatorForm):

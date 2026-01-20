@@ -29,31 +29,3 @@ class YearMonthForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["year"].widget.attrs["class"] = "input is-size-7"
         self.fields["month"].widget.attrs["class"] = "select-css is-size-7"
-
-
-class KuraselTranslatorForm(YearMonthForm):
-    """クラセルデータ取り込み用ベースForm"""
-
-    mode = forms.ChoiceField(
-        widget=forms.Select(attrs={"class": "select-css"}),
-        label="モード",
-        choices=(
-            ("確認", "確認"),
-            ("登録", "登録"),
-        ),
-    )
-    note = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "ヘッダー部を除いてコピーしてください。",
-                "class": "textarea",
-                "rows": 10,
-            }
-        ),
-        label="内容",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["year"].widget.attrs["class"] = "input"
-        self.fields["month"].widget.attrs["class"] = "select-css"

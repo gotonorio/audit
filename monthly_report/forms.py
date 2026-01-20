@@ -25,7 +25,7 @@ class MonthlyReportViewForm(YearMonthForm):
                 "style": "width:10ch",
             }
         ),
-        choices=settings.MONTH_ALL,
+        choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
 

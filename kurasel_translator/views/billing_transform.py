@@ -8,8 +8,8 @@ from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.timezone import localtime
 from django.views.generic.edit import FormView
+from kurasel_translator.forms import KuraselTranslatorForm
 from kurasel_translator.services.billing_service import execute_billing_import
-from passbook.forms import KuraselTranslatorForm
 
 logger = logging.getLogger(__name__)
 

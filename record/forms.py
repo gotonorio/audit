@@ -41,7 +41,7 @@ class TransactionDisplayForm(YearMonthForm):
                 "style": "width:10ch",
             }
         ),
-        choices=settings.MONTH_ALL,
+        choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
     # 会計区分
@@ -433,7 +433,7 @@ class ClaimListForm(forms.Form):
                 "style": "width:10ch",
             }
         ),
-        choices=settings.MONTH_ALL,
+        choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
     # データ区分

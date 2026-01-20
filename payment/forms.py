@@ -20,7 +20,7 @@ class ApprovalPaymentListForm(YearMonthForm):
                 "style": "width:10ch",
             }
         ),
-        choices=settings.MONTH_ALL,
+        choices=[(0, "ALL")] + settings.MONTH,
     )
     # YearMonthFormに日付項目を追加
     day = forms.ChoiceField(
