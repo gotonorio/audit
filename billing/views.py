@@ -2,7 +2,7 @@ from common.mixins import PeriodParamMixin
 from common.services import select_period
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
-from passbook.forms import YearMonthForm
+from passbook.forms import YearMonthALLForm
 
 from .models import Billing
 
@@ -33,8 +33,8 @@ class BillingListView(PeriodParamMixin, PermissionRequiredMixin, TemplateView):
         )
         # 合計金額
         total_billing = Billing.calc_total_billing(qs)
-        # forms.pyのKeikakuListFormに初期値を設定する
-        form = YearMonthForm(
+        # Formに初期値を設定する
+        form = YearMonthALLForm(
             initial={
                 "year": year,
                 "month": month,

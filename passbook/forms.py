@@ -29,3 +29,17 @@ class YearMonthForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["year"].widget.attrs["class"] = "input is-size-7"
         self.fields["month"].widget.attrs["class"] = "select-css is-size-7"
+
+
+class YearMonthALLForm(YearMonthForm):
+    """全月を選択肢に指定するベースForm"""
+
+    month = forms.ChoiceField(
+        label="月",
+        widget=forms.Select(
+            attrs={
+                "style": "width:10ch",
+            }
+        ),
+        choices=[(0, "ALL")] + settings.MONTH,
+    )

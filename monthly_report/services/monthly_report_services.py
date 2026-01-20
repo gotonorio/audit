@@ -5,7 +5,7 @@ from django.db.models import Case, Sum, When
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.timezone import localtime
-from monthly_report.models import ReportTransaction
+from monthly_report.models import AccountingClass, ReportTransaction
 
 
 def monthly_total(qs, year, item_name):
@@ -206,3 +206,36 @@ def qs_year_income(tstart, tend, ac_class, others_flg):
     # 各月毎の収入額を抽出。
     qs = get_allmonths_data(qs, year)
     return qs, mr_total
+
+
+def get_monthly_report_queryset(tstart, tend, ac_class, inout_flg, community):
+    """
+    指定された条件に基づいて月次収支レポートのQuerySetを取得する
+    """
+    # 基本となるQuerySet (select_relatedでパフォーマンス最適化)
+    qs = ReportTransaction.objects.select_related("himoku", "accounting_class")
+
+    # (1) 期間と有効データでフィルタリング
+    qs = qs.filter(transaction_date__range=[tstart, tend], delete_flg=False, himoku__alive=True).exclude(
+        amount=0
+    )
+
+    # (2) 収入・支出の切り替え
+    if inout_flg == "income":
+        qs = qs.filter(himoku__is_income=True)
+    elif inout_flg == "expense":
+        qs = qs.filter(himoku__is_income=False)
+
+    # (3) 特定の会計区分でフィルタリング (0より大きい場合)
+    if ac_class > 0:
+        qs = qs.filter(himoku__accounting_class=ac_class)
+
+    # (4) 町内会会計の除外処理
+    if not community:
+        # 名称からオブジェクトを特定するロジックをここに集約
+        town_class_name = AccountingClass.get_class_name("町内会")
+        town_obj = AccountingClass.get_accountingclass_obj(town_class_name)
+        if town_obj:
+            qs = qs.exclude(himoku__accounting_class=town_obj.pk)
+
+    return qs

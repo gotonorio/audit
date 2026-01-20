@@ -78,7 +78,7 @@ def get_billing_check_service(year, month):
     # 合計金額
     billing_total = Billing.calc_total_billing(qs_billing)
 
-    # (2) 月次収入データを抽出
+    # (2) 月次報告の収入データを抽出
     qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "income", True)
     # 収入のない費目は除く
     qs_mr = qs_mr.exclude(amount=0).order_by("-amount")
