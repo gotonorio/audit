@@ -49,7 +49,7 @@
 <br>
 <div class="container is-fluid">
   <div class="content">
-    <div class="is-size-5">相殺処理フラグのチェック</div>
+    <div class="is-size-5">相殺処理の一覧</div>
   </div>
   <div class="table-container">
     <table class="table table_nowrap is-narrow is-striped">
@@ -68,10 +68,14 @@
           <td class="has-text-centered">{{forloop.counter}}</td>
           <td class="has-text-centered">{{record.transaction_date|date:'Y-m-d'}}</td>
           <td class="has-text-left">{{record.himoku}}</td>
-          <td class="has-text-left">{{record.amount|intcomma}}</td>
-          <td class="has-text-left">{{record.is_netting }}</td>
+          <td class="has-text-right">{{record.amount|intcomma}}</td>
+          <td class="has-text-centered">{{record.is_netting }}</td>
         </tr>
         {% endfor %}
+        <tr>
+          <td colspan="3" class="has-text-right">合計金額</td>
+          <td class="has-text-right">{{ offset_total|intcomma }}</td>
+          <td></td>
       </tbody>
     </table>
   </div>

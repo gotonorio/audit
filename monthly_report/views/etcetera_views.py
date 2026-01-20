@@ -2,6 +2,7 @@ from common.services import select_period
 from control.models import ControlRecord
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.timezone import localtime
 from django.views import generic
@@ -69,6 +70,9 @@ class CheckOffset(PermissionRequiredMixin, generic.TemplateView):
             .filter(himoku__himoku_name=offset_himoku_name)
             .order_by("-transaction_date")
         )
+        offset_total = qs.aggregate(Sum("amount"))["amount__sum"] or 0
+        context["offset_total"] = offset_total
+
         form = MonthlyReportViewForm(
             initial={
                 "year": year,
