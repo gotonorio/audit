@@ -7,8 +7,8 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from monthly_report.forms import MonthlyReportViewForm
-from monthly_report.models import ReportTransaction
 from monthly_report.services import monthly_report_services
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         tstart, tend = select_period(year, 0)
 
         # 収入
-        qs_income = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", False)
+        qs_income = get_monthly_report_queryset(tstart, tend, ac_class, "income", False)
         # 月次報告収入の月別合計を計算。
         mr_income_total = monthly_report_services.monthly_total(qs_income, int(year), "amount")
         # 年間合計を計算してmr_income_totalに追加する。
@@ -40,7 +40,7 @@ class YearIncomeExpenseListView(PermissionRequiredMixin, generic.TemplateView):
         context["mr_income_total"] = mr_income_total
 
         # 支出
-        qs_expense = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", False)
+        qs_expense = get_monthly_report_queryset(tstart, tend, ac_class, "expense", False)
         # 月次報告支出の月別合計を計算。 aggregateは辞書を返す。
         mr_expense_total = monthly_report_services.monthly_total(qs_expense, int(year), "amount")
         # 年間合計を計算してmr_totalに追加する。

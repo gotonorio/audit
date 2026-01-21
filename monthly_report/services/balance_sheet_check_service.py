@@ -5,6 +5,7 @@ import logging
 from common.services import get_lastmonth, select_period
 from django.conf import settings
 from monthly_report.models import BalanceSheet, ReportTransaction
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +42,8 @@ def check_balancesheet(year, month, ac_class):
     previous[settings.PAYABLE] = pick(prev_debt, settings.PAYABLE)
     previous[settings.MAEUKE] = pick(prev_debt, settings.MAEUKE)
 
-    income_qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "income", True)
-    expense_qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", True)
+    income_qs = get_monthly_report_queryset(tstart, tend, ac_class, "income", True)
+    expense_qs = get_monthly_report_queryset(tstart, tend, ac_class, "expense", True)
 
     current["当月収入"] = ReportTransaction.total_calc_flg(income_qs)
     current["当月支出"] = ReportTransaction.total_calc_flg(expense_qs)

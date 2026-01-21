@@ -4,6 +4,7 @@ from common.services import check_period, get_lastmonth, select_period
 from django.conf import settings
 from django.utils import timezone
 from monthly_report.models import BalanceSheet, ReportTransaction
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 from record.models import Transaction
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ def get_monthly_expense_check_data(year, month):
     last_tstart, last_tend = select_period(last_year, last_month)
 
     # 1. 月次報告データ (MR)
-    qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "expense", True).exclude(is_netting=True)
+    qs_mr = get_monthly_report_queryset(tstart, tend, 0, "expense", True).exclude(is_netting=True)
     # 合計計算（集計対象外フラグを除外して計算）
     total_mr = ReportTransaction.total_calc_flg(qs_mr.exclude(himoku__aggregate_flag=False))
 

@@ -7,6 +7,7 @@ from common.services import check_period, get_lastmonth, select_period
 from django.conf import settings
 from django.db.models import Sum
 from monthly_report.models import BalanceSheet, ReportTransaction
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 from payment.models import Payment
 from record.models import ApprovalCheckData, ClaimData, Transaction
 
@@ -22,7 +23,7 @@ def get_expense_inconsistency_summary(year, month):
     tstart, tend = select_period(year, month)
 
     # 1. 月次報告データ
-    qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "expense", True).order_by(
+    qs_mr = get_monthly_report_queryset(tstart, tend, 0, "expense", True).order_by(
         "is_netting", "himoku__himoku_name"
     )
     total_mr = ReportTransaction.total_calc_flg(qs_mr.exclude(is_netting=True))
@@ -79,7 +80,7 @@ def get_billing_check_service(year, month):
     billing_total = Billing.calc_total_billing(qs_billing)
 
     # (2) 月次報告の収入データを抽出
-    qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "income", True)
+    qs_mr = get_monthly_report_queryset(tstart, tend, 0, "income", True)
     # 収入のない費目は除く
     qs_mr = qs_mr.exclude(amount=0).order_by("-amount")
     # 月次収支の収入合計

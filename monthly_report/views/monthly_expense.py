@@ -12,6 +12,7 @@ from record.models import AccountingClass
 
 from monthly_report.forms import MonthlyReportExpenseForm
 from monthly_report.models import ReportTransaction
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 
 from .base import MonthlyReportBaseView
 
@@ -33,7 +34,7 @@ class MonthlyReportExpenseListView(MonthlyReportBaseView):
         ac_obj = AccountingClass.get_accountingclass_obj(AccountingClass.get_class_name("町内会"))
 
         is_chonaikai = ac_obj.pk == int(ac_class)
-        qs = ReportTransaction.get_qs_mr(tstart, tend, ac_class, "expense", is_chonaikai)
+        qs = get_monthly_report_queryset(tstart, tend, ac_class, "expense", is_chonaikai)
 
         context["transaction_list"] = qs.order_by(
             "himoku__accounting_class",

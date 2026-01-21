@@ -1,14 +1,12 @@
 import datetime
 import logging
 
-from billing.models import Billing
 from common.services import check_period, get_lastmonth, select_period
 from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
-from django.utils import timezone
 from monthly_report.models import BalanceSheet, ReportTransaction
-from payment.models import Payment
+from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 from record.models import ClaimData, Transaction
 
 logger = logging.getLogger(__name__)
@@ -34,7 +32,7 @@ def get_monthly_income_check_data(year, month):
     last_tstart, last_tend = select_period(last_year, last_month)
 
     # 1. 月次報告データ (MR)
-    qs_mr = ReportTransaction.get_qs_mr(tstart, tend, 0, "income", True).exclude(amount=0).order_by("himoku")
+    qs_mr = get_monthly_report_queryset(tstart, tend, 0, "income", True).exclude(amount=0).order_by("himoku")
     total_mr = ReportTransaction.total_calc_flg(qs_mr)
 
     # 2. 通帳データ (PB)
