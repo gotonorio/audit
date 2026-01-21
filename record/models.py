@@ -107,6 +107,7 @@ class Himoku(models.Model):
     is_approval = models.BooleanField(verbose_name="承認必要", default=True)
     is_default = models.BooleanField(verbose_name="デフォルト", default=False)
     is_community = models.BooleanField(verbose_name="町内会", default=False)
+    is_unbilled_income = models.BooleanField(verbose_name="請求外収入", default=False)
     comment = models.CharField(verbose_name="備考", max_length=64, blank=True, default="")
 
     def __str__(self):

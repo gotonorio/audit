@@ -61,7 +61,8 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
     template_name = "record/himoku_form.html"
     permission_required = "record.add_transaction"
     raise_exception = True
-    success_url = reverse_lazy("record:himoku_create")
+    # success_url = reverse_lazy("record:himoku_create")
+    success_url = reverse_lazy("record:himoku_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,7 +98,7 @@ class HimokuUpdateView(PermissionRequiredMixin, generic.UpdateView):
     template_name = "record/himoku_form.html"
     permission_required = "record.add_transaction"
     raise_exception = True
-    success_url = reverse_lazy("record:himoku_create")
+    success_url = reverse_lazy("record:himoku_list")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

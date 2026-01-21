@@ -52,6 +52,7 @@
           <th class="has-text-centered">集計フラグ</th>
           <th class="has-text-centered">デフォルト</th>
           <th class="has-text-centered">町内会フラグ</th>
+          <th class="has-text-centered">未請求入金フラグ</th>
         </tr>
       </thead>
       <tbody>
@@ -109,6 +110,13 @@
             <td class="has-text-centered has-text-danger">
           {% endif %}
           {{record.is_community}}</td>
+
+          {% if record.is_unbilled_income %}
+            <td class="has-text-centered">
+          {% else %}
+            <td class="has-text-centered has-text-danger">
+          {% endif %}
+          {{record.is_unbilled_income}}</td>
         </tr>
         {% endfor %}
       </tbody>

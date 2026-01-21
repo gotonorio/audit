@@ -186,6 +186,7 @@ class HimokuForm(forms.ModelForm):
             "is_approval",
             "is_default",
             "is_community",
+            "is_unbilled_income",
             "comment",
         ]
         labels = {"aggregate_flag": "集計:(aggregate_flag)"}
@@ -215,6 +216,7 @@ class HimokuForm(forms.ModelForm):
             "is_approval": "* 入出金明細データで承認が必要な費目。<br>（電気・水道料金の口座振替、管理業務委託費などはチェックを外す）",
             "is_default": "* 入出金明細データの取込みで、デフォルトで設定される費目名にチェックする。<br>（「不明」という費目をデフォルトとする）",
             "is_community": "* 町内会支出の場合にチェックする。",
+            "is_unbilled_income": "* 未請求入金の場合にチェックする。",
         }
 
 
