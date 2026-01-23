@@ -1,4 +1,4 @@
-# check_record/services.py
+import difflib
 import logging
 import re
 
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 # -----------------------------------------
+# 月次報告と通帳データの不整合チェック
 # incosistency_check_views用service関数
 # -----------------------------------------
 def get_expense_inconsistency_summary(year, month):
@@ -62,16 +63,17 @@ def get_expense_inconsistency_summary(year, month):
 
 
 # -----------------------------------------
+# 請求金額内訳データと月次報告比較
 # billing_check_views用service関数
 # -----------------------------------------
 def get_billing_check_service(year, month):
-    """"""
+    """請求金額内訳データと月次報告比較用データを取得"""
 
     year, month = check_period(year, month)
     tstart, tend = select_period(year, month)
 
     # (1) 請求金額内訳データを抽出
-    qs_billing = Billing.get_billing_list(tstart, tend)
+    qs_billing = Billing.get_billing_data_qs(tstart, tend)
     # 表示順序
     qs_billing = qs_billing.order_by(
         "-billing_amount",
@@ -90,36 +92,40 @@ def get_billing_check_service(year, month):
     total_mishuu_claim, _ = ClaimData.get_mishuu_claim(year, month)
 
     # (4) 月次収入報告と請求金額のチェック
-    check_mismatch = []
+    # 請求金額内訳データと月次報告データで金額が異なる費目名ペアを抽出する
+    list_mr = []
+    list_billing = []
     for i in qs_mr:
-        chk = False
-        for billing in qs_billing:
-            if i.amount == billing.billing_amount:
-                chk = True
-                break
-        if not chk:
-            check_mismatch.append(i)
+        list_mr.append([str(i.himoku), i.amount])
+    for i in qs_billing:
+        list_billing.append([str(i.billing_item), i.billing_amount])
+    mismatch_data_list = get_himoku_name_fuzzy(list_mr, list_billing, cutoff=0.4)
 
+    # (5) チェック結果を辞書で返す
     return {
         # 請求金額内訳データ
         "billing_list": qs_billing,
         "billing_total": billing_total,
-        "check_mismatch": check_mismatch,
-        # 入出金明細データ
+        # 月次報告データ
         "mr_list": qs_mr,
         "total_mr": total_mr,
+        # 請求時点の未収金
         "total_mishuu_claim": total_mishuu_claim,
+        # 表示用パラメータ
         "yyyymm": str(year) + "年" + str(month) + "月",
         "year": year,
         "month": month,
+        # 不整合データリスト
+        "mismatch_data_list": mismatch_data_list if len(mismatch_data_list) > 0 else [],
     }
 
 
 # -----------------------------------------
+# 支払い承認データと入出金明細データの比較
 # apploval_check_views用service関数
 # -----------------------------------------
 def get_apploval_check_service(year, month):
-    """"""
+    """支払い承認データと入出金明細データの比較用データを取得"""
 
     year, month = check_period(year, month)
     tstart, tend = select_period(year, month)
@@ -209,3 +215,46 @@ def update_transaction_approval_status(transaction_queryset):
     # まとめて更新
     if updated_objs:
         Transaction.objects.bulk_update(updated_objs, ["is_approval"])
+
+
+def get_himoku_name_fuzzy(mr_list, billing_list, cutoff=0.4):
+    """
+    mr_list, billing_list: [[品名, 価格], ...] のリスト
+    戻り値: [[月次収入費目名, 収入金額, 請求費目名, 請求金額], ...]
+    """
+    results = []
+
+    # blling_listデータを検索しやすく整理 (文字列化を徹底)
+    b_names = [str(item[0]) for item in billing_list]
+    b_dict = {str(item[0]): item[1] for item in billing_list}
+
+    # blling_listのうち、マッチング済み（処理済み）の名前を記録するセット
+    matched_b_names = set()
+
+    # 1. 月次収入報告の費目について、請求金額内訳データと照合
+    for item_a in mr_list:
+        name_a = str(item_a[0])
+        price_a = item_a[1]
+
+        # B店の中から似た名前を探す
+        matches = difflib.get_close_matches(name_a, b_names, n=1, cutoff=cutoff)
+
+        if matches:
+            name_b = matches[0]
+            price_b = b_dict[name_b]
+            matched_b_names.add(name_b)  # 処理済みとして記録
+
+            # 価格が異なる場合のみ追加
+            if price_a != price_b:
+                results.append([name_a, price_a, name_b, price_b])
+        else:
+            # B店に存在しない場合 (B価格を0にする)
+            results.append([name_a, price_a, "（請求項目に該当なし）", 0])
+
+    # 2. B店にしか存在しない（まだマッチングしていない）商品を抽出
+    for name_b, price_b in b_dict.items():
+        if name_b not in matched_b_names:
+            # A店に存在しない場合 (A価格を0にする)
+            results.append(["（月次報告に該当なし）", 0, name_b, price_b])
+
+    return results

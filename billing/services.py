@@ -12,7 +12,7 @@ def get_billing_summary(year, month):
     tstart, tend = select_period(year, month)
 
     # データの抽出とソート
-    qs = Billing.get_billing_list(tstart, tend).order_by("billing_item__code")
+    qs = Billing.get_billing_data_qs(tstart, tend).order_by("billing_item__code")
 
     # 合計金額の計算（モデルメソッドの呼び出し）
     total_billing = Billing.calc_total_billing(qs)

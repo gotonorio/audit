@@ -48,27 +48,23 @@ class Billing(models.Model):
     - billing_item: 請求内訳名
     - billing_amount: 請求金額
     - comment: 備考
-    - get_billing_list: 請求合計金額内訳データの抽出を行う
+    - get_billing_data_qs: 請求合計金額内訳データの抽出を行う
     - billing_from_kurasel: Kuraselからの請求合計金額内訳データの保存処理を行う
     - calc_total_billing: 合計計算を行う
     """
 
     transaction_date = models.DateField("取引月")
-    billing_item = models.ForeignKey(
-        BillingItem, verbose_name="請求内訳名", on_delete=models.CASCADE
-    )
+    billing_item = models.ForeignKey(BillingItem, verbose_name="請求内訳名", on_delete=models.CASCADE)
     billing_amount = models.IntegerField("請求金額", default=0)
     comment = models.CharField("備考", max_length=64, blank=True, default="")
-    author = models.ForeignKey(
-        user, verbose_name="記録者", on_delete=models.CASCADE, null=True
-    )
+    author = models.ForeignKey(user, verbose_name="記録者", on_delete=models.CASCADE, null=True)
     created_date = models.DateTimeField(verbose_name="作成日", default=timezone.now)
 
     def __str__(self):
         return self.billing_item.item_name
 
     @classmethod
-    def get_billing_list(cls, tstart, tend):
+    def get_billing_data_qs(cls, tstart, tend):
         """請求合計金額内訳データの抽出を行う"""
 
         qs_billing = cls.objects.select_related("billing_item")
@@ -101,9 +97,7 @@ class Billing(models.Model):
             billingitem_id = BillingItem.get_billingitem_obj(item[0])
             if billingitem_id is None:
                 return False, [
-                    "請求合計金額内訳名「"
-                    + item[0]
-                    + "」がマスタデータに登録されていません。",
+                    "請求合計金額内訳名「" + item[0] + "」がマスタデータに登録されていません。",
                 ]
             try:
                 cls.objects.update_or_create(

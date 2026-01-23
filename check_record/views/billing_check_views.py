@@ -25,12 +25,18 @@ class BillingAmountCheckView(PermissionRequiredMixin, PeriodParamMixin, Template
         # Service層からクリーンなデータを取得
         summary = get_billing_check_service(year, month)
 
+        # 不整合データの合計金額を計算
+        mismatch_total_mr = 0
+        mismatch_total_billing = 0
+        for item in summary["mismatch_data_list"]:
+            mismatch_total_mr += item[1]
+            mismatch_total_billing += item[3]
+
         # 請求金額内訳データ
         context.update(
             {
                 "billing_list": summary["billing_list"],
                 "billing_total": summary["billing_total"],
-                "check_mismatch": summary["check_mismatch"],
                 "mr_list": summary["mr_list"],
                 "total_mr": summary["total_mr"],
                 "total_mishuu_claim": summary["total_mishuu_claim"],
@@ -38,6 +44,9 @@ class BillingAmountCheckView(PermissionRequiredMixin, PeriodParamMixin, Template
                 "yyyymm": str(year) + "年" + str(month) + "月",
                 "year": year,
                 "month": month,
+                "mismatch_data_list": summary["mismatch_data_list"],
+                "mismatch_total_mr": mismatch_total_mr,
+                "mismatch_total_billing": mismatch_total_billing,
             }
         )
         return context

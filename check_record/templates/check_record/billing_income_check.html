@@ -56,11 +56,12 @@
 
   <div class='columns'>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">請求金額内訳データ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <!--請求金額内訳データ-->
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
@@ -90,33 +91,15 @@
             </tr>
           </tbody>
         </table>
-        {% if check_mismatch %}
-          <div class="has-text-centered is-size-5 ">不整合データ</div>
-          <table class="table table_center_nowrap is-narrow is-striped">
-            <thead>
-              <tr>
-                <th class="has-text-centered">費目名</th>
-                <th class="has-text-centered">金額</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for i in check_mismatch %}
-              <tr>
-                <td class="has-text-left">{{i.himoku}}</td>
-                <td class="has-text-right">{{i.amount|intcomma}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% endif %}
       </div>
     </div>
     <div class='column is-half'>
-      <div class="content has-text-centered">
+      <div class="content">
         <div class="is-size-5">月次報告収入データ</div>
       </div>
       <div class="table-container">
-        <table class="table table_center_nowrap is-narrow is-striped">
+        <!--月次報告収入データ-->
+        <table class="table table_nowrap is-narrow is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">日付</th>
@@ -158,6 +141,37 @@
       <br>
     </div>
   </div>
+  <!-- 不整合データ表示 -->
+  <div class="is-size-5 ">不整合データ</div>
+  <br>
+  <table class="table table_nowrap is-narrow is-striped">
+    <thead>
+      <tr>
+        <th class="has-text-centered">請求費目名</th>
+        <th class="has-text-centered">請求金額</th>
+        <th class="has-text-centered">月次報告費目名</th>
+        <th class="has-text-centered">月次報告金額</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for i in mismatch_data_list %}
+      {% if i.3 > 0 or i.1 > 0 %}
+        <tr>
+          <td class="has-text-left">{{i.2}}</td>
+          <td class="has-text-right">{{i.3|intcomma}}</td>
+          <td class="has-text-left">{{i.0}}</td>
+          <td class="has-text-right">{{i.1|intcomma}}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+    <tr>
+      <td></td>
+      <td class="has-text-right">{{mismatch_total_billing|intcomma}}</td>
+      <td></td>
+      <td class="has-text-right">{{mismatch_total_mr|intcomma}}</td
+    </tr>
+    </tbody>
+  </table>
   <br>
 </div>
 {% endblock %}

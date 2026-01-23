@@ -26,7 +26,7 @@ class BillingListView(PeriodParamMixin, PermissionRequiredMixin, TemplateView):
         # 抽出期間
         tstart, tend = select_period(year, month)
         # 請求合計金額内訳データの抽出
-        qs = Billing.get_billing_list(tstart, tend)
+        qs = Billing.get_billing_data_qs(tstart, tend)
         # 表示順序
         qs = qs.order_by(
             "billing_item__code",
