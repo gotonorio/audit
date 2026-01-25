@@ -90,7 +90,7 @@ class YearReportIncomeCheckView(PermissionRequiredMixin, PeriodParamMixin, Templ
         # 3. 各種集計
         netting_total = calculate_netting_total(tstart, tend)
 
-        # 前期・当期のBSデータ
+        # 前期・当期のBSデータ（select_periodの戻り値をアンパックして渡す）
         _, last_total_mishuu = BalanceSheet.get_mishuu_bs(*select_period(year - 1, 12))
         this_mishuu_bs, total_mishuu_bs = BalanceSheet.get_mishuu_bs(*select_period(year, 12))
 
