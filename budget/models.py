@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+
 from record.models import Himoku
 
 
@@ -9,7 +10,7 @@ class ExpenseBudget(models.Model):
     year = models.IntegerField(verbose_name="西暦", default=timezone.now().year)
     himoku = models.ForeignKey(Himoku, on_delete=models.CASCADE)
     budget_expense = models.IntegerField("金額", default=0)
-    comment = models.CharField("備考", max_length=128, blank=True, null=True)
+    comment = models.TextField("備考", blank=True, null=True)
 
     def __str__(self):
         return self.himoku.himoku_name

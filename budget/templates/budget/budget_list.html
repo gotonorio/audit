@@ -72,7 +72,7 @@
           <td class="has-text-right">{{record.balance|intcomma}}</td>
           {% endif %}
           <td class="has-text-right">{{record.ratio|stringformat:'.1f'}}</td>
-          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''}}</td>
+          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''|markdown_to_html}}</td>
         </tr>
         {% endfor %}
         <tr>

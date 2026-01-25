@@ -1,8 +1,8 @@
 from django import forms
-from passbook.forms import YearMonthForm
-from record.models import AccountingClass, Himoku
 
 from budget.models import ExpenseBudget
+from passbook.forms import YearMonthForm
+from record.models import AccountingClass, Himoku
 
 
 # class Budget_listForm(forms.Form):
@@ -49,9 +49,10 @@ class BudgetExpenseForm(forms.ModelForm):
                     "class": "input",
                 }
             ),
-            "comment": forms.TextInput(
+            "comment": forms.Textarea(
                 attrs={
-                    "class": "input",
+                    "class": "textarea",
+                    "rows": 10,
                 }
             ),
         }

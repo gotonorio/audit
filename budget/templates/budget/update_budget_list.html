@@ -71,7 +71,7 @@
             <a href="{% url 'budget:update_budget' record.pk %}">{{record.himoku}}</a>
           </td>
           <td class="has-text-right">{{record.budget_expense|intcomma}}</td>
-          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''}}</td>
+          <td class="has-text-left is-size-7">{{record.comment|default_if_none:''|markdown_to_html}}</td>
           <td class="has-text-left"><a href="{% url 'budget:delete_budget' record.pk %}">削除</a></td>
         </tr>
         {% endfor %}
