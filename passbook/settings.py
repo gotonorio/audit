@@ -33,9 +33,9 @@ SECRET_KEY = env("SECRET_KEY")
 DB_NAME = env("DB_NAME")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
-# デフォルトはFalseとする。
+# デフォルトはFalseとする（公開用）
 DEBUG = False
-# ローカル環境でDEBUGを上書き（local_settings.pyがあればDEBUG=Trueとする）
+# 「local_settings.py」があればDEBUG=True（開発用）とする
 try:
     from .local_settings import DEBUG
 except ImportError:
@@ -84,10 +84,10 @@ ROOT_URLCONF = "passbook.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        # "DIRS": [
-        #     os.path.join(BASE_DIR, "templates"),
-        # ],
+        "DIRS": [
+            BASE_DIR / "templates",  # プロジェクト直下の共通設定用テンプレートフォルダ
+            BASE_DIR / "common" / "templates",  # commonアプリ用テンプレートフォルダ
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -167,7 +167,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ------------------------------------------------------------------
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2026-01-25"
+VERSION_NO = "2026-01-26"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
