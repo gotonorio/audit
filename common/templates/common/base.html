@@ -1,61 +1,55 @@
 {% load static %}
 <!DOCTYPE html>
 <html class="has-navbar-fixed-top" lang="ja">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}/static/favicon.ico"/>
+  <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}/static/common/favicon.ico"/>
   <link rel="apple-touch-icon-precomposed" href="{{STATIC_URL}}/static/apple-touch-icon-precomposed.png">
   {# css #}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
-  <link href="{% static 'common/mycss/mycss.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'common/mycss/mycss.css' %}" rel="stylesheet">
 
-  <title>
-  {% block title %}
-  {% endblock %}
-  </title>
+  <title>{% block title %}ソフィア・ガーデンズ川崎{% endblock %}</title>
   {% block head %}
   {% endblock %}
 </head>
 <body>
   {% block navbar %}
   {% endblock%}
-
+  <!-- ヘッダー（hero) -->
+  {% block header %}
+  {% endblock %}
   <!-- footerを設置する場合、<main>で囲む -->
   <main>
   {% block content %}
   {% endblock %}
-  {% block extrajs %}
-  {% endblock %}
   </main>
-
   <!-- フッタ -->
-  {# bulmaのfooter #}
   <footer class="my_footer">
     <div class="container">
       <div class="content has-text-centered">
-        &copy; 2020- 
-        <script language="JavaScript" type="text/javascript">
-        document.write(new Date().getFullYear());
-        </script>
-        {% if debug %}
-          N.Goto Ver-{{VERSION_NO}} 開発版
-        {% else %}
-          N.Goto Ver-{{VERSION_NO}} 運用版
-        {% endif %}
+        <span class="text-muted">
+          &copy; 2016 -
+          <script language="JavaScript" type="text/javascript">
+            document.write(new Date().getFullYear());
+          </script>
+          ソフィア・ガーデンズ川崎 管理組合 gotonorio@gmail.com
+        </span>
       </div>
     </div>
   </footer>
-
   {# 参考： https://bulma.io/documentation/components/navbar/ #}
+  {# ToDo ハンバーガアイコン用のjs。staticから読み込むことはできないか？ #}
   <script>
-    // notificationを閉じれるように。
+      // notificationを×押下で閉じれるように。
     for (const element of document.querySelectorAll('.notification > .delete')) {
         element.addEventListener('click', e => {
             e.target.parentElement.classList.add('is-hidden');
         });
     }
-    // navbar-burgerのボタン処理。https://bulma.io/documentation/components/navbar/
+  // navbar-burgerのボタン処理。https://bulma.io/documentation/components/navbar/
     document.addEventListener('DOMContentLoaded', () => {
       // Get all "navbar-burger" elements
       const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
@@ -74,25 +68,6 @@
         });
       }
     });
-
-    // mobile画面でのメニュー折りたたみ用
-    // https://github.com/jgthms/bulma/issues/1567
-    // mycss.cssへの追加も必要。
-    const $navDropdowns = Array.prototype.slice.call(document.querySelectorAll(".navbar-item.has-dropdown"), 0);
-    if ($navDropdowns.length > 0) {
-        // Add a click event on each of them
-        $navDropdowns.forEach((el) => {
-            el.addEventListener("click", () => {
-                if (document.documentElement.clientWidth < 960) {
-                    // Get the target from the "data-target" attribute
-                    const target = el.dataset.target;
-                    const $target = document.getElementById(target);
-                
-                    el.classList.toggle("is-active");
-                }
-            });
-        });
-    }   
   </script>
 </body>
 </html>

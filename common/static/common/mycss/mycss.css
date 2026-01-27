@@ -3,6 +3,10 @@
   --main-text: #333;
   --main-bg: #fff;
   --md-strong: yellow;
+  /* ゴシック体（Mac/Win/GoogleFontsの順） */
+  --font-sans: "Helvetica Neue", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", "Noto Sans JP", sans-serif;
+  /* 明朝体（Mac/Win/GoogleFontsの順） */
+  --font-serif: "Hiragino Mincho ProN", "YuMincho", "Yu Mincho", "Noto Serif JP", serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -21,14 +25,19 @@ html {
     background-color: var(--main-bg);
 }
 
-/* my_footerを使う場合、本体をmargin-bottomでfooterエリアを確保しなければならない。 */
 main {
-    font-family:'Helvetica Neue',Arial,'Hiragino Sans',"BIZ UDPGothic",'Meiryo',sans-serif;
-    /* font-family: "ヒラギノ角ゴシック W4","Hiragino Sans",'Noto Sans JP',meiryo,sans-serif; */
-    /* font-family: 'Noto Sans JP','ヒラギノ角ゴ Pro W4',sans-serif; */
-    /* font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W4', Meiryo, メイリオ, '游ゴシック Medium', 'Yu Gothic Medium', '游ゴシック体', 'Yu Gothic', YuGothic, Osaka, arial, sans-serif; */
-    margin-bottom: 40px;
+  /* ユーザーのPCにゴシックがあればそれを使う。なければ Noto Sans をダウンロードする */
+  font-family: var(--font-sans);
+  /* 明朝体の場合 */
+  /* font-family: var(--font-serif); */
+  /* Macの場合アンチエイリアスを強調する。*/
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* my_footerを使う場合、本体をmargin-bottomでfooterエリアを確保しなければならない。 */
+  margin-bottom: 40px; 
 }
+
 /* footerだとBulmaのfooterを上書きしてしまう */
 .my_footer {
     font-size: 80%;
@@ -41,31 +50,18 @@ main {
     background-color: var(--main-bg);
 }
 
-a.vmenu {
-    text-decoration: none; 
-    color:#000000; /* リンク要素のデフォルトの青を黒に */
-    font-size:100%;
-    /*猫の足跡は背景として敷く。背景画像は繰り返さず、横0、上10px空けて配置する*/
-    background:url(/static/cat_foot.png) no-repeat 0 7px ;
-    /*猫の足跡アイコンとメニュー項目の文字がカブらないように、左側を20px空ける*/
-    padding:3px 0 3px 20px;
-    color: var(--main-text);
-    background-color: var(--main-bg);
-}
-a.vmenu:hover {
-    color:#666666;
-    background-color:#ffdcd7
-}
-
+/* セレクトボックスのカスタマイズ */
 /* 2019/08/02現在、safariでBulmaのclass = "select"が機能しないため、下記cssを使用。*/
 /* https://coliss.com/articles/build-websites/operation/css/consistent-select-element-styling.html*/
 .select-css {
   display: block;
-  font-family: sans-serif;
+  /* 先ほど決めたフォント順序に同期させる */
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 400;
   color: #444;
-  line-height: 1.0;
+  /* 日本語フォントに合わせて少し余裕を持たせる */
+  line-height: 1.4;
   padding: .6em 1.4em .5em .8em;
   max-width: 100%; 
   box-sizing: border-box;
@@ -73,31 +69,42 @@ a.vmenu:hover {
   border: 1px solid #aaa;
   box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
   border-radius: .5em;
-  -moz-appearance: none;
+  
+  /* デフォルトの矢印を消す */
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
+  
   background-color: #fff;
+  /* 右側の矢印アイコン（SVG） */
   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'),
-    linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+    linear-gradient(to bottom, #ffffff 0%,#f0f0f0 100%); /* 下部を少しだけグレーにして立体感を出す */
   background-repeat: no-repeat, repeat;
   background-position: right .7em top 50%, 0 0;
   background-size: .65em auto, 100%;
 }
+
+/* IE/Edge 用の古い指定（現在はほぼ不要だがお守りとして） */
 .select-css::-ms-expand {
   display: none;
 }
+
 .select-css:hover {
   border-color: #888;
 }
+
 .select-css:focus {
   border-color: #aaa;
+  /* フォーカス時のリング（アクセシビリティ対応） */
   box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
-  box-shadow: 0 0 0 3px -moz-mac-focusring;
   color: #222; 
   outline: none;
 }
+
+/* optionタグ内のフォントを調整 */
 .select-css option {
-  font-weight:normal;
+  font-weight: normal;
+  font-family: sans-serif; /* ブラウザ標準に従わせるのが安全 */
 }
 
 /* 入力フォーム用 style sheet */
@@ -145,10 +152,7 @@ div.my_field > textarea {
 /* form入力style */
 #form_style {
   width: 420px;
-}
-#form_style_center {
-  width: 420px;
-  margin: auto;
+  /* margin: auto; */
 }
 /* tableの中央配置 */
 .table_center_nowrap {
@@ -160,46 +164,24 @@ div.my_field > textarea {
   width: auto;
   white-space: nowrap;
 }
+
+/* markdown用style */
+.markdown {
+  overflow-x: auto;
+  margin:0px;
+}
+/* 767px以下ではmargin-leftを4pxにする */
+@media screen and (max-width: 767px) {
+  .markdown {
+    overflow-x: auto;
+    margin-left:0px;
+    padding:2px;
+  }
+}
 .markdown table {
   /* 表の外枠表示 */
   border: dotted 1px;
   /* 表の最小幅で表示させる。倍率は適当。 */
   width: 30%;
   white-space: nowrap;
-}
-/* mobile用container */
-.container_mobile {
-  margin: 8px;
-}
-
-/* 行間を調整した箇条書き */
-.narrow_spacing {
-  line-height:1.1;
-}
-
-
-
-/* メディアクエリ：スマホ対応 メニュー*/
-@media (max-width: 768px) {
-  /* リンク */
-  .menu_links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-    flex-direction: column;
-  }
-  .menu_links a {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-    padding: 10px;
-    text-align: center;
-    border-top: 1px solid #444;
-    border-radius: 10px;
-  }
-  /* ホバー時 */
-  .menu_links a:hover {
-    background-color: #575757;
-    border-radius: 50px;
-  }
 }

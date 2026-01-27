@@ -4,12 +4,12 @@ services:
     # 相対パスでDockerfileのpathを指定。
     build:
       context: ./
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     # image名:タグ
     image: passbook
     # container名
     container_name: passbook
-    restart: always
+    restart: unless-stopped
     # ホスト上のcalendar/ディレクトリをcode/としてコンテナにマウントする。
     volumes:
       - ../:/code

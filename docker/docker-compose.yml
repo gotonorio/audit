@@ -4,14 +4,15 @@ services:
     # 相対パスでDockerfileのpathを指定。
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     # image名:タグ
     image: passbook
     # 起動ユーザを指定する
     user: "${UID}:${GID}"
     # container名
     container_name: passbook
-    restart: always
+    restart: unless-stopped
+
     # ホスト上のdjangoソース/ディレクトリをcode/としてコンテナにマウントする。
     volumes:
       - ../:/code
@@ -25,7 +26,8 @@ services:
     networks:
       - sophiag-network
  
-    command: /usr/local/bin/gunicorn passbook.wsgi:application -w 2 -b :8700
+    command: /usr/local/bin/gunicorn warehouse.wsgi:application --workers 1 --threads 4 --bind :8700
+    # command: /usr/local/bin/gunicorn passbook.wsgi:application -w 2 -b :8700
 
 networks:
   sophiag-network:
