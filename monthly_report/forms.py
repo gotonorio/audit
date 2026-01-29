@@ -11,20 +11,12 @@ from .models import BalanceSheet, BalanceSheetItem, ReportTransaction
 # データ表示用Form
 # -----------------------------------------------------------------------------
 class MonthlyReportViewForm(YearMonthForm):
-    """
-    月次報告の収入リスト表示用Form
-    月次報告の年間一覧表示用Form
-    貸借対照表の表示用Form
+    """月次報告のnavbar用Form
+    - bulmaのnavbarに組み込むため、select要素のwidgetsはDjangoで指定せず、HTMLで指定する。
     """
 
     month = forms.ChoiceField(
         label="月",
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
         choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
@@ -34,7 +26,6 @@ class MonthlyReportViewForm(YearMonthForm):
         required=False,
         queryset=AccountingClass.objects.order_by("code"),
         empty_label="会計区分ALL",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
 
 
@@ -42,7 +33,7 @@ class MonthlyReportViewForm(YearMonthForm):
 # 月次報告収入データ編集用フォーム
 # -----------------------------------------------------------------------------
 class MonthlyReportIncomeForm(forms.ModelForm):
-    """月次報告収入データ編集用フォーム
+    """月次報告収入データ編集用Form
     - himoku.codeが9000以上の費目は新規に使わない。
     """
 

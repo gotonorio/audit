@@ -11,10 +11,12 @@ class YearMonthForm(forms.Form):
         label="西暦",
         widget=forms.NumberInput(
             attrs={
+                "class": "input is-small",  # デフォルトで navbar 仕様にしておく
                 "style": "width:10ch",
             }
         ),
     )
+
     month = forms.ChoiceField(
         label="月",
         widget=forms.Select(
@@ -27,8 +29,9 @@ class YearMonthForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["year"].widget.attrs["class"] = "input is-size-7"
-        self.fields["month"].widget.attrs["class"] = "select-css is-size-7"
+        # self.fields["year"].widget.attrs["class"] = "input"
+        # self.fields["year"].widget.attrs["style"] = "width:10ch"
+        # navbarでselect要素の設定はHTML側で行うため、class属性の設定はしない。
 
 
 class YearMonthALLForm(YearMonthForm):

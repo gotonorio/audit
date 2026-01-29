@@ -1,7 +1,7 @@
 #
 # viewsファイル分割する場合に必須
 #
-from .etcetera_views import CalcFlgCheckList, CheckOffset, SimulatonDataListView, UnpaidBalanceListView
+from .etcetera_views import CalcFlgCheckList, CheckOffset, SimulationDataListView, UnpaidBalanceListView
 from .monthly_expense import DeleteExpenseView, MonthlyReportExpenseListView, MonthlyReportExpenseUpdateView
 from .monthly_income import (
     DeleteIncomeView,
@@ -18,7 +18,7 @@ __all__ = [
     "CheckOffset",
     "DeleteIncomeView",
     "MonthlyReportIncomeUpdateView",
-    "SimulatonDataListView",
+    "SimulationDataListView",
     "UnpaidBalanceListView",
     "MonthlyReportExpenseListView",
     "MonthlyReportExpenseUpdateView",

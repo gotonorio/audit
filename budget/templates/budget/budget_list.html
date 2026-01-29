@@ -26,14 +26,22 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'budget:budget_list'%}" method="get">
-        {% if perms.record.add_transaction %}
-          {{form.year}}{{form.month}}{{form.ac_class}}{{form.kind}}
-        {% else %}
-          {{form.year}}{{form.month}}{{form.ac_class}}
-        {% endif %}
-        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
-      </form>
+      <div class="navbar-item">
+        <form action="" method="get">
+          <div class="field has-addons">
+            <div class="control"> {{form.year}} </div>
+            <!-- bulmaのselect要素はnavbar内では少し特殊なようだ -->
+            <div class="control"> <div class="select is-small"> {{form.month}} </div></div>
+            <div class="control"> <div class="select is-small"> {{form.ac_class}} </div></div>
+            {% if perms.record.add_transaction %}
+              <div class="control"> <div class="select is-small"> {{form.kind}} </div></div>
+            {% endif %}
+            <div class="control">
+              <button type="submit" class="button is-primary is-small">表示</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>

@@ -25,7 +25,7 @@ urlpatterns = [
     # 長期修繕計画シミュレーション用データ
     path(
         "simulation_data_list/",
-        views.etcetera_views.SimulatonDataListView.as_view(),
+        views.etcetera_views.SimulationDataListView.as_view(),
         name="simulation_data_list",
     ),
     # 貸借対照表

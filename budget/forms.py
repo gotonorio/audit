@@ -1,31 +1,27 @@
 from django import forms
-
-from budget.models import ExpenseBudget
 from passbook.forms import YearMonthForm
 from record.models import AccountingClass, Himoku
+
+from budget.models import ExpenseBudget
 
 
 # class Budget_listForm(forms.Form):
 class Budget_listForm(YearMonthForm):
-    """予算実績一覧表示用Form"""
+    """予算実績一覧表示用Form
+    navbarでbulmaのselect要素を使用する場合、Djangoでclass属性を設定せずに
+    HTMLテンプレート側で直接class属性を指定する。
+    """
 
     ac_class = forms.ModelChoiceField(
         label="会計区分",
         required=False,
         queryset=AccountingClass.objects.order_by("code"),
         empty_label="会計区分を選択",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
     kind = forms.ChoiceField(
         choices=(
             (0, "月次報告"),
             (1, "入出金明細"),
-        ),
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:12ch",
-            }
         ),
     )
 

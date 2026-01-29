@@ -114,7 +114,7 @@ class UnpaidBalanceListView(PermissionRequiredMixin, generic.TemplateView):
         return context
 
 
-class SimulatonDataListView(PermissionRequiredMixin, generic.TemplateView):
+class SimulationDataListView(PermissionRequiredMixin, generic.TemplateView):
     """長期修繕計画シミュレーション用データリスト
     - 長期修繕計画シミュレーション用データとして、修繕積立金会計と駐車場会計の実績収入リストを表示する。
     """
