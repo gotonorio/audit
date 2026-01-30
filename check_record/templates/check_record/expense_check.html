@@ -19,10 +19,18 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'check_record:expense_check'%}" method="get">
-        {{form.year}}{{form.month}}
-        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">チェック</button>
-      </form>
+      <div class="navbar-item is-expanded">
+        <form action="" method="get">
+          <div class="field has-addons ">
+            <div class="control"> {{form.year}} </div>
+            <!-- bulmaのselect要素はnavbar内では少し特殊なようだ -->
+            <div class="control"> <div class="select is-small"> {{form.month}} </div></div>
+            <div class="control">
+              <button type="submit" class="button is-primary is-small has-text-weight-bold">チェック</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'check_record:kurasel_mr_expense_check'%}?year={{year}}&month={{month}}">【戻る】</a>

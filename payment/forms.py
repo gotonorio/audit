@@ -15,22 +15,13 @@ class ApprovalPaymentListForm(YearMonthForm):
     # 全月表示のためYearMonthFormを上書きする
     month = forms.ChoiceField(
         label="月",
-        widget=forms.Select(
-            attrs={
-                "style": "width:10ch",
-            }
-        ),
         choices=[(0, "ALL")] + settings.MONTH,
+        # select の装飾は Bulma に任せ、widget 側は素の select にする。基本的には削除しておく。
+        widget=forms.Select(attrs={"class": ""}),
     )
     # YearMonthFormに日付項目を追加
     day = forms.ChoiceField(
         label="日",
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
         choices=(
             ("00", "ALL"),
             ("10", "10日支払い"),
@@ -41,7 +32,6 @@ class ApprovalPaymentListForm(YearMonthForm):
     # 費目順表示フラグ
     list_order = forms.ChoiceField(
         label="費目順",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
         choices=(
             (0, "日付順"),
             (1, "費目順"),

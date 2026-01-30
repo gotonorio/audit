@@ -23,10 +23,20 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'payment:payment_list'%}" method="get">
-        {{form.year}}{{form.month}}{{form.day}}{{form.list_order}}
-        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">表示</button>
-      </form>
+      <div class="navbar-item is-expanded">
+        <form action="" method="get">
+          <div class="field has-addons ">
+            <div class="control"> {{form.year}} </div>
+            <!-- bulmaのselect要素はnavbar内では少し特殊なようだ -->
+            <div class="control"> <div class="select is-small"> {{form.month}} </div></div>
+            <div class="control"> <div class="select is-small"> {{form.day}} </div></div>
+            <div class="control"> <div class="select is-small"> {{form.list_order}} </div></div>
+            <div class="control">
+              <button type="submit" class="button is-primary is-small">表示</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'record:transaction_list' %}?year={{year}}&month={{month}}&day=0&list_order=0 ">入出金明細の一覧</a>

@@ -19,10 +19,16 @@
   </div>
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <form class="navbar-item" action="{% url 'check_record:year_income_check' %}" method="get">
-        {{form.year}}
-        <button type="submit" class="button is-primary is-size-7 has-text-black has-text-weight-bold">開始</button>
-      </form>
+      <div class="navbar-item is-expanded">
+        <form action="" method="get">
+          <div class="field has-addons ">
+            <div class="control"> {{form.year}} </div>
+            <div class="control">
+              <button type="submit" class="button is-primary is-small">表示</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'check_record:year_expense_check'%}?year={{ year }}">決算支出チェック</a>

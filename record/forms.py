@@ -35,12 +35,6 @@ class TransactionDisplayForm(YearMonthForm):
     )
     month = forms.ChoiceField(
         label="月",
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
         choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
@@ -50,12 +44,10 @@ class TransactionDisplayForm(YearMonthForm):
         required=False,
         queryset=AccountingClass.objects.order_by("code"),
         empty_label="会計区分ALL",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
     # 費目順表示順序
     list_order = forms.ChoiceField(
         label="費目順",
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
         choices=(
             (0, "日付順"),
             (1, "費目順"),
@@ -70,7 +62,6 @@ class TransactionDisplayForm(YearMonthForm):
         queryset=Himoku.objects.filter(alive=True, code__lt=9000).order_by(
             "-is_income", "accounting_class", "code"
         ),
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
 
 
@@ -423,18 +414,13 @@ class ClaimListForm(forms.Form):
         widget=forms.NumberInput(
             attrs={
                 "class": "input is-size-7",
+                # styleはcssで調整する。
                 "style": "width:9ch",
             }
         ),
     )
     month = forms.ChoiceField(
         label="月",
-        widget=forms.Select(
-            attrs={
-                "class": "select-css is-size-7",
-                "style": "width:10ch",
-            }
-        ),
         choices=[(0, "ALL")] + settings.MONTH,
         required=True,
     )
@@ -443,7 +429,6 @@ class ClaimListForm(forms.Form):
         label="会計区分",
         required=False,
         choices=settings.CLAIMTYPE,
-        widget=forms.Select(attrs={"class": "select-css is-size-7"}),
     )
 
 

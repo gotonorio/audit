@@ -15,6 +15,7 @@ class MonthlyReportViewForm(YearMonthForm):
     - bulmaのnavbarに組み込むため、select要素のwidgetsはDjangoで指定せず、HTMLで指定する。
     """
 
+    # 選択要素としてALLを追加するため、monthフィールドをoverrideする。
     month = forms.ChoiceField(
         label="月",
         choices=[(0, "ALL")] + settings.MONTH,
@@ -33,7 +34,7 @@ class MonthlyReportViewForm(YearMonthForm):
 # 月次報告収入データ編集用フォーム
 # -----------------------------------------------------------------------------
 class MonthlyReportIncomeForm(forms.ModelForm):
-    """月次報告収入データ編集用Form
+    """月次報告収入データ編集用Form（navbar用ではない）
     - himoku.codeが9000以上の費目は新規に使わない。
     """
 
