@@ -52,7 +52,7 @@ class MonthlyBalanceForm(KuraselTranslatorForm):
     kind = forms.ChoiceField(
         label="収支区分", widget=forms.Select(attrs={"class": "select-css"}), choices=KIND
     )
-    accounting_class = forms.ModelChoiceField(
+    ac_class = forms.ModelChoiceField(
         label="会計区分",
         required=True,
         queryset=AccountingClass.objects.all().order_by("code"),
@@ -76,7 +76,7 @@ class BalanceSheetTranslateForm(KuraselTranslatorForm):
     （口座は一つなのに...）
     """
 
-    accounting_class = forms.ModelChoiceField(
+    ac_class = forms.ModelChoiceField(
         label="会計区分",
         required=True,
         queryset=AccountingClass.objects.all().order_by("code"),

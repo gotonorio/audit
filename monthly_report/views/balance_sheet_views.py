@@ -114,7 +114,7 @@ class BalanceSheetTableView(MonthlyReportBaseView):
             initial={
                 "year": year,
                 "month": month,
-                "accounting_class": ac_class,
+                "ac_class": ac_class,
             }
         )
 
@@ -165,6 +165,6 @@ class BalanceSheetListView(MonthlyReportBaseView):
             initial={
                 "year": year,
                 "month": month,
-                "accounting_class": ac_class,
+                "ac_class": ac_class,
             }
         )

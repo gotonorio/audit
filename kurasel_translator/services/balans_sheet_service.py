@@ -59,7 +59,8 @@ def execute_bs_import(user, form_data):
     """
     year = form_data["year"]
     month = form_data["month"]
-    accounting_class = form_data["accounting_class"]
+    # accounting_class = form_data["accounting_class"]
+    ac_class = form_data["ac_class"]
     mode = form_data["mode"]
 
     try:
@@ -68,17 +69,17 @@ def execute_bs_import(user, form_data):
         ac_class_name, bs_dict = parse_bs_text(msg_list)
 
         # 2. バリデーション（会計区分の不一致チェック）
-        if str(accounting_class) != ac_class_name:
+        if str(ac_class) != ac_class_name:
             return (
                 False,
                 {},
-                [f"選択された会計区分({accounting_class})とデータ({ac_class_name})が一致しません。"],
+                [f"選択された会計区分({ac_class})とデータ({ac_class_name})が一致しません。"],
             )
 
         result_context = {
             "year": year,
             "month": month,
-            "accounting_class": accounting_class,
+            "ac_class": ac_class,
             "bs_dict": bs_dict,
             "author": user.pk,
             "mode": mode,
@@ -88,7 +89,7 @@ def execute_bs_import(user, form_data):
             return True, result_context, []
 
         # 3. 保存実行
-        success, error_list = BalanceSheet.bs_from_kurasel(accounting_class, result_context)
+        success, error_list = BalanceSheet.bs_from_kurasel(ac_class, result_context)
         if success:
             return True, result_context, []
         else:

@@ -69,7 +69,7 @@ class MonthlyReportExpenseUpdateView(PermissionRequiredMixin, UpdateView):
             {
                 "year": self.object.transaction_date.year,
                 "month": self.object.transaction_date.month,
-                "accounting_class": self.object.himoku.accounting_class.id,
+                "ac_class": self.object.himoku.accounting_class.id,
             }
         )
         return f"{base_url}?{params}"
@@ -113,7 +113,7 @@ class DeleteExpenseView(PermissionRequiredMixin, DeleteView):
             {
                 "year": self.object.transaction_date.year,
                 "month": self.object.transaction_date.month,
-                "accounting_class": self.object.himoku.accounting_class.id,
+                "ac_class": self.object.himoku.accounting_class.id,
             }
         )
         return f"{base_url}?{params}"

@@ -69,7 +69,7 @@ def execute_monthly_import(user, form_data):
     """
     year = form_data["year"]
     month = form_data["month"]
-    ac_name = form_data["accounting_class"]
+    ac_name = form_data["ac_class"]
     kind = form_data["kind"]
     mode = form_data["mode"]
 

@@ -23,7 +23,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
 
         # formで戻った場合、requestからデータを取り出す。（typeはstr、ALLは""となる）
         year = self.request.GET.get("year", localtime(timezone.now()).year)
-        ac_class = self.request.GET.get("accounting_class") or 0
+        ac_class = self.request.GET.get("ac_class") or 0
         year = int(year)
         ac_class = int(ac_class)
 
@@ -36,7 +36,7 @@ class YearIncomeListView(PermissionRequiredMixin, generic.TemplateView):
         form = MonthlyReportViewForm(
             initial={
                 "year": year,
-                "accounting_class": ac_class,
+                "ac_class": ac_class,
             }
         )
         context["transaction_list"] = qs

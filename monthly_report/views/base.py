@@ -16,7 +16,7 @@ class MonthlyReportBaseView(PermissionRequiredMixin, generic.TemplateView):
         now = localtime(timezone.now())
         year = self.request.GET.get("year") or now.year
         month = self.request.GET.get("month") or now.month
-        ac_class = self.request.GET.get("accounting_class") or "0"
+        ac_class = self.request.GET.get("ac_class") or "0"
 
         year = int(year)
         month = int(month)
@@ -29,7 +29,7 @@ class MonthlyReportBaseView(PermissionRequiredMixin, generic.TemplateView):
             initial={
                 "year": year,
                 "month": month if month else None,
-                "accounting_class": ac_class,
+                "ac_class": ac_class,
             }
         )
         context["year"] = year

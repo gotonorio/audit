@@ -31,13 +31,13 @@ class HimokuListView(PermissionRequiredMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        ac_class_id = self.request.GET.get("accounting_class")
+        ac_class_id = self.request.GET.get("ac_class")
 
         # request.GET を渡すことで、選択した値がフォームに保持（バインド）される
         # 何も選ばれていない場合は、initial が適用される
         # form = HimokuListForm(self.request.GET or None)
         # Formに初期値を設定する
-        form = HimokuListForm(initial={"accounting_class": ac_class_id})
+        form = HimokuListForm(initial={"ac_class": ac_class_id})
 
         # フィルタリング条件の判定
         # "0" を明示的に ALL としている場合も含めて判定
@@ -82,7 +82,7 @@ class HimokuCreateView(PermissionRequiredMixin, generic.CreateView):
         user = self.request.user
         code = form.cleaned_data["code"]
         name = form.cleaned_data["himoku_name"]
-        accounting_class = form.cleaned_data["accounting_class"]
+        accounting_class = form.cleaned_data["ac_class"]
         # ログの記録
         msg = f"費目コード:{code} 費目名:{name} 会計区分:{accounting_class} を追加。by {user}"
         logger.info(msg)
@@ -112,7 +112,7 @@ class HimokuUpdateView(PermissionRequiredMixin, generic.UpdateView):
         user = self.request.user
         code = form.cleaned_data["code"]
         name = form.cleaned_data["himoku_name"]
-        accounting_class = form.cleaned_data["accounting_class"]
+        accounting_class = form.cleaned_data["ac_class"]
         # log message
         msg = f"費目コード:{code} 費目名:{name} 会計区分:{accounting_class}に修正。by {user}"
         logger.info(msg)

@@ -284,7 +284,7 @@ class BalanceSheetUpdateView(PermissionRequiredMixin, generic.UpdateView):
             {
                 "year": self.object.monthly_date.year,
                 "month": self.object.monthly_date.month,
-                "accounting_class": self.object.item_name.ac_class.pk,
+                "ac_class": self.object.item_name.ac_class.pk,
             }
         )
 

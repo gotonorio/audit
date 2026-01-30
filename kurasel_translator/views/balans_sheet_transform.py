@@ -49,14 +49,13 @@ class BalanceSheetTransformView(PermissionRequiredMixin, FormView):
         # 登録成功時
         messages.success(
             self.request,
-            f"{result_ctx['year']}年{result_ctx['month']}月度の「{result_ctx['accounting_class']}」貸借対照表を取り込みました。",
+            f"{result_ctx['year']}年{result_ctx['month']}月度の「{result_ctx['ac_class']}」貸借対照表を取り込みました。",
         )
         # GETパラメータを付与してリダイレクト
         params = urlencode(
             {
                 "year": result_ctx["year"],
                 "month": result_ctx["month"],
-                "accounting_class": result_ctx["accounting_class"].pk,
             }
         )
         return redirect(f"{reverse('kurasel_translator:create_bs')}?{params}")

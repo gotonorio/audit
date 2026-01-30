@@ -341,12 +341,11 @@ class HimokuCsvFileSelectForm(forms.Form):
 class HimokuListForm(forms.Form):
     """費目アップデート用リスト表示"""
 
-    accounting_class = forms.ModelChoiceField(
+    ac_class = forms.ModelChoiceField(
         label="会計区分",
         queryset=AccountingClass.objects.all().order_by("code"),
         empty_label="会計区分ALL",
         required=False,
-        widget=forms.Select(attrs={"class": "select-css"}),
     )
 
 

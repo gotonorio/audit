@@ -29,7 +29,7 @@
             <div class="control"> {{form.year}} </div>
             <!-- bulmaのselect要素はnavbar内では少し特殊なようだ -->
             <div class="control"> <div class="select is-small"> {{form.month}} </div></div>
-            <div class="control"> <div class="select is-small"> {{form.accounting_class}} </div></div>
+            <div class="control"> <div class="select is-small"> {{form.ac_class}} </div></div>
             <div class="control">
               <button type="submit" class="button is-primary is-small">表示</button>
             </div>
@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'monthly_report:incomelist'%}?year={{year}}&month={{month}}&accounting_class={{ac}}">月別収入</a>
+      <a class="navbar-item" href="{% url 'monthly_report:incomelist'%}?year={{year}}&month={{month}}&ac_class={{ac}}">月別収入</a>
       <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>

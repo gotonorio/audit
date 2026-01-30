@@ -84,12 +84,13 @@
       </div>
       {# 会計区分 #}
       <div class="field-label is-normal">
-        <label class="label">{{form.accounting_class.label}}</label>
+        {% comment %} <label class="label">{{form.accounting_class.label}}</label> {% endcomment %}
+        <label class="label">{{form.ac_class.label}}</label>
       </div>
       <div>
         <div class="field is-narrow">
           <div class="control">
-            <div>{{form.accounting_class}}</div>
+            <div>{{form.ac_class}}</div>
           </div>
         </div>
       </div>

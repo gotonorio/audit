@@ -28,7 +28,7 @@
           <div class="field has-addons ">
             <div class="control"> {{form.year}} </div>
             <!-- bulmaのselect要素はnavbar内では少し特殊なようだ -->
-            <div class="control"> <div class="select is-small"> {{form.accounting_class}} </div></div>
+            <div class="control"> <div class="select is-small"> {{form.ac_class}} </div></div>
             <div class="control">
               <button type="submit" class="button is-primary is-small">表示</button>
             </div>
@@ -37,8 +37,8 @@
       </div>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item" href="{% url 'monthly_report:year_expenselist'%}?year={{year}}&accounting_class={{ac}}">年間支出</a>
-      <a class="navbar-item" href="{% url 'monthly_report:year_income_expenselist'%}?year={{year}}&accounting_class={{ac}}">年間収支</a>
+      <a class="navbar-item" href="{% url 'monthly_report:year_expenselist'%}?year={{year}}&ac_class={{ac}}">年間支出</a>
+      <a class="navbar-item" href="{% url 'monthly_report:year_income_expenselist'%}?year={{year}}&ac_class={{ac}}">年間収支</a>
       <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>

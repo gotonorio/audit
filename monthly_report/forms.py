@@ -22,7 +22,7 @@ class MonthlyReportViewForm(YearMonthForm):
         required=True,
     )
 
-    accounting_class = forms.ModelChoiceField(
+    ac_class = forms.ModelChoiceField(
         label="会計区分",
         required=False,
         queryset=AccountingClass.objects.order_by("code"),

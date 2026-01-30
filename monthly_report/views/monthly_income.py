@@ -68,7 +68,7 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, UpdateView):
             {
                 "year": self.object.transaction_date.year,
                 "month": self.object.transaction_date.month,
-                "accounting_class": self.object.himoku.accounting_class.id,
+                "ac_class": self.object.himoku.accounting_class.id,
             }
         )
         return f"{base_url}?{params}"
@@ -108,6 +108,7 @@ class DeleteIncomeView(PermissionRequiredMixin, DeleteView):
     template_name = "monthly_report/reporttransaction_confirm_delete.html"
     permission_required = "record.add_transaction"
 
+    # 保存が成功した場合に遷移するurl
     def get_success_url(self):
         base_url = reverse("monthly_report:incomelist")
 
@@ -116,7 +117,7 @@ class DeleteIncomeView(PermissionRequiredMixin, DeleteView):
             {
                 "year": self.object.transaction_date.year,
                 "month": self.object.transaction_date.month,
-                "accounting_class": self.object.himoku.accounting_class.id,
+                "ac_class": self.object.himoku.accounting_class.id,
             }
         )
         return f"{base_url}?{params}"
