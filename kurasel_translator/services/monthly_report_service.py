@@ -13,7 +13,7 @@ def translate_kurasel_text(note_text, rows_per_record=5):
     """テキストをクリーンアップし、指定行数ごとのリストに変換する"""
 
     # note_textを行ごとに分割して、空行と文字前後の空白を除去したリストを作成
-    lines = [line.strip() for line in note_text.splitlines() if line.strip()]
+    lines = [s for line in note_text.splitlines() if (s := line.strip())]
 
     # データの種類判定とヘッダ除去
     first_line = lines[0]
