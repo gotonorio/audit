@@ -59,7 +59,6 @@ def execute_bs_import(user, form_data):
     """
     year = form_data["year"]
     month = form_data["month"]
-    # accounting_class = form_data["accounting_class"]
     ac_class = form_data["ac_class"]
     mode = form_data["mode"]
 

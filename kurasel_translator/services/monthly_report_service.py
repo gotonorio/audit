@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 def translate_kurasel_text(note_text, rows_per_record=5):
     """テキストをクリーンアップし、指定行数ごとのリストに変換する"""
+
+    # note_textを行ごとに分割して、空行と文字前後の空白を除去したリストを作成
     lines = [line.strip() for line in note_text.splitlines() if line.strip()]
 
     # データの種類判定とヘッダ除去
@@ -20,7 +22,7 @@ def translate_kurasel_text(note_text, rows_per_record=5):
 
     data_kind = "収入" if first_line == "収入の部" else "支出"
 
-    # 「合計」のチェック
+    # 「合計行」が含まれていないかのチェック
     if any("合計" in line for line in lines):
         raise ValueError("「合計」の行は含めないでください")
 
@@ -53,9 +55,9 @@ def check_accountingclass(data_list, ac_name):
     return True
 
 
-def filter_community_himoku(data_list, accounting_class):
+def filter_community_himoku(data_list, ac_name):
     """管理組合会計の場合、町内会関連の費目を除外する"""
-    if str(accounting_class) == settings.COMMUNITY_ACCOUNTING:
+    if str(ac_name) == settings.COMMUNITY_ACCOUNTING:
         return data_list
 
     himoku_names = set(Himoku.get_without_community().values_list("himoku_name", flat=True))

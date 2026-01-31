@@ -75,7 +75,6 @@
           <thead>
             <tr>
               <th class="has-text-centered">会計区分</th>
-              <th class="has-text-centered">日付</th>
               <th class="has-text-centered">費目</th>
               <th class="has-text-centered">支出</th>
               <th class="has-text-centered">備考</th>
@@ -88,23 +87,26 @@
               {# 講座振替手数料(is_netting)または集計フラグ(aggregate_flag)がオフの費目の場合、赤字表示する #}
               {% comment %} {% if record.is_netting or not record.himoku.aggregate_flag %} {% endcomment %}
               {% if not record.himoku.aggregate_flag or not record.calc_flg %}
-                <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td>
+                {% comment %} <td class="has-text-left has-text-danger">{{record.transaction_date|date:'m-d'}}</td> {% endcomment %}
                 <td class="has-text-ledt has-text-danger">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
-                <td class="has-text-left has-text-danger is-size-7">{{record.description}}</td>
               {% else %}
-                <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td>
+                {% comment %} <td class="has-text-left">{{record.transaction_date|date:'m-d'}}</td> {% endcomment %}
                 <td class="has-text-ledt">{{record.himoku|truncatechars:16}}</td>
                 <td class="has-text-right">{{record.amount|intcomma}}</td>
+              {% endif %}
+              {% if record.is_miharai %}
+                <td class="has-text-left is-size-7 has-text-danger">【未払い】{{record.description|markdown_to_html}}</td>
+              {% else %}
                 <td class="has-text-left is-size-7">{{record.description|markdown_to_html}}</td>
               {% endif %}
             </tr>
             {% endfor %}
             <tr>
               <td></td>
-              <td></td>
               <td class="has-text-right">合計</td>
               <td class="has-text-right">{{total_mr|intcomma}}</td>
+              <td></td>
             </tr>
           </tbody>
         </table>

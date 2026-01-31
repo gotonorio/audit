@@ -21,21 +21,21 @@ def get_monthly_expense_check_data(year, month):
     tstart, tend = select_period(year, month)
     last_tstart, last_tend = select_period(last_year, last_month)
 
-    # 1. 月次報告データ (MR)
+    # 1. 月次報告データ
     qs_mr = get_monthly_report_queryset(tstart, tend, 0, "expense", True).exclude(is_netting=True)
     # 合計計算（集計対象外フラグを除外して計算）
     total_mr = ReportTransaction.total_calc_flg(qs_mr.exclude(himoku__aggregate_flag=False))
 
-    # 2. 通帳データ (PB)
+    # 2. 通帳データ
     qs_pb = Transaction.get_qs_pb(tstart, tend, "0", "0", "expense", True, False).order_by(
-        "transaction_date", "himoku__code", "description"
+        "himoku__code", "transaction_date"
     )
     # 通帳合計の計算 (特定の費目条件を考慮)
     total_pb = sum(
         d.amount for d in qs_pb if d.himoku and d.himoku.aggregate_flag and not d.himoku.is_community
     )
 
-    # 3. 未払金データ (BS)
+    # 3. 未払金データ
     qs_this_miharai, total_this_miharai = BalanceSheet.get_miharai_bs(tstart, tend)
     _, total_last_miharai = BalanceSheet.get_miharai_bs(last_tstart, last_tend)
 
