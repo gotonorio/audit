@@ -147,4 +147,4 @@ def get_monthly_report_queryset(tstart, tend, ac_class, inout_flg, community):
         if town_obj:
             qs = qs.exclude(himoku__accounting_class=town_obj.pk)
 
-    return qs
+    return qs.order_by("accounting_class", "himoku__code")

@@ -96,7 +96,7 @@ class MonthlyReportExpenseUpdateView(PermissionRequiredMixin, UpdateView):
 
 
 # ----------------------------------------------------------------------------
-# DeleteView
+# Monthly_expense DeleteView
 # ----------------------------------------------------------------------------
 class DeleteExpenseView(PermissionRequiredMixin, DeleteView):
     """月次報告支出データ削除View"""

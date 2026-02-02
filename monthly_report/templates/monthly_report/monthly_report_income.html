@@ -76,8 +76,8 @@
           <th class="has-text-centered">費目</th>
           <th class="has-text-centered">収入</th>
           <th class="has-text-centered is-hidden-mobile">摘要</th>
-          {% if perms.record.add_transaction %}
-            <th class="has-text-centered"></th>
+          {% if perms.record.add_user %}
+            <th class="has-text-centered">管理者用</th>
           {% endif %}
         </tr>
       </thead>
@@ -100,7 +100,7 @@
             <td class="has-text-right has-text-danger">{{record.amount|intcomma}}</td>
             <td class="has-text-left has-text-danger is-hidden-mobile">(計算除外金) {{record.description}}</td>
           {% endif %}
-          {% if perms.register.add_user %}
+          {% if perms.record.add_user %}
               <td class="has-text-centered">
                 <a href="{% url 'monthly_report:delete_income' record.pk %}">削除</a>
               </td>

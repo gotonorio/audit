@@ -96,7 +96,7 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, UpdateView):
 
 
 # ----------------------------------------------------------------------------
-# DeleteView
+# Monthly_income DeleteView
 # ----------------------------------------------------------------------------
 class DeleteIncomeView(PermissionRequiredMixin, DeleteView):
     """月次報告収入データ削除View
