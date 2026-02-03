@@ -14,9 +14,16 @@ urlpatterns = [
     # 支払い承認データの編集
     path(
         "update_payment/<int:pk>/",
-        views.UpdatePaymentView.as_view(),
+        views.PaymentUpdateView.as_view(),
         name="update_payment",
     ),
+    # 支払い承認データの削除
+    path(
+        "delete_payment_by_yearmonth/",
+        views.PaymentDeleteByYearMonthView.as_view(),
+        name="delete_payment_by_yearmonth",
+    ),
+    # 支払い方法マスタの新規登録
     path(
         "create_paymentmethod/",
         views.PaymentMethodCreateView.as_view(),

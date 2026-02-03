@@ -8,6 +8,7 @@
 {# https://bulma.io/documentation/components/navbar/ #}
 <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
+    <div class="navbar-item">【データ編集】</div>
     {# ハンバーガアイコンのため以下の5行とbase.htmlでのjsスクリプトが必要 #}
     <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
       <span aria-hidden="true"></span>
@@ -32,20 +33,18 @@
           </div>
         </div>
       {% endif %}
-
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">Kuraselデータ取込み</a>
         <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_payment' %}">(1) 支払承認 取込み</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_deposit' %}">(2) 入出金明細 取込み</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_monthly' %}">(3) 月次収支 取込み</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">(4) 貸借対照表 取込み</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">(5) 未収金・前受金・振替不備 取込み</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_billing' %}">(6) 請求合計金額 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_payment' %}">支払承認 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_deposit' %}">入出金明細 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_monthly' %}">月次収支 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">貸借対照表 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">未収金・前受金・振替不備 取込み</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_billing' %}">請求合計金額 取込み</a>
           <hr class="navbar-divider">
         </div>
       </div>
-
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">年次予算データ</a>
         <div class="navbar-dropdown">
@@ -59,9 +58,21 @@
         </div>
       </div>
     </div>
+
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
       <a class="navbar-item" href="{% url 'control:backupDB' %}" >DBバックアップ</a>
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">Kuraselデータ削除</a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="{% url 'payment:delete_payment_by_yearmonth' %}">支払承認 削除</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_monthly' %}">月次収支 削除</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">貸借対照表 削除</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">未収金・前受金・振替不備 削除</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_billing' %}">請求合計金額 削除</a>
+          <hr class="navbar-divider">
+        </div>
+      </div>
       <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>

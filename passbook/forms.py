@@ -4,11 +4,13 @@ from django.conf import settings
 
 class YearMonthForm(forms.Form):
     """年月を指定するベースForm
-    - navbarでの使用にclassを設定。その他での使用時はclassを上書き指定する。
+    - navbarでの使用にclassを設定。その他での使用時は__init__()を上書き指定する。
     """
 
     year = forms.IntegerField(
         label="西暦",
+        min_value=2000,
+        max_value=2200,
         widget=forms.NumberInput(
             attrs={
                 "class": "input is-small",  # デフォルトで navbar 仕様にしておく
@@ -27,11 +29,11 @@ class YearMonthForm(forms.Form):
         choices=settings.MONTH,
     )
 
+    # navbar以外でformを使う場合、__init__()を上書きしてclass属性を調整する。
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.fields["year"].widget.attrs["class"] = "input"
-        # self.fields["year"].widget.attrs["style"] = "width:10ch"
-        # navbarでselect要素の設定はHTML側で行うため、class属性の設定はしない。
+        # self.fields["month"].widget.attrs["class"] = "select-css"
 
 
 class YearMonthALLForm(YearMonthForm):

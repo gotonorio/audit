@@ -1,22 +1,22 @@
 import logging
 
 from common.mixins import PeriodParamMixin
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.views import generic
 from payment.forms import (
     ApprovalPaymentCreateForm,
     ApprovalPaymentListForm,
+    MonthYearSelectionForm,
     PaymentMethodCreateForm,
 )
 from payment.models import Payment, PaymentMethod
 from payment.services.service import get_payment_summary
 
 logger = logging.getLogger(__name__)
-
-
-# payment/views.py
 
 
 class PaymentAdminBase:
@@ -65,7 +65,7 @@ class PaymentListView(PermissionRequiredMixin, PeriodParamMixin, generic.Templat
         return context
 
 
-class UpdatePaymentView(PaymentAdminBase, PermissionRequiredMixin, generic.UpdateView):
+class PaymentUpdateView(PaymentAdminBase, PermissionRequiredMixin, generic.UpdateView):
     """支払い承認データの修正"""
 
     model = Payment
@@ -82,6 +82,39 @@ class UpdatePaymentView(PaymentAdminBase, PermissionRequiredMixin, generic.Updat
             }
         )
         return f"{base_url}?{params}"
+
+
+class PaymentDeleteByYearMonthView(PaymentAdminBase, PermissionRequiredMixin, generic.FormView):
+    """指定された年月の支払いデータを一括削除するFormView"""
+
+    template_name = "payment/payment_delete_by_yearmonth.html"
+    form_class = MonthYearSelectionForm
+    success_url = reverse_lazy("payment:payment_list")  # 削除後にリダイレクトする先
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            year = form.cleaned_data["year"]
+            month = form.cleaned_data["month"]
+
+            # 「実行ボタン」が押された場合のみ削除
+            if "execute_delete" in request.POST:
+                count = Payment.delete_by_yearmonth(year, month)
+                messages.success(request, f"{year}年{month}月のデータを {count} 件削除しました。")
+                return redirect(self.get_success_url())
+
+            # 「確認ボタン」が押された場合は、データを抽出して同じページを表示
+            target_data = Payment.objects.filter(payment_date__year=year, payment_date__month=month)
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    target_data=target_data,
+                    confirm_mode=True,  # 確認モードフラグ
+                    year=year,
+                    month=month,
+                )
+            )
+        return self.form_invalid(form)
 
 
 class PaymentMethodBase(PaymentAdminBase):
@@ -107,126 +140,3 @@ class PaymentMethodUpdateView(PaymentMethodBase, PermissionRequiredMixin, generi
     """支払い方法の更新"""
 
     pass
-
-
-# class PaymentListView(PermissionRequiredMixin, generic.TemplateView):
-#     """年月別の承認済み支払いの表示"""
-
-#     model = Payment
-#     template_name = "payment/approval_payment_list.html"
-#     permission_required = ("record.view_transaction",)
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         # GETパラメータ(self.request.GET)
-#         # .get() で None が返ることを利用して 'or' で繋ぐ
-#         now = localtime(timezone.now())
-#         year = self.request.GET.get("year") or now.year
-#         month = self.request.GET.get("month") or now.month
-#         day = self.request.GET.get("day") or "0"
-#         list_order = self.request.GET.get("list_order") or "0"
-
-#         year = int(year)
-#         month = int(month)
-#         day = int(day)
-#         list_order = int(list_order)
-
-#         # querysetの作成。
-#         tstart, tend = select_period(year, month)
-#         if day == 0:
-#             qs = Payment.objects.select_related("himoku").filter(payment_date__range=[tstart, tend])
-#         elif month == 0:
-#             qs = (
-#                 Payment.objects.select_related("himoku")
-#                 .filter(payment_date__range=[tstart, tend])
-#                 .filter(payment_date__day=day)
-#             )
-#         else:
-#             payment_day = datetime.datetime(year, month, day)
-#             qs = Payment.objects.all().select_related("himoku").filter(payment_date=payment_day)
-#         # 表示順序
-#         if list_order == 0:
-#             qs = qs.order_by("payment_date", "himoku__code")
-#         else:
-#             qs = qs.order_by("himoku__code", "payment_date")
-#         # 支払い金額の合計
-#         total = 0
-#         for data in qs:
-#             total += data.payment
-#         # forms.pyのKeikakuListFormに初期値を設定する
-#         form = ApprovalPaymentListForm(
-#             initial={
-#                 "year": year,
-#                 "month": month,
-#                 "day": day,
-#                 "list_order": list_order,
-#             }
-#         )
-#         context["approval_list"] = qs
-#         context["form"] = form
-#         context["total"] = total
-#         context["year"] = year
-#         context["month"] = month
-#         return context
-
-
-# class UpdatePaymentView(PermissionRequiredMixin, generic.UpdateView):
-#     """支払い承認データ（作成はKuraselからの取り込みなので、修正処理だけが必要）"""
-
-#     model = Payment
-#     form_class = ApprovalPaymentCreateForm
-#     template_name = "payment/update_form.html"
-#     permission_required = "record.add_transaction"
-#     # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
-#     raise_exception = True
-
-#     def get_success_url(self):
-#         """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
-#         base_url = reverse("payment:payment_list")
-
-#         # クエリパラメータを辞書形式で定義
-#         params = urlencode(
-#             {
-#                 "year": self.object.payment_date.year,
-#                 "month": self.object.payment_date.month,
-#             }
-#         )
-#         return f"{base_url}?{params}"
-
-
-# class PaymentMethodCreateView(PermissionRequiredMixin, generic.CreateView):
-#     """支払い方法の作成処理
-#     支払い方法の一覧表示も同じ画面で行う。
-#     """
-
-#     model = PaymentMethod
-#     form_class = PaymentMethodCreateForm
-#     template_name = "payment/payment_method_form.html"
-#     permission_required = "record.add_transaction"
-#     # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
-#     raise_exception = True
-#     # 保存が成功した場合に遷移するurl
-#     success_url = reverse_lazy("payment:create_paymentmethod")
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["object_list"] = PaymentMethod.objects.all()
-#         return context
-
-
-# class PaymentMethodUpdateView(PermissionRequiredMixin, generic.UpdateView):
-#     """支払い方法データの UpdateView"""
-
-#     model = PaymentMethod
-#     form_class = PaymentMethodCreateForm
-#     template_name = "payment/payment_method_form.html"
-#     permission_required = "record.add_transaction"
-#     # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
-#     raise_exception = True
-#     # 保存が成功した場合に遷移するurl
-#     success_url = reverse_lazy("payment:create_paymentmethod")
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["object_list"] = PaymentMethod.objects.all()
-#         return context

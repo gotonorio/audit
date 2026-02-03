@@ -68,6 +68,17 @@ class Payment(models.Model):
             total += i.payment
         return qs, total
 
+    @classmethod
+    def delete_by_yearmonth(cls, year, month):
+        """指定された年月のデータを一括削除する
+        - year:  年度 (int: 2026)
+        - month: 月 (int: 2)
+        - return: 削除件数
+        """
+        deleted_count, _ = cls.objects.filter(payment_date__year=year, payment_date__month=month).delete()
+
+        return deleted_count
+
 
 class PaymentCategory(models.Model):
     """支払い区分マスタ"""
