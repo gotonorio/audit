@@ -35,7 +35,7 @@ class TransactionDisplayForm(YearMonthForm):
     )
     month = forms.ChoiceField(
         label="月",
-        choices=[(0, "ALL")] + settings.MONTH,
+        choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
         required=True,
     )
     # 会計区分
@@ -420,7 +420,7 @@ class ClaimListForm(forms.Form):
     )
     month = forms.ChoiceField(
         label="月",
-        choices=[(0, "ALL")] + settings.MONTH,
+        choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
         required=True,
     )
     # データ区分

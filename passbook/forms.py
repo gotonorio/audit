@@ -18,15 +18,14 @@ class YearMonthForm(forms.Form):
             }
         ),
     )
-
     month = forms.ChoiceField(
         label="月",
+        choices=[(i, f"{i}月") for i in range(1, 13)],
         widget=forms.Select(
             attrs={
                 "style": "width:10ch",
             }
         ),
-        choices=settings.MONTH,
     )
 
     # navbar以外でformを使う場合、__init__()を上書きしてclass属性を調整する。
@@ -46,5 +45,5 @@ class YearMonthALLForm(YearMonthForm):
                 "style": "width:10ch",
             }
         ),
-        choices=[(0, "ALL")] + settings.MONTH,
+        choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
     )

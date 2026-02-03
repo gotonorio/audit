@@ -167,7 +167,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ------------------------------------------------------------------
 CSRF_TRUSTED_ORIGINS = ["https://passbook.sophiagardens.org"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-VERSION_NO = "2026-01-31"
+VERSION_NO = "2026-02-03"
 # DBのバックアップ保持数
 BACKUP_NUM = 20
 # # 資金移動の費目名を設定
@@ -208,20 +208,6 @@ COMMUNITY_INCOME = ["収入", "町内会会計", "町内会費", "町内会費�
 COMMUNITY_PAYMENT = ["支出", "町内会会計", "町会費", "寄付金", "町内会費会計"]
 # 相殺処理後のデータ入力個数
 FORMSET_NUM = 10
-MONTH = [
-    (1, "1月"),
-    (2, "2月"),
-    (3, "3月"),
-    (4, "4月"),
-    (5, "5月"),
-    (6, "6月"),
-    (7, "7月"),
-    (8, "8月"),
-    (9, "9月"),
-    (10, "10月"),
-    (11, "11月"),
-    (12, "12月"),
-]
 CLAIMTYPE = (
     ("未収金", "請求時点未収金一覧"),
     ("前受金", "請求時点前受金一覧"),

@@ -18,7 +18,7 @@ class MonthlyReportViewForm(YearMonthForm):
     # 選択要素としてALLを追加するため、monthフィールドをoverrideする。
     month = forms.ChoiceField(
         label="月",
-        choices=[(0, "ALL")] + settings.MONTH,
+        choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
         required=True,
     )
 

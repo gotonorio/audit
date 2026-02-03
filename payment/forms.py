@@ -15,7 +15,7 @@ class ApprovalPaymentListForm(YearMonthForm):
     # 全月表示のためYearMonthFormを上書きする
     month = forms.ChoiceField(
         label="月",
-        choices=[(0, "ALL")] + settings.MONTH,
+        choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
         # select の装飾は Bulma に任せ、widget 側は素の select にする。基本的には削除しておく。
         widget=forms.Select(attrs={"class": ""}),
     )
