@@ -4,13 +4,14 @@ from common.services import select_period
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import urlencode
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import DeleteView, FormView, UpdateView
 from record.models import AccountingClass
 
-from monthly_report.forms import MonthlyReportIncomeForm
+from monthly_report.forms import DeleteByYearMonthAcclass, MonthlyReportIncomeForm
 from monthly_report.models import ReportTransaction
 from monthly_report.services.monthly_report_services import get_monthly_report_queryset
 
@@ -96,7 +97,7 @@ class MonthlyReportIncomeUpdateView(PermissionRequiredMixin, UpdateView):
 
 
 # ----------------------------------------------------------------------------
-# Monthly_income DeleteView
+# 月次収入データの個別削除用 DeleteView
 # ----------------------------------------------------------------------------
 class DeleteIncomeView(PermissionRequiredMixin, DeleteView):
     """月次報告収入データ削除View
@@ -136,3 +137,67 @@ class DeleteIncomeView(PermissionRequiredMixin, DeleteView):
         # メッセージ表示
         messages.success(self.request, "削除しました。")
         return super().form_valid(form)
+
+
+# ----------------------------------------------------------------------------
+# 月次収入データの一括削除用 FormView
+# ----------------------------------------------------------------------------
+class MonthlyIncomeDeleteByYearMonthView(MonthlyReportBaseView, FormView):
+    """指定された年月の収入データを一括削除するFormView"""
+
+    template_name = "monthly_report/monthly_report_delete_by_yearmonth.html"
+    form_class = DeleteByYearMonthAcclass
+    # 収入データ（支出データは下記を調整する）
+    title = "月次収入データの一括削除"
+    success_url = reverse_lazy("monthly_report:incomelist")  # 削除後にリダイレクトする先
+    income_flg = True
+
+    def get_context_data(self, **kwargs):
+        """title設定のためだけ"""
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.title
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            year = form.cleaned_data["year"]
+            month = form.cleaned_data["month"]
+            ac_class = form.cleaned_data["ac_class"]
+
+            # 1.「実行ボタン」が押された場合のみ削除
+            if "execute_delete" in request.POST or request.POST.get("execute_delete") == "true":
+                count = ReportTransaction.delete_by_yearmonth(
+                    year, month, ac_class, is_income=self.income_flg
+                )
+                messages.success(request, f"{year}年{month}月のデータを {count} 件削除しました。")
+                return redirect(self.get_success_url())
+
+            # 2.「確認ボタン」が押された場合は、データを抽出して同じページを表示
+            filters = {
+                "transaction_date__year": year,
+                "transaction_date__month": month,
+                "himoku__is_income": self.income_flg,
+                "amount__gt": 0,
+            }
+            if ac_class:
+                filters["accounting_class"] = ac_class
+
+            target_data = ReportTransaction.objects.filter(**filters)
+
+            # 3. レスポンス（ac_classのNoneチェックを入れる）
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    target_data=target_data,
+                    confirm_mode=True,
+                    year=year,
+                    month=month,
+                    # ac_classがNoneの場合の安全な処理
+                    ac_class_pk=ac_class.pk if ac_class else "",
+                    ac_class_name=ac_class.accounting_name if ac_class else "全会計区分",
+                    income_flg=self.income_flg,
+                )
+            )
+
+        return self.form_invalid(form)

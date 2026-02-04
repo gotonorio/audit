@@ -1,0 +1,141 @@
+{% extends "common/base.html" %}
+{% load humanize %} {# 3桁区切りのため追加 #}
+{% load static %} {# {% static  を使うため必要 #}
+{% load my_extras %} {# プロジェクト共有のテンプレートファイル/タグを使う. setting.pyで設定 #}
+
+{% block title %}
+月次収支データの一括削除
+{% endblock title %}
+
+{% block head %}
+{# javascriptファイルを取り込む #}
+{% endblock head %}
+
+{% block navbar %}
+<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'register:mypage' %}">【SG川崎】</a>
+    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+    <div class="navbar-end">
+      <a class="navbar-item" href="{% url 'register:master_page' %}" >戻る</a>
+    </div>
+  </div>
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<br>
+{% if messages %}
+<div class="container" style="margin-top:1rem;">
+  <div class="notification is-info">
+    <button class="delete" type="button"></button>
+    {% for message in messages %}
+      <p>{{message}}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="container is-fluid">
+  <div class="content">
+    <h2>{{title}}</h2>
+  </div>
+  <br>
+  <form method="post" id="delete-form">
+      {% csrf_token %}
+      {% if not confirm_mode %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class='field'>
+            <div class='control'>
+              <div class='label'>{{ field.label_tag }}</div>
+              <div class='my_field'>{{ field }}</div>
+              {% if field.help_text %}
+                <span class='helptext'>{{ field.help_text }}</span>
+              {% endif %}
+              {{ field.errors }}
+            </div>
+          </div>
+        {% endfor %}
+        <br>
+        <button type="submit" name="check_data" class="button is-primary is-size-7">対象データを確認する</button>
+      {% else%}
+        <div class="alert alert-warning">
+            <h4>以下の {{ target_data.count }} 件のデータを削除します。よろしいですか？</h4>
+            <p>対象年月: {{ year }}年{{ month }}月の{{ac_class_name}}</p>
+        </div>
+
+        <table class="table table_nowrap is-narrow is-striped">
+            <thead>
+                <tr>
+                  <th class="has-text-centered">日付</th>
+                  <th class="has-text-centered">会計区分</th>
+                  <th class="has-text-centered">費目</th>
+                  <th class="has-text-centered">金額</th>
+                  <th class="has-text-centered">摘要</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in target_data %}
+                <tr>
+                    <td class="has-text-left">{{ item.transaction_date }}</td>
+                    <td class="has-text-left">{{ item.himoku.accounting_class }}</td>
+                    <td class="has-text-left">{{ item.himoku }}</td>
+                    <td class="has-text-right">{{ item.amount|intcomma }}円</td>
+                    <td class="has-text-left">{{ item.description }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">対象データはありません。</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- JavaScriptのために以下のhiddenが必要 -->
+        <input type="hidden" id="id_year" name="year" value="{{ year }}">
+        <input type="hidden" id="id_month" name="month" value="{{ month }}">
+        <input type="hidden" id="id_ac_class_name" value="{{ ac_class_name }}">
+        <input type="hidden" name="ac_class" value="{{ ac_class_pk }}">
+        <input type="hidden" name="income_flg" value="{{ income_flg }}">
+        <input type="hidden" name="execute_delete" id="id_execute_delete" value="">
+
+        <a href="." class="button is-primary is-size-7">やり直す</a>
+        {% if target_data %}
+          <button type="submit" name="execute_delete" class="button is-danger is-size-6">一括削除</button>
+
+          {% comment %} <button type="button" class="button is-danger is-size-7" onclick="confirmAndSubmit()">
+            一括削除を実行する
+          </button>
+          <input type="hidden" name="execute_delete" id="id_execute_delete" value=""> {% endcomment %}
+        {% endif %}
+      {% endif%}
+  </form>
+
+  <script>
+  function confirmAndSubmit() {
+      // フォームの値を取得
+      const year = document.getElementById('id_year').value;
+      const month = document.getElementById('id_month').value;
+      const ac_class = document.getElementById('id_ac_class_name').value;
+
+      if (!year || !month) {
+          alert("年と月を入力してください。");
+          return;
+      }
+      // 確認ダイアログの表示
+      const message = `${year}年${month}月の${ac_class}「月次収入データ」をすべて削除します。\n本当によろしいですか？`;
+      if (confirm(message)) {
+          document.getElementById('delete-form').submit();
+      }
+  }
+  </script>
+  <br>
+</div>
+{% endblock %}

@@ -129,12 +129,3 @@ class DepositWithdrawalForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["year"].widget.attrs["class"] = "input"
-
-
-class MonthYearDeleteForm(YearMonthForm):
-    """取り込みデータの削除用フォーム"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["year"].widget.attrs["class"] = "input"
-        self.fields["month"].widget.attrs["class"] = "select-css"

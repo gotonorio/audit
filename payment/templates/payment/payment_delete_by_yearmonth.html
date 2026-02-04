@@ -50,58 +50,55 @@
   </div>
   <br>
   <form method="post" id="delete-form">
-      {% csrf_token %}
-      {% if not confirm_mode %}
-        {{ form.non_field_errors }}
-        {% for field in form %}
-          <div class='field'>
-            <div class='control'>
-              <div class='label'>{{ field.label_tag }}</div>
-              <div class='my_field'>{{ field }}</div>
-              {% if field.help_text %}
-                <span class='helptext'>{{ field.help_text }}</span>
-              {% endif %}
-              {{ field.errors }}
-            </div>
+    {% csrf_token %}
+    {% if not confirm_mode %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class='field'>
+          <div class='control'>
+            <div class='label'>{{ field.label_tag }}</div>
+            <div class='my_field'>{{ field }}</div>
+            {% if field.help_text %}
+              <span class='helptext'>{{ field.help_text }}</span>
+            {% endif %}
+            {{ field.errors }}
           </div>
-        {% endfor %}
-        <br>
-        <button type="submit" name="check_data" class="button is-primary is-size-7">対象データを確認する</button>
-      {% else%}
-        <div class="alert alert-warning">
-            <h4>以下の {{ target_data.count }} 件のデータを削除します。よろしいですか？</h4>
-            <p>対象年月: {{ year }}年{{ month }}月</p>
         </div>
+      {% endfor %}
+      <br>
+      <button type="submit" name="check_data" class="button is-primary is-size-7">対象データを確認する</button>
+    {% else%}
+      <div class="content">
+          <h4>以下の {{ target_data.count }} 件のデータを削除します。よろしいですか？</h4>
+          <h5>対象年月: {{ year }}年{{ month }}月</h5>
+      </div>
+      <table class="table">
+          <thead>
+              <tr><th>日付</th><th>支払先</th><th>金額</th><th>摘要</th></tr>
+          </thead>
+          <tbody>
+              {% for item in target_data %}
+              <tr>
+                  <td>{{ item.payment_date }}</td>
+                  <td>{{ item.payment_destination }}</td>
+                  <td>{{ item.payment }}円</td>
+                  <td>{{ item.summary }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4">対象データはありません。</td></tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      <!--viewにyear、monthを返すために以下が必要-->
+      <input type="hidden" name="year" value="{{ year }}">
+      <input type="hidden" name="month" value="{{ month }}">
+      
+      <a href="." class="button is-primary is-size-6">やり直す</a>
+      {% if target_data %}
+        <button type="submit" name="execute_delete" class="button is-danger is-size-6">一括削除</button>
+      {% endif %}
 
-        <table class="table">
-            <thead>
-                <tr><th>日付</th><th>支払先</th><th>金額</th><th>摘要</th></tr>
-            </thead>
-            <tbody>
-                {% for item in target_data %}
-                <tr>
-                    <td>{{ item.payment_date }}</td>
-                    <td>{{ item.payment_destination }}</td>
-                    <td>{{ item.payment }}円</td>
-                    <td>{{ item.summary }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="4">対象データはありません。</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <input type="hidden" name="year" value="{{ year }}">
-        <input type="hidden" name="month" value="{{ month }}">
-        
-        <a href="." class="button is-primary is-size-7">やり直す</a>
-        {% if target_data %}
-            <button type="submit" name="execute_delete" class="button is-danger is-size-7" onclick="return confirm('本当に削除します。後戻りはできません！')">
-                一括削除を実行する
-            </button>
-        {% endif %}
-
-      {% endif%}
+    {% endif%}
   </form>
 
   <script>

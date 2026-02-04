@@ -41,6 +41,25 @@ class ReportTransaction(models.Model):
             return ""
         return self.himoku.himoku_name
 
+    @classmethod
+    def delete_by_yearmonth(cls, year, month, ac_class, is_income):
+        """指定された年月のデータを一括削除する
+        - year:  年度 (int: 2026)
+        - month: 月 (int: 2)
+        - ac_class: 会計区分
+        - is_income: 収入・支出フラグ (bool: True=収入、False=支出)
+        - return: 削除件数
+        """
+        deleted_count, _ = cls.objects.filter(
+            transaction_date__year=year,
+            transaction_date__month=month,
+            accounting_class=ac_class,
+            himoku__is_income=is_income,
+            amount__gt=0,
+        ).delete()
+
+        return deleted_count
+
     # def delete(self):
     #     """ delete関数を論理削除にするためにオーバーライド
     #     - DeleteViewで削除処理すると、レコードは削除せずdelete_flgをTrueにする。

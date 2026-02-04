@@ -47,3 +47,12 @@ class YearMonthALLForm(YearMonthForm):
         ),
         choices=[(0, "ALL")] + [(i, f"{i}月") for i in range(1, 13)],
     )
+
+
+class MonthYearSelectionForm(YearMonthForm):
+    """年月入力用のフォーム"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["year"].widget.attrs["class"] = "input"
+        self.fields["month"].widget.attrs["class"] = "select-css"

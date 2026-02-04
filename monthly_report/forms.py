@@ -1,7 +1,6 @@
 from django import forms
-from django.conf import settings
 from django.utils import timezone
-from passbook.forms import YearMonthForm
+from passbook.forms import MonthYearSelectionForm, YearMonthForm
 from record.models import AccountingClass, Himoku
 
 from .models import BalanceSheet, BalanceSheetItem, ReportTransaction
@@ -262,3 +261,23 @@ class BalanceSheetItemForm(forms.ModelForm):
                 }
             ),
         }
+
+
+# -----------------------------------------------------------------------------
+# 月次収支一括削除用フォーム
+# -----------------------------------------------------------------------------
+class DeleteByYearMonthAcclass(YearMonthForm):
+    """年月、会計区分入力用のForm"""
+
+    ac_class = forms.ModelChoiceField(
+        label="会計区分",
+        required=False,
+        queryset=AccountingClass.objects.order_by("code"),
+        empty_label="会計区分を選択",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["year"].widget.attrs["class"] = "input"
+        self.fields["month"].widget.attrs["class"] = "select-css"
+        self.fields["ac_class"].widget.attrs["class"] = "select-css"

@@ -7,10 +7,10 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.views import generic
+from passbook.forms import MonthYearSelectionForm
 from payment.forms import (
     ApprovalPaymentCreateForm,
     ApprovalPaymentListForm,
-    MonthYearSelectionForm,
     PaymentMethodCreateForm,
 )
 from payment.models import Payment, PaymentMethod

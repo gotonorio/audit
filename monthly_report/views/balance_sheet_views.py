@@ -3,9 +3,19 @@ import logging
 
 from common.services import select_period
 from django.conf import settings
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.utils.http import urlencode
+from django.utils.timezone import localtime
+from django.views.generic import CreateView, DeleteView, UpdateView
 
-from monthly_report.forms import MonthlyReportViewForm
-from monthly_report.models import BalanceSheet
+from monthly_report.forms import (
+    BalanceSheetForm,
+    BalanceSheetItemForm,
+    MonthlyReportViewForm,
+)
+from monthly_report.models import BalanceSheet, BalanceSheetItem
 from monthly_report.services.balance_sheet_check_service import check_balancesheet
 from monthly_report.services.balance_sheet_service import (
     fetch_balancesheet_all,
@@ -168,3 +178,91 @@ class BalanceSheetListView(MonthlyReportBaseView):
                 "ac_class": ac_class,
             }
         )
+
+
+# =============================================================================
+# 貸借対照表 Create / Update / Delete Views
+# =============================================================================
+class BalanceSheetCreateView(PermissionRequiredMixin, CreateView):
+    """貸借対照表の未収金・前受金・未払金のCreateView"""
+
+    model = BalanceSheet
+    form_class = BalanceSheetForm
+    template_name = "monthly_report/bs_form.html"
+    permission_required = "record.add_transaction"
+    # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
+    raise_exception = True
+    # 保存が成功した場合に遷移するurl
+    success_url = reverse_lazy("monthly_report:create_bs")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        year = localtime(timezone.now()).year
+        context["bs_list"] = BalanceSheet.objects.filter(monthly_date__contains=year).order_by(
+            "-monthly_date", "item_name"
+        )
+        return context
+
+
+class BalanceSheetUpdateView(PermissionRequiredMixin, UpdateView):
+    """貸借対照表の未収金・前受金・未払金のUpdateView"""
+
+    model = BalanceSheet
+    form_class = BalanceSheetForm
+    template_name = "monthly_report/bs_form.html"
+    permission_required = "record.add_transaction"
+    # 権限がない場合、Forbidden 403を返す。これがない場合はログイン画面に飛ばす。
+    raise_exception = True
+
+    # 保存が成功した場合に遷移するurl
+    def get_success_url(self):
+        """保存成功後、GETパラメータを付与した一覧画面へリダイレクト"""
+        base_url = reverse("monthly_report:bs_table")
+        # クエリパラメータを辞書形式で定義
+        params = urlencode(
+            {
+                "year": self.object.monthly_date.year,
+                "month": self.object.monthly_date.month,
+                "ac_class": self.object.item_name.ac_class.pk,
+            }
+        )
+
+        return f"{base_url}?{params}"
+
+
+class BalanceSheetDeleteView(PermissionRequiredMixin, DeleteView):
+    """貸借対照表データの削除処理"""
+
+    model = BalanceSheet
+    template_name = "monthly_report/bs_delete_confirm.html"
+    permission_required = "record.add_transaction"
+    success_url = reverse_lazy("monthly_report:create_bs")
+
+
+class BalanceSheetItemCreateView(PermissionRequiredMixin, CreateView):
+    """貸借対照表の科目データの作成"""
+
+    model = BalanceSheetItem
+    form_class = BalanceSheetItemForm
+    template_name = "monthly_report/bs_item_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    # 保存が成功した場合に遷移するurl
+    success_url = reverse_lazy("monthly_report:create_bs_item")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["bs_item_list"] = BalanceSheetItem.objects.all().order_by("code", "is_asset")
+        return context
+
+
+class BalanceSheetItemUpdateView(PermissionRequiredMixin, UpdateView):
+    """貸借対照表の科目データのアップデート"""
+
+    model = BalanceSheetItem
+    form_class = BalanceSheetItemForm
+    template_name = "monthly_report/bs_item_form.html"
+    permission_required = "record.add_transaction"
+    raise_exception = True
+    # 保存が成功した場合に遷移するurl
+    success_url = reverse_lazy("monthly_report:create_bs_item")

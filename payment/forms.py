@@ -89,15 +89,6 @@ class ApprovalPaymentCreateForm(forms.ModelForm):
         }
 
 
-class MonthYearSelectionForm(YearMonthForm):
-    """支払い承認データの削除用フォーム"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["year"].widget.attrs["class"] = "input"
-        self.fields["month"].widget.attrs["class"] = "select-css"
-
-
 class PaymentMethodCreateForm(forms.ModelForm):
     """支払い方法の追加作成"""
 

@@ -1,3 +1,5 @@
+import logging
+
 from control.models import ControlRecord
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils import timezone
@@ -5,6 +7,8 @@ from django.utils.timezone import localtime
 from django.views import generic
 
 from monthly_report.forms import MonthlyReportViewForm
+
+logger = logging.getLogger(__name__)
 
 
 class MonthlyReportBaseView(PermissionRequiredMixin, generic.TemplateView):

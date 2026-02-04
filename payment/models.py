@@ -79,6 +79,16 @@ class Payment(models.Model):
 
         return deleted_count
 
+    @classmethod
+    def get_data_by_yearmonth(cls, year, month):
+        """指定された年月のデータを取得する
+        - year:  年度 (int: 2026)
+        - month: 月 (int: 2)
+        - return: queryset
+        """
+        qs = cls.objects.filter(payment_date__year=year, payment_date__month=month).order_by("payment_date")
+        return qs
+
 
 class PaymentCategory(models.Model):
     """支払い区分マスタ"""
