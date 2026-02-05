@@ -8,46 +8,34 @@
   /* 明朝体（Mac/Win/GoogleFontsの順） */
   --font-serif: "Hiragino Mincho ProN", "YuMincho", "Yu Mincho", "Noto Serif JP", serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --main-text: #fff;
-    --main-bg: #000;
-    --md-strong: #666666;
-  }
-}
 
-/* 固定フッタスタイル */
-html {
-    position: relative;
-    min-height: 100%;
-    margin:0px;
-    color: var(--main-text);
-    background-color: var(--main-bg);
-}
-
-main {
-  /* ユーザーのPCにゴシックがあればそれを使う。なければ Noto Sans をダウンロードする */
+html, body {
+  height: 100%;
+  margin: 0;
+  color: var(--main-text);
+  background-color: var(--main-bg);
   font-family: var(--font-sans);
-  /* 明朝体の場合 */
-  /* font-family: var(--font-serif); */
-  /* Macの場合アンチエイリアスを強調する。*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* my_footerを使う場合、本体をmargin-bottomでfooterエリアを確保しなければならない。 */
-  margin-bottom: 40px; 
 }
-
-/* footerだとBulmaのfooterを上書きしてしまう */
-.my_footer {
-    font-size: 80%;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 40px; /* ここでフッタの固定高さを設定 */
-    line-height: 40px; /* ここでテキストを垂直に中央に配置 */
-    color: var(--main-text);
-    background-color: var(--main-bg);
+body {
+  display: flex;
+  flex-direction: column;
+}
+.site-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* .footer {
+  margin-top: auto;  
+  padding: 0.75rem 1rem;
+} */
+.my-footer {
+  margin-top: auto;
+  padding: 0.5rem 0;
+  border-top: 1px solid #eee;
+  background-color: var(--main-bg);
 }
 
 /* セレクトボックスのカスタマイズ */

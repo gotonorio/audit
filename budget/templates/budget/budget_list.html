@@ -10,8 +10,8 @@
 {% block head %}
 {# javascriptファイルを取り込む #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-<script src="{% static 'budget/budget_chart.js' %}"></script>
-<link href="{% static 'mycss/graph.css' %}" rel="stylesheet">
+<script src="{% static 'common/js/budget_chart.js' %}"></script>
+<link href="{% static 'common/mycss/graph.css' %}" rel="stylesheet">
 {% endblock head %}
 
 {% block navbar %}
@@ -148,6 +148,6 @@
     console.log(graph_data);
     createBudgetActualChart(graph_data);
   </script>
-
+  <br>
 </div>
 {% endblock %}

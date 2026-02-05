@@ -89,7 +89,7 @@ class PaymentDeleteByYearMonthView(PaymentAdminBase, PermissionRequiredMixin, ge
 
     template_name = "payment/payment_delete_by_yearmonth.html"
     form_class = MonthYearSelectionForm
-    success_url = reverse_lazy("payment:payment_list")  # 削除後にリダイレクトする先
+    return_base_url = "payment:payment_list"
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -101,7 +101,17 @@ class PaymentDeleteByYearMonthView(PaymentAdminBase, PermissionRequiredMixin, ge
             if "execute_delete" in request.POST:
                 count = Payment.delete_by_yearmonth(year, month)
                 messages.success(request, f"{year}年{month}月のデータを {count} 件削除しました。")
-                return redirect(self.get_success_url())
+
+                # 削除後の戻り処理
+                base_url = reverse(self.return_base_url)
+                # クエリパラメータを辞書形式で定義
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": month,
+                    }
+                )
+                return redirect(f"{base_url}?{params}")
 
             # 「確認ボタン」が押された場合は、データを抽出して同じページを表示
             target_data = Payment.objects.filter(payment_date__year=year, payment_date__month=month)

@@ -147,9 +147,9 @@ class MonthlyIncomeDeleteByYearMonthView(MonthlyReportBaseView, FormView):
 
     template_name = "monthly_report/monthly_report_delete_by_yearmonth.html"
     form_class = DeleteByYearMonthAcclass
-    # 収入データ（支出データは下記を調整する）
+    # 収入データ（支出データは下記を上書きする）
     title = "月次収入データの一括削除"
-    success_url = reverse_lazy("monthly_report:incomelist")  # 削除後にリダイレクトする先
+    return_base_url = "monthly_report:incomelist"
     income_flg = True
 
     def get_context_data(self, **kwargs):
@@ -171,7 +171,18 @@ class MonthlyIncomeDeleteByYearMonthView(MonthlyReportBaseView, FormView):
                     year, month, ac_class, is_income=self.income_flg
                 )
                 messages.success(request, f"{year}年{month}月のデータを {count} 件削除しました。")
-                return redirect(self.get_success_url())
+
+                # 削除後の戻り処理
+                base_url = reverse(self.return_base_url)
+                # クエリパラメータを辞書形式で定義
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": month,
+                        "ac_class": ac_class.pk,
+                    }
+                )
+                return redirect(f"{base_url}?{params}")
 
             # 2.「確認ボタン」が押された場合は、データを抽出して同じページを表示
             filters = {

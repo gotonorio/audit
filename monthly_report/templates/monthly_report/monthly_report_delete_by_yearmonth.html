@@ -9,6 +9,7 @@
 
 {% block head %}
 {# javascriptファイルを取り込む #}
+<script src="{% static 'common/js/delete_confirm.js' %}"></script>
 {% endblock head %}
 
 {% block navbar %}
@@ -98,44 +99,26 @@
             </tbody>
         </table>
 
-        <!-- JavaScriptのために以下のhiddenが必要 -->
+        <!-- JavaScriptおよびViewへのデータ渡しのために以下のhiddenが必要 -->
         <input type="hidden" id="id_year" name="year" value="{{ year }}">
         <input type="hidden" id="id_month" name="month" value="{{ month }}">
         <input type="hidden" id="id_ac_class_name" value="{{ ac_class_name }}">
         <input type="hidden" name="ac_class" value="{{ ac_class_pk }}">
         <input type="hidden" name="income_flg" value="{{ income_flg }}">
-        <input type="hidden" name="execute_delete" id="id_execute_delete" value="">
 
-        <a href="." class="button is-primary is-size-7">やり直す</a>
+        <a href="." class="button is-primary">やり直す</a>
         {% if target_data %}
-          <button type="submit" name="execute_delete" class="button is-danger is-size-6">一括削除</button>
+          <!--以下はHTMLバージョン（1度だけ確認）-->
+          {% comment %} <button type="submit" name="execute_delete" class="button is-danger is-size-6">一括削除</button> {% endcomment %}
 
-          {% comment %} <button type="button" class="button is-danger is-size-7" onclick="confirmAndSubmit()">
+          <!--以下はHTML+JSバージョン（2度確認バージョン（JS使用）ブラウザによっては使えない可能性がある-->
+          <button type="button" class="button is-danger" onclick="confirmAndSubmit('{{year}}', '{{month}}', '{{ac_class_name}}')">
             一括削除を実行する
           </button>
-          <input type="hidden" name="execute_delete" id="id_execute_delete" value=""> {% endcomment %}
+          <input type="hidden" name="execute_delete" id="id_execute_delete" value=""> 
         {% endif %}
       {% endif%}
   </form>
-
-  <script>
-  function confirmAndSubmit() {
-      // フォームの値を取得
-      const year = document.getElementById('id_year').value;
-      const month = document.getElementById('id_month').value;
-      const ac_class = document.getElementById('id_ac_class_name').value;
-
-      if (!year || !month) {
-          alert("年と月を入力してください。");
-          return;
-      }
-      // 確認ダイアログの表示
-      const message = `${year}年${month}月の${ac_class}「月次収入データ」をすべて削除します。\n本当によろしいですか？`;
-      if (confirm(message)) {
-          document.getElementById('delete-form').submit();
-      }
-  }
-  </script>
   <br>
 </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html class="has-navbar-fixed-top" lang="ja">
+<html lang="ja">
 
 <head>
   <meta charset="utf-8">
@@ -15,59 +15,58 @@
   {% block head %}
   {% endblock %}
 </head>
-<body>
-  {% block navbar %}
-  {% endblock%}
-  <!-- ヘッダー（hero) -->
-  {% block header %}
-  {% endblock %}
-  <!-- footerを設置する場合、<main>で囲む -->
-  <main>
-  {% block content %}
-  {% endblock %}
-  </main>
-  <!-- フッタ -->
-  <footer class="my_footer">
-    <div class="container">
-      <div class="content has-text-centered">
-        <span class="text-muted">
-          &copy; 2016 -
-          <script language="JavaScript" type="text/javascript">
-            document.write(new Date().getFullYear());
-          </script>
-          ソフィア・ガーデンズ川崎 管理組合 gotonorio@gmail.com
-        </span>
+<body class="has-navbar-fixed-top" >
+  <div class="site-wrapper">
+    {% block navbar %}
+    {% endblock%}
+    <!-- ヘッダー（hero) -->
+    {% block header %}
+    {% endblock %}
+    <!-- footerを設置する場合、<main>で囲む -->
+    {% block content %}
+    {% endblock %}
+
+    <footer class="my-footer">
+      <div class="content has-text-centered is-size-7">
+        &copy; {% now "Y" %} ソフィア・ガーデンズ川崎 管理組合 {{ VERSION_NO }}
       </div>
-    </div>
-  </footer>
-  {# 参考： https://bulma.io/documentation/components/navbar/ #}
-  {# ToDo ハンバーガアイコン用のjs。staticから読み込むことはできないか？ #}
-  <script>
-      // notificationを×押下で閉じれるように。
-    for (const element of document.querySelectorAll('.notification > .delete')) {
-        element.addEventListener('click', e => {
-            e.target.parentElement.classList.add('is-hidden');
-        });
-    }
-  // navbar-burgerのボタン処理。https://bulma.io/documentation/components/navbar/
-    document.addEventListener('DOMContentLoaded', () => {
-      // Get all "navbar-burger" elements
-      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-      // Check if there are any navbar burgers
-      if ($navbarBurgers.length > 0) {
-        // Add a click event on each of them
-        $navbarBurgers.forEach( el => {
-          el.addEventListener('click', () => {
-              // Get the target from the "data-target" attribute
-            const target = el.dataset.target;
-            const $target = document.getElementById(target);
-            // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-            el.classList.toggle('is-active');
-            $target.classList.toggle('is-active');
+    </footer>
+
+    {% comment %} <footer class="footer">
+      <div class="content has-text-centered is-size-7 has-text-grey-dark">
+        &copy; {% now "Y" %} ソフィア・ガーデンズ川崎 管理組合 {{ VERSION_NO }}
+      </div>
+    </footer> {% endcomment %}
+  
+    {# 参考： https://bulma.io/documentation/components/navbar/ #}
+    {# ToDo ハンバーガアイコン用のjs。staticから読み込むことはできないか？ #}
+    <script>
+        // notificationを×押下で閉じれるように。
+      for (const element of document.querySelectorAll('.notification > .delete')) {
+          element.addEventListener('click', e => {
+              e.target.parentElement.classList.add('is-hidden');
           });
-        });
       }
-    });
-  </script>
+      // navbar-burgerのボタン処理。https://bulma.io/documentation/components/navbar/
+      document.addEventListener('DOMContentLoaded', () => {
+        // Get all "navbar-burger" elements
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        // Check if there are any navbar burgers
+        if ($navbarBurgers.length > 0) {
+          // Add a click event on each of them
+          $navbarBurgers.forEach( el => {
+            el.addEventListener('click', () => {
+                // Get the target from the "data-target" attribute
+              const target = el.dataset.target;
+              const $target = document.getElementById(target);
+              // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+              el.classList.toggle('is-active');
+              $target.classList.toggle('is-active');
+            });
+          });
+        }
+      });
+    </script>
+  </div>
 </body>
 </html>

@@ -9,6 +9,7 @@
 
 {% block head %}
 {# javascriptファイルを取り込む #}
+<script src="{% static 'common/js/delete_confirm.js' %}"></script>
 {% endblock head %}
 
 {% block navbar %}
@@ -89,18 +90,25 @@
               {% endfor %}
           </tbody>
       </table>
-      <!--viewにyear、monthを返すために以下が必要-->
-      <input type="hidden" name="year" value="{{ year }}">
-      <input type="hidden" name="month" value="{{ month }}">
+      <!-- JavaScriptおよびViewへのデータ渡しのために以下のhiddenが必要 -->
+      <input type="hidden" id="id_year" name="year" value="{{ year }}">
+      <input type="hidden" id="id_month" name="month" value="{{ month }}">
       
       <a href="." class="button is-primary is-size-6">やり直す</a>
       {% if target_data %}
-        <button type="submit" name="execute_delete" class="button is-danger is-size-6">一括削除</button>
+        <!--以下はHTMLバージョン（1度だけ確認）-->
+        {% comment %} <button type="submit" name="execute_delete" class="button is-danger">一括削除</button> {% endcomment %}
+
+        <!--以下はHTML+JSバージョン（2度確認バージョン（JS使用）ブラウザによっては使えない可能性がある-->
+        <button type="button" class="button is-danger" onclick="confirmAndSubmit('{{year}}', '{{month}}', '支払い承認')">
+          一括削除を実行する
+        </button>
+        <input type="hidden" name="execute_delete" id="id_execute_delete" value=""> 
       {% endif %}
 
     {% endif%}
   </form>
-
+{% comment %} 
   <script>
   function confirmAndSubmit() {
       // フォームの値を取得
@@ -118,7 +126,7 @@
           document.getElementById('delete-form').submit();
       }
   }
-  </script>
+  </script> {% endcomment %}
   <br>
 </div>
 {% endblock %}

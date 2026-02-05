@@ -138,9 +138,9 @@ class DeleteExpenseView(PermissionRequiredMixin, DeleteView):
 class MonthlyExpenseDeleteByYearMonthView(MonthlyIncomeDeleteByYearMonthView):
     """指定された年月の支出データを一括削除するFormView"""
 
-    # 収入データ（支出データは下記を調整する）
+    # 支出データ用の上書き
     title = "月次支出データの一括削除"
-    success_url = reverse_lazy("monthly_report:expenselist")  # 削除後にリダイレクトする先
+    return_base_url = "monthly_report:expenselist"
     income_flg = False
 
 
