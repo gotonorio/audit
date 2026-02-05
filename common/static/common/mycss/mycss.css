@@ -22,15 +22,17 @@ body {
   display: flex;
   flex-direction: column;
 }
+main {
+  flex: 1;                 /* 残り高さを使う */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* ← 上寄せ（縦） */
+}
 .site-wrapper {
-  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
-/* .footer {
-  margin-top: auto;  
-  padding: 0.75rem 1rem;
-} */
 .my-footer {
   margin-top: auto;
   padding: 0.5rem 0;
@@ -135,7 +137,7 @@ div.my_field > textarea {
 /* ログイン画面用 */
 .login_container {
   width: 240px;
-  margin: auto;
+  margin: 0 auto;
 }
 /* form入力style */
 #form_style {

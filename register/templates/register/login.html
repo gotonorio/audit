@@ -1,64 +1,64 @@
 {% extends "common/base.html" %}
 
 {% block navbar %}
-<nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item">【SG川崎】</a>
-    {# ハンバーガアイコンのため #}
-    <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div id="navbarMainMenu" class="navbar-menu">
-    <div class="navbar-end">
-      {% if tmp_user_flg == True %}
-        <a class="navbar-item" href="{% url 'register:signup' %}">仮登録</a>
-      {% endif  %}
+  <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item">【SG川崎】</a>
+      {# ハンバーガアイコンのため #}
+      <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
     </div>
-  </div>
-</nav>
+    <div id="navbarMainMenu" class="navbar-menu">
+      <div class="navbar-end">
+        {% if tmp_user_flg == True %}
+          <a class="navbar-item" href="{% url 'register:signup' %}">仮登録</a>
+        {% endif  %}
+      </div>
+    </div>
+  </nav>
 {% endblock navbar %}
 
 {% block content %}
-{# bulmaのheroシステム #}
-<div class="hero is-dark is-bold">
-  <div class="hero-body">
-    <div class="has-text-centered">
-      <div class="title">会計監査システム</div>
-      {% if debug %}
-        <div class="subtitle is-size-5"> クラセル 開発版</div>
-      {% else %}
-        <div class="subtitle is-size-5"> クラセル 運用版</div>
-      {% endif %}
+  {# bulmaのheroシステム #}
+  <div class="hero is-dark is-bold">
+    <div class="hero-body">
+      <div class="has-text-centered">
+        <div class="title">会計監査システム</div>
+        {% if debug %}
+          <div class="subtitle is-size-5"> クラセル 開発版</div>
+        {% else %}
+          <div class="subtitle is-size-5"> クラセル 運用版</div>
+        {% endif %}
+      </div>
     </div>
   </div>
-</div>
-<div class="login_container is-fluid ">
-  <br>
-  <div class="content">
-    <form method='POST' enctype='multipart/form-data'>
-      {{ form.non_field_errors }}
-      {% for field in form %}
-        <div class='field'>
-          <div class='control'>
-            <div class='label'>{{ field.label_tag }}</div>
-            <div class='my_field'>{{ field }}</div>
-            {% if field.help_text %}
-              <span class='helptext'>{{ field.help_text }}</span>
-            {% endif %}
-            {{ field.errors }}
+  <div class="login_container ">
+    <br>
+    <div class="content">
+      <form method='POST' enctype='multipart/form-data'>
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class='field'>
+            <div class='control'>
+              <div class='label'>{{ field.label_tag }}</div>
+              <div class='my_field'>{{ field }}</div>
+              {% if field.help_text %}
+                <span class='helptext'>{{ field.help_text }}</span>
+              {% endif %}
+              {{ field.errors }}
+            </div>
           </div>
+        {% endfor %}
+        {% csrf_token %}
+        <br>
+        <div class='my_button has-text-centered'>
+          <button type='submit' class='button is-primary'>ログイン</button>
         </div>
-      {% endfor %}
-      {% csrf_token %}
-      <br>
-      <div class='my_button has-text-centered'>
-        <button type='submit' class='button is-primary'>ログイン</button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock %}
 

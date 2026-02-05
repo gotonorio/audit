@@ -62,6 +62,7 @@
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
       <a class="navbar-item" href="{% url 'control:backupDB' %}" >DBバックアップ</a>
+      {% if perms.register.add_user %}
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">Kuraselデータ削除</a>
         <div class="navbar-dropdown">
@@ -74,6 +75,7 @@
           <hr class="navbar-divider">
         </div>
       </div>
+      {% endif %}
       <a class="navbar-item" href="{% url 'register:mypage' %}" >戻る</a>
     </div>
   </div>

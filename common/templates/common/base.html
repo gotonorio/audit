@@ -23,20 +23,16 @@
     {% block header %}
     {% endblock %}
     <!-- footerを設置する場合、<main>で囲む -->
+  <main>
     {% block content %}
     {% endblock %}
+  </main>
 
     <footer class="my-footer">
       <div class="content has-text-centered is-size-7">
         &copy; {% now "Y" %} ソフィア・ガーデンズ川崎 管理組合 {{ VERSION_NO }}
       </div>
     </footer>
-
-    {% comment %} <footer class="footer">
-      <div class="content has-text-centered is-size-7 has-text-grey-dark">
-        &copy; {% now "Y" %} ソフィア・ガーデンズ川崎 管理組合 {{ VERSION_NO }}
-      </div>
-    </footer> {% endcomment %}
   
     {# 参考： https://bulma.io/documentation/components/navbar/ #}
     {# ToDo ハンバーガアイコン用のjs。staticから読み込むことはできないか？ #}

@@ -1,7 +1,32 @@
 {% extends 'common/base.html' %}
+
+{% block navbar %}
+  <nav class="navbar is-fixed-top is-black" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item">【SG川崎】</a>
+      {# ハンバーガアイコンのため #}
+      <a role="button" class="navbar-burger " aria-label="menu" aria-expanded="false" data-target="navbarMainMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div id="navbarMainMenu" class="navbar-menu">
+      <div class="navbar-end">
+        {% if tmp_user_flg == True %}
+          <a class="navbar-item" href="{% url 'register:signup' %}">仮登録</a>
+        {% endif  %}
+      </div>
+    </div>
+  </nav>
+{% endblock navbar %}
+
 {% block content %}
-<div class="content has-text-centered">
-  <h3>ログアウトしました</h3>
-  <a class="button is-primary" href="{% url 'register:login' %}" >OK<a>
-</div>
+  <div class="login_container ">
+    <div class="content has-text-centered">
+      <br>
+      <h3>ログアウトしました</h3>
+      <a class="button is-primary" href="{% url 'register:login' %}" >OK<a>
+    </div>
+  </div>
 {% endblock %}

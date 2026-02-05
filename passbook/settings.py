@@ -220,8 +220,7 @@ NUMBER_GROUPING = 3
 LOGIN_URL = "register:login"
 LOGIN_REDIRECT_URL = "register:mypage"
 # ログアウト画面を表示する場合はコメントアウトする。
-# リダイレクトするとHTTP302が返されるからログアウト画面を表示する。
-# LOGOUT_REDIRECT_URL = "register:login"
+LOGOUT_REDIRECT_URL = "register:login"
 # ブラウザを閉じたらログアウトさせる。
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
