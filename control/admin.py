@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from control.models import ControlRecord
+from control.models import ControlRecord, FiscalLock
 
 
 class ControlRecordAdmin(admin.ModelAdmin):
@@ -14,3 +14,15 @@ class ControlRecordAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ControlRecord, ControlRecordAdmin)
+
+
+class FiscalLockAdmin(admin.ModelAdmin):
+    list_display = [
+        "year",
+        "is_locked",
+        "last_closed_month",
+        "updated_at",
+    ]
+
+
+admin.site.register(FiscalLock, FiscalLockAdmin)
