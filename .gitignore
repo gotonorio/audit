@@ -12,3 +12,4 @@ __pycache__/
 .vscode/
 tags
 local_settings.py
+venv/
