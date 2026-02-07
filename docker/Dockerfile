@@ -1,7 +1,7 @@
 # warehouse用Dockerfile by N.Goto
 
-# 使用するベースイメージ。（最新版の一つ前のバージョンとする）
-FROM python:3.13-slim
+# 使用するベースイメージ。（最新版の一つ以上前のバージョンとする）
+FROM python:3.11-slim
 
 # 1. 環境変数の設定
 # stdoutへの出力をバッファリングさせない。(errorやlogを直ちに出力して欲しいから)
