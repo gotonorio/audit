@@ -72,16 +72,11 @@ class FiscalLock(models.Model):
         return f"{self.year}年度 ({status})"
 
     @classmethod
-    def is_period_frozen(cls, target_date):
+    def is_period_frozen(cls, target_year, target_month):
         """指定された日付（1月〜12月年度）がロックされているか判定する
-        # view側でロック判定用の日付を作成
-        target_date = date(year, month, 1)
-        # 判定：決算・月次締めチェック
-        is_frozen = FiscalLock.is_period_frozen(target_date)
+        is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
         Trueならロックされているので、「削除」「再取り込み」禁止とする
         """
-        target_year = target_date.year
-        target_month = target_date.month
 
         # 1. 年度の一致（1月〜12月なら target_year がそのまま年度）
         lock_status = cls.objects.filter(year=target_year).first()
@@ -101,13 +96,11 @@ class FiscalLock(models.Model):
         return False
 
     # @classmethod
-    # def is_period_frozen(cls, target_date):
+    # def is_period_frozen(cls,  year, month):
     #     """
     #     指定された日付（当年4月〜翌年3月年度）がロックされているか判定する
     #     """
     #     # 会計年度の計算 (4月始まりの例)
-    #     year = target_date.year
-    #     month = target_date.month
     #     fiscal_year = year if month >= 4 else year - 1
 
     #     lock_status = cls.objects.filter(year=fiscal_year).first()

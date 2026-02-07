@@ -1,6 +1,7 @@
 import logging
 
 from billing.models import Billing
+from control.models import FiscalLock
 
 from .common_service import clean_kurasel_text, parse_records_by_lines
 
@@ -14,6 +15,11 @@ def execute_billing_import(user, form_data):
     year = form_data["year"]
     month = form_data["month"]
     mode = form_data["mode"]
+
+    # 決算完了のチェック
+    is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+    if is_frozen:
+        return (False, {}, [f"{year}年{month}月は既に締められているためデータ読み込みはできません。"])
 
     # 1. テキスト解析 (2行で1レコード: 項目名、金額)
     lines = clean_kurasel_text(form_data["note"])

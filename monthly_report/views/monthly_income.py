@@ -1,11 +1,12 @@
 import logging
 
 from common.services import select_period
+from control.models import FiscalLock
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
 from django.views.generic import DeleteView, FormView, UpdateView
@@ -164,6 +165,14 @@ class MonthlyIncomeDeleteByYearMonthView(MonthlyReportBaseView, FormView):
             year = form.cleaned_data["year"]
             month = form.cleaned_data["month"]
             ac_class = form.cleaned_data["ac_class"]
+
+            # 判定：決算・月次締めチェック
+            is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+            # 決算完了のチェック
+            if is_frozen:
+                messages.error(request, f"{year}年{month}月は既に締められているため削除できません。")
+                # form入力画面に戻す。redirectせず、今のform（入力値入り）を持ったまま入力画面を再表示する
+                return self.render_to_response(self.get_context_data(form=form))
 
             # 1.「実行ボタン」が押された場合のみ削除
             if "execute_delete" in request.POST or request.POST.get("execute_delete") == "true":

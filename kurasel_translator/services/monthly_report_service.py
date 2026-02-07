@@ -1,7 +1,7 @@
 import logging
 
 from common.services import select_period
-from control.models import ControlRecord
+from control.models import ControlRecord, FiscalLock
 from django.conf import settings
 from monthly_report.models import ReportTransaction
 from record.models import Himoku
@@ -74,6 +74,11 @@ def execute_monthly_import(user, form_data):
     ac_name = form_data["ac_class"]
     kind = form_data["kind"]
     mode = form_data["mode"]
+
+    # 決算完了のチェック
+    is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+    if is_frozen:
+        return (False, {}, [f"{year}年{month}月は既に締められているためデータ読み込みはできません。"])
 
     try:
         # 1. テキスト解析

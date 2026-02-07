@@ -1,6 +1,7 @@
 import logging
 
 from common.mixins import PeriodParamMixin
+from control.models import FiscalLock
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
@@ -85,7 +86,9 @@ class PaymentUpdateView(PaymentAdminBase, PermissionRequiredMixin, generic.Updat
 
 
 class PaymentDeleteByYearMonthView(PaymentAdminBase, PermissionRequiredMixin, generic.FormView):
-    """指定された年月の支払いデータを一括削除するFormView"""
+    """指定された年月の支払いデータを一括削除するFormView
+    - 決算完了年のデータは削除不可とする。
+    """
 
     template_name = "payment/payment_delete_by_yearmonth.html"
     form_class = MonthYearSelectionForm
@@ -96,6 +99,14 @@ class PaymentDeleteByYearMonthView(PaymentAdminBase, PermissionRequiredMixin, ge
         if form.is_valid():
             year = form.cleaned_data["year"]
             month = form.cleaned_data["month"]
+
+            # 判定：決算・月次締めチェック
+            is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+            # 決算完了のチェック
+            if is_frozen:
+                messages.error(request, f"{year}年{month}月は既に締められているため削除できません。")
+                # form入力画面に戻す。redirectせず、今のform（入力値入り）を持ったまま入力画面を再表示する
+                return self.render_to_response(self.get_context_data(form=form))
 
             # 「実行ボタン」が押された場合のみ削除
             if "execute_delete" in request.POST:

@@ -1,5 +1,6 @@
 import logging
 
+from control.models import FiscalLock
 from monthly_report.models import BalanceSheet
 
 from .common_service import clean_amount_str, clean_kurasel_text
@@ -62,6 +63,11 @@ def execute_bs_import(user, form_data):
     ac_class = form_data["ac_class"]
     mode = form_data["mode"]
 
+    # 決算完了のチェック
+    is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+    if is_frozen:
+        return (False, {}, [f"{year}年{month}月は既に締められているためデータ読み込みはできません。"])
+
     try:
         # 1. 解析
         msg_list = clean_kurasel_text(form_data["note"])
@@ -69,11 +75,7 @@ def execute_bs_import(user, form_data):
 
         # 2. バリデーション（会計区分の不一致チェック）
         if str(ac_class) != ac_class_name:
-            return (
-                False,
-                {},
-                [f"選択された会計区分({ac_class})とデータ({ac_class_name})が一致しません。"],
-            )
+            return (False, {}, [f"選択された会計区分({ac_class})とデータ({ac_class_name})が一致しません。"])
 
         result_context = {
             "year": year,

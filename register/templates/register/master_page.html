@@ -62,16 +62,16 @@
     <div class="navbar-end">
       <a class="navbar-item" href="{% url 'explanation:description' %}">ヘルプ</a>
       <a class="navbar-item" href="{% url 'control:backupDB' %}" >DBバックアップ</a>
-      {% if perms.register.add_user %}
+      {% if perms.record.add_transaction %}
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">Kuraselデータ削除</a>
         <div class="navbar-dropdown">
           <a class="navbar-item" href="{% url 'payment:delete_payment_by_yearmonth' %}">支払承認 一括削除</a>
           <a class="navbar-item" href="{% url 'monthly_report:delete_income_by_yearmonth' %}">月次収入 一括削除</a>
           <a class="navbar-item" href="{% url 'monthly_report:delete_expense_by_yearmonth' %}">月次支出 一括削除</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">貸借対照表 削除</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">未収金・前受金・振替不備 削除</a>
-          <a class="navbar-item" href="{% url 'kurasel_translator:create_billing' %}">請求合計金額 削除</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_bs' %}">貸借対照表 削除（未作成）</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_claim' %}">未収金・前受金・振替不備 削除（未作成）</a>
+          <a class="navbar-item" href="{% url 'kurasel_translator:create_billing' %}">請求合計金額 削除（未作成）</a>
           <hr class="navbar-divider">
         </div>
       </div>
