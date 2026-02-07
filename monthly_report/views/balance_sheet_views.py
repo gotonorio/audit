@@ -2,17 +2,21 @@
 import logging
 
 from common.services import select_period
+from control.models import FiscalLock
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.timezone import localtime
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import CreateView, DeleteView, FormView, UpdateView
 
 from monthly_report.forms import (
     BalanceSheetForm,
     BalanceSheetItemForm,
+    DeleteByYearMonthAcclass,
     MonthlyReportViewForm,
 )
 from monthly_report.models import BalanceSheet, BalanceSheetItem
@@ -266,3 +270,58 @@ class BalanceSheetItemUpdateView(PermissionRequiredMixin, UpdateView):
     raise_exception = True
     # 保存が成功した場合に遷移するurl
     success_url = reverse_lazy("monthly_report:create_bs_item")
+
+
+class BalanceSheetDeleteByYearMonthView(PermissionRequiredMixin, FormView):
+    """指定された年月の支払いデータを一括削除するFormView
+    - 決算完了年のデータは削除不可とする。
+    """
+
+    template_name = "monthly_report/bs_delete_by_yearmonth.html"
+    form_class = DeleteByYearMonthAcclass
+    return_base_url = "payment:payment_list"
+    permission_required = "record.add_transaction"
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            year = form.cleaned_data["year"]
+            month = form.cleaned_data["month"]
+            ac_class = form.cleaned_data["ac_class"]
+
+            # 判定：決算・月次締めチェック
+            is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+            # 決算完了のチェック
+            if is_frozen:
+                messages.error(request, f"{year}年{month}月は既に締められているため削除できません。")
+                # form入力画面に戻す。redirectせず、今のform（入力値入り）を持ったまま入力画面を再表示する
+                return self.render_to_response(self.get_context_data(form=form))
+
+            # 「実行ボタン」が押された場合のみ削除
+            if "execute_delete" in request.POST:
+                count = BalanceSheet.delete_by_yearmonth(year, month, ac_class)
+                messages.success(request, f"{year}年{month}月のデータを {count} 件削除しました。")
+
+                # 削除後の戻り処理
+                base_url = reverse(self.return_base_url)
+                # クエリパラメータを辞書形式で定義
+                params = urlencode(
+                    {
+                        "year": year,
+                        "month": month,
+                    }
+                )
+                return redirect(f"{base_url}?{params}")
+
+            # 「確認ボタン」が押された場合は、データを抽出して同じページを表示
+            target_data = BalanceSheet.objects.filter(monthly_date__year=year, monthly_date__month=month)
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    target_data=target_data,
+                    confirm_mode=True,  # 確認モードフラグ
+                    year=year,
+                    month=month,
+                )
+            )
+        return self.form_invalid(form)

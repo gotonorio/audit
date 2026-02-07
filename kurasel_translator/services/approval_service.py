@@ -1,5 +1,6 @@
 import logging
 
+from control.models import FiscalLock
 from payment.models import Payment
 from record.models import Himoku
 
@@ -37,6 +38,11 @@ def execute_payment_approval_import(user, form_data):
     month = form_data["month"]
     day = form_data["day"]
     mode = form_data["mode"]
+
+    # 決算完了のチェック
+    is_frozen = FiscalLock.is_period_frozen(int(year), int(month))
+    if is_frozen:
+        return (False, {}, [f"{year}年{month}月は既に締められているためデータ読み込みはできません。"])
 
     # 1. 解析と分割 (4行で1レコード)
     lines = clean_kurasel_text(form_data["note"])

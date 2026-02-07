@@ -244,6 +244,23 @@ class BalanceSheet(models.Model):
         return self.item_name.item_name
 
     @classmethod
+    def delete_by_yearmonth(cls, year, month, ac_class):
+        """指定された年月のデータを一括削除する
+        - year:  年度 (int: 2026)
+        - month: 月 (int: 2)
+        - ac_class: 会計区分
+        - return: 削除件数
+        """
+        deleted_count, _ = cls.objects.filter(
+            transaction_date__year=year,
+            transaction_date__month=month,
+            accounting_class=ac_class,
+            amount__gt=0,
+        ).delete()
+
+        return deleted_count
+
+    @classmethod
     def get_bs(cls, tstart, tend, ac_class, is_asset):
         """期間と資産・負債フラグで貸借対照表データを抽出するquerysetを返す
         - ac_classが0の場合、全会計区分で集約する。

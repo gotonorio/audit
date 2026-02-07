@@ -81,10 +81,17 @@ urlpatterns = [
         views.MonthlyExpenseDeleteByYearMonthView.as_view(),
         name="delete_expense_by_yearmonth",
     ),
+    # 貸借対照表データの個別削除
     path(
         "delete_bs/<int:pk>",
         views.BalanceSheetDeleteView.as_view(),
         name="delete_bs",
+    ),
+    # 貸借対照表データの一括削除
+    path(
+        "delete_bs_by_yearmonth/",
+        views.BalanceSheetDeleteByYearMonthView.as_view(),
+        name="delete_bs_by_yearmonth",
     ),
     # check
     path(

@@ -3,6 +3,7 @@
 #
 from .balance_sheet_views import (
     BalanceSheetCreateView,
+    BalanceSheetDeleteByYearMonthView,
     BalanceSheetDeleteView,
     BalanceSheetItemCreateView,
     BalanceSheetItemUpdateView,
@@ -31,6 +32,7 @@ from .year_income_expense import YearIncomeExpenseListView
 __all__ = [
     "MonthlyExpenseDeleteByYearMonthView",
     "BalanceSheetListView",
+    "BalanceSheetDeleteByYearMonthView",
     "BalanceSheetItemCreateView",
     "MonthlyIncomeDeleteByYearMonthView",
     "BalanceSheetDeleteView",
