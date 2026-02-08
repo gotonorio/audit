@@ -7,13 +7,21 @@ services:
       dockerfile: docker/Dockerfile
     # image名:タグ
     image: passbook
+    # 起動ユーザを指定する
+    user: "${UID}:${GID}"
     # container名
     container_name: passbook
     restart: unless-stopped
-    # ホスト上の永続化が必要なファイル・ディレクトリをコンテナにマウントする。
+
+    # ディレクトリ全体をマウントしない方が良いようだ。
+    # ホスト上のcollectstaticで作成されたstaticディレクトリを/code/staticとしてマウントする。
+    # （settings.pyで STATIC_ROOT = "/code/static"としている）
+    # （/codeはDockerfileでWORKDIRとしている）
+    # ホスト上のpb_audit.sqlite3を/code/pb_audit.sqlite3としてマウントする。
     volumes:
       - ../static:/code/static
       - ../pb_audit.sqlite3:/code/pb_audit.sqlite3
+
     # 環境変数TZを設定。
     environment:
       TZ: "Asia/Tokyo"
@@ -21,5 +29,3 @@ services:
     ports:
       - "8700:8700"
     command: python3 manage.py runserver 0.0.0.0:8700
-
-

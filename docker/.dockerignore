@@ -1,0 +1,44 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# データベースファイルはcompose.ymlでmountして永続化する。
+*.sqlite3
+.env
+.git
+.gitignore
+# collectstaticで集約し、nginxが参照する/code/static/（settings.pyで「STATIC_ROOT = "/code/static"」を設定済み）
+static/
+# ファイル保管ディレクトリはcompose.ymlでmountして永続化する。
+media/
+
+# 以下は一般的な
+# OSが作成する不要なファイル
+.DS_Store
+Thumbs.db
+
+# Pythonのビルド・配布用ディレクトリ
+.vscode/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+
+# テストの結果やカバレッジ
+htmlcov/
+.tox/
+.nosetests/
+.pytest_cache/
+.cache/
+nosetests.xml
+coverage.xml
+.coverage

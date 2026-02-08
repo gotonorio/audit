@@ -295,7 +295,9 @@ class BalanceSheetDeleteByYearMonthView(PermissionRequiredMixin, FormView):
             if is_frozen:
                 messages.error(request, f"{year}年{month}月は既に締められているため削除できません。")
                 # form入力画面に戻す。redirectせず、今のform（入力値入り）を持ったまま入力画面を再表示する
-                return self.render_to_response(self.get_context_data(form=form))
+                # return self.render_to_response(self.get_context_data(form=form))
+                # 下記は大元のデータ編集画面に戻させる
+                return redirect("register:master_page")
 
             # 「実行ボタン」が押された場合のみ削除
             if "execute_delete" in request.POST:
