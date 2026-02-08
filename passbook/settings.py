@@ -291,11 +291,19 @@ LOGGING = {
     },
 }
 
-# 本番環境 (nginxなど) のstaticファイル読込用設定
-if not DEBUG:
-    # 本番環境 (nginxなど) では、全アプリのファイルを1箇所に集めるため「collectstatic」が必要。
-    # collectstatic の出力先は「/code/static」となる。
-    STATIC_ROOT = "/code/static"
 
-# 開発環境では、static/やtemplates/をcommonアプリ以下に配置する。
-# アプリ以下のフォルダを自動参照するため STATICFILES_DIRS の設定は不要
+# 常に定義する
+STATIC_ROOT = "/code/static"
+
+if DEBUG:
+    # 開発時に追加で参照したい場合のみ
+    STATICFILES_DIRS = []
+
+# # 本番環境 (nginxなど) のstaticファイル読込用設定
+# if not DEBUG:
+#     # 本番環境 (nginxなど) では、全アプリのファイルを1箇所に集めるため「collectstatic」が必要。
+#     # collectstatic の出力先は「/code/static」となる。
+#     STATIC_ROOT = "/code/static"
+
+# # 開発環境では、static/やtemplates/をcommonアプリ以下に配置する。
+# # アプリ以下のフォルダを自動参照するため STATICFILES_DIRS の設定は不要
